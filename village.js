@@ -70,12 +70,26 @@ function showQuestScreen() {
     const screen = document.getElementById("questScreen");
     if (!screen) return;
 
+    document.getElementById("forestGame")?.classList.add("hidden");
+    document.getElementById("villageScreen")?.classList.add("hidden");
+    document.getElementById("villageWalkScreen")?.classList.add("hidden");
+    document.getElementById("arrivalScene")?.classList.add("hidden");
+
     updateQuests();
     screen.classList.remove("hidden");
 }
 
 function hideQuestScreen() {
-    document.getElementById("questScreen")?.classList.add("hidden");
+    const screen = document.getElementById("questScreen");
+    if (!screen) return;
+
+    screen.classList.add("hidden");
+
+    if (village.unlocked && paths.forest.completed) {
+        showVillage();
+    } else if (!paths.forest.completed) {
+        document.getElementById("forestGame")?.classList.remove("hidden");
+    }
 }
 
 function updateQuests() {
@@ -86,11 +100,25 @@ function updateQuests() {
     const houseQuest = document.getElementById("questHouses");
     const villageReward = document.getElementById("questVillageReward");
     const houseReward = document.getElementById("questHousesReward");
+    const villageClaimButton = document.querySelector("#questVillage button");
+    const houseClaimButton = document.querySelector("#questHouses button");
 
     if (villageQuest) villageQuest.classList.toggle("completed", village.quests.getToVillage.claimed);
     if (houseQuest) houseQuest.classList.toggle("completed", village.quests.makeTwoHouses.claimed);
     if (villageReward) villageReward.textContent = village.quests.getToVillage.claimed ? "✓ Claimed" : "Reward: 6 Gold";
     if (houseReward) houseReward.textContent = village.quests.makeTwoHouses.claimed ? "✓ Claimed" : "Reward: 15 Gold";
+
+    if (villageClaimButton) {
+        villageClaimButton.disabled =
+            !village.quests.getToVillage.completed ||
+            village.quests.getToVillage.claimed;
+    }
+
+    if (houseClaimButton) {
+        houseClaimButton.disabled =
+            !village.quests.makeTwoHouses.completed ||
+            village.quests.makeTwoHouses.claimed;
+    }
 }
 
 function claimQuest(type) {
