@@ -716,6 +716,11 @@ button:disabled {
     color: #e9eee4;
 }
 
+.village-player-stats {
+    width: min(1100px, 100%);
+    margin: 0 auto 14px;
+}
+
 .village-header,
 .village-content {
     width: min(1100px, 100%);
@@ -1628,5 +1633,40 @@ button:disabled {
     }
     .quest-screen .quest-card > div:last-child {
         flex: 0 0 auto;
+    }
+}
+
+/* VILLAGE PLAYER STATS */
+.village-player-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+.village-player-stats .stat {
+    padding: 9px;
+    text-align: center;
+    background: #202d24;
+    border: 1px solid #35463a;
+    border-radius: 10px;
+}
+.village-player-stats .stat-label {
+    color: #8fa594;
+    font-size: 11px;
+    margin-bottom: 3px;
+}
+.village-player-stats .stat-value {
+    font-size: 15px;
+    font-weight: bold;
+}
+@media(max-width:500px) {
+    .village-screen {
+        padding: 12px 8px 30px;
+    }
+    .village-player-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px;
+    }
+    .village-player-stats .stat {
+        padding: 7px 3px;
     }
 }
