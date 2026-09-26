@@ -1,5 +1,10 @@
 const village = {
     unlocked: false,
+    housesBuilt: 0,
+    quests: {
+        getToVillage: { completed: false, claimed: false },
+        makeTwoHouses: { completed: false, claimed: false }
+    },
     resources: { wood: 0, stone: 0, food: 0 },
     buildings: { campfire: false, shelter: false, workshop: false },
     walk: { active: false, startTime: 0, lastRewardCount: 0, nextEncounterTime: 30, duration: 20 * 60 * 1000 }
@@ -61,6 +66,35 @@ function nextArrivalLine() {
     saveGame();
 }
 
+function updateQuests() {
+    if (village.unlocked) village.quests.getToVillage.completed = true;
+    if (village.housesBuilt >= 2) village.quests.makeTwoHouses.completed = true;
+
+    const villageQuest = document.getElementById("questVillage");
+    const houseQuest = document.getElementById("questHouses");
+    const villageReward = document.getElementById("questVillageReward");
+    const houseReward = document.getElementById("questHousesReward");
+
+    if (villageQuest) villageQuest.classList.toggle("completed", village.quests.getToVillage.claimed);
+    if (houseQuest) houseQuest.classList.toggle("completed", village.quests.makeTwoHouses.claimed);
+    if (villageReward) villageReward.textContent = village.quests.getToVillage.claimed ? "✓ Claimed" : "Reward: 6 Gold";
+    if (houseReward) houseReward.textContent = village.quests.makeTwoHouses.claimed ? "✓ Claimed" : "Reward: 15 Gold";
+}
+
+function claimQuest(type) {
+    const quest = village.quests[type];
+    if (!quest || !quest.completed || quest.claimed) return;
+
+    const rewards = { getToVillage: 6, makeTwoHouses: 15 };
+    player.gold += rewards[type];
+    quest.claimed = true;
+
+    addVillageLog("Quest complete! You earned " + rewards[type] + " gold.");
+    updateGold();
+    updateVillageUI();
+    saveGame();
+}
+
 function showVillage() {
     const hub = document.getElementById("villageScreen");
     if (!hub) return;
@@ -70,6 +104,7 @@ function showVillage() {
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
     hub.classList.remove("hidden");
     updateVillageUI();
+    updateQuests();
 }
 
 function addVillageLog(message) {
@@ -122,6 +157,33 @@ function buildBuilding(type) {
     saveGame();
 }
 
+function getHouseCost() {
+    return {
+        wood: 20 * Math.pow(2, village.housesBuilt),
+        stone: 10 * Math.pow(2, village.housesBuilt)
+    };
+}
+
+function buildHouse() {
+    if (!village.unlocked) return;
+
+    const cost = getHouseCost();
+
+    if (village.resources.wood < cost.wood || village.resources.stone < cost.stone) {
+        addVillageLog("You don't have enough resources to build a house.");
+        return;
+    }
+
+    village.resources.wood -= cost.wood;
+    village.resources.stone -= cost.stone;
+    village.housesBuilt++;
+
+    addVillageLog("You built House #" + village.housesBuilt + ".");
+    updateVillageUI();
+    updateQuests();
+    saveGame();
+}
+
 let villageWalkTimer = null;
 
 function updateVillageUI() {
@@ -137,6 +199,19 @@ function updateVillageUI() {
         walkButton.disabled = village.walk.active;
         walkButton.textContent = village.walk.active ? "Walking..." : "Take a Walk";
     }
+
+    const houseCost = getHouseCost();
+    const houseCostText = document.getElementById("houseCostText");
+    const houseButton = document.getElementById("houseBuildButton");
+    const houseCount = document.getElementById("houseCountText");
+
+    if (houseCostText) houseCostText.textContent = houseCost.wood + " wood · " + houseCost.stone + " stone";
+    if (houseCount) houseCount.textContent = village.housesBuilt;
+    if (houseButton) houseButton.disabled =
+        village.resources.wood < houseCost.wood ||
+        village.resources.stone < houseCost.stone;
+
+    updateQuests();
 
     Object.keys(village.buildings).forEach(type => {
         const card = document.getElementById(`${type}Building`);
