@@ -68,7 +68,7 @@ function nextArrivalLine() {
 
 function showQuestScreen() {
     const screen = document.getElementById("questScreen");
-    if (!screen) return;
+    if (!screen || !village.unlocked || !paths.forest.completed) return;
 
     document.getElementById("forestGame")?.classList.add("hidden");
     document.getElementById("villageScreen")?.classList.add("hidden");
@@ -132,6 +132,7 @@ function claimQuest(type) {
     addVillageLog("Quest complete! You earned " + rewards[type] + " gold.");
     updateGold();
     updateVillageUI();
+    updateQuests();
     saveGame();
 }
 
