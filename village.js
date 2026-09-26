@@ -421,6 +421,11 @@ function finishVillageWalk() {
 
 function resetVillage() {
     village.unlocked = false;
+    village.housesBuilt = 0;
+    village.quests = {
+        getToVillage: { completed: false, claimed: false },
+        makeTwoHouses: { completed: false, claimed: false }
+    };
     village.resources = { wood: 0, stone: 0, food: 0 };
     village.buildings = { campfire: false, shelter: false, workshop: false };
     village.walk = { active: false, startTime: 0, lastRewardCount: 0, nextEncounterTime: 30, duration: 20 * 60 * 1000 };
