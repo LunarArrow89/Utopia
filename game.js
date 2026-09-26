@@ -13,7 +13,7 @@ async function initializeGame() {
     }
 }
 
-initializeGame();
+document.addEventListener("DOMContentLoaded", initializeGame);
 
 function tick() {
     if (!resting && !gameEnded && !village.unlocked) {
