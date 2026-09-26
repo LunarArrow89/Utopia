@@ -153,12 +153,17 @@ function updateVillageUI() {
 function startVillageWalk() {
     if (!village.unlocked || village.walk.active) return;
 
+    clearInterval(villageWalkTimer);
+
     village.walk.active = true;
     village.walk.startTime = Date.now();
     village.walk.lastRewardCount = 0;
     village.walk.nextEncounterTime = 30 + Math.floor(Math.random() * 31);
 
+    document.getElementById("villageScreen")?.classList.add("hidden");
     document.getElementById("villageWalkScreen")?.classList.remove("hidden");
+
+    updateVillageWalkUI();
     addVillageLog("You set out for a 20 minute walk.");
     saveGame();
 
@@ -317,6 +322,7 @@ function leaveVillageWalk() {
     villageWalkTimer = null;
 
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
+    document.getElementById("villageScreen")?.classList.remove("hidden");
 
     addVillageLog("You returned to Oakshade Village.");
     updateVillageUI();
@@ -331,6 +337,7 @@ function finishVillageWalk() {
     villageWalkTimer = null;
 
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
+    document.getElementById("villageScreen")?.classList.remove("hidden");
 
     addVillageLog("You finished your 20 minute walk and returned to Oakshade Village.");
     updateVillageUI();
@@ -364,6 +371,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateVillageUI();
 
     if (village.walk.active) {
+        document.getElementById("villageScreen")?.classList.add("hidden");
         document.getElementById("villageWalkScreen")?.classList.remove("hidden");
         clearInterval(villageWalkTimer);
         villageWalkTimer = setInterval(updateVillageWalk, 1000);
