@@ -66,6 +66,18 @@ function nextArrivalLine() {
     saveGame();
 }
 
+function showQuestScreen() {
+    const screen = document.getElementById("questScreen");
+    if (!screen) return;
+
+    updateQuests();
+    screen.classList.remove("hidden");
+}
+
+function hideQuestScreen() {
+    document.getElementById("questScreen")?.classList.add("hidden");
+}
+
 function updateQuests() {
     if (village.unlocked) village.quests.getToVillage.completed = true;
     if (village.housesBuilt >= 2) village.quests.makeTwoHouses.completed = true;
