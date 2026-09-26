@@ -4,9 +4,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Whispering Woods</title>
-<link rel="stylesheet" href="./style.css?v=3">
+<link rel="stylesheet" href="./style.css?v=4">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+
+
+<div id="accountScreen" class="account-screen hidden">
+<div class="account-box">
+<div class="account-kicker">UTOPIA CLOUD SAVE</div>
+<h2 id="accountTitle">Sign In</h2>
+<p id="accountMessage">Sign in to save your Utopia progress online and use it on another device.</p>
+<input id="accountEmail" type="email" placeholder="Email" autocomplete="email">
+<input id="accountPassword" type="password" placeholder="Password" autocomplete="current-password">
+<div class="buttons">
+<button id="signInButton">Sign In</button>
+<button id="signUpButton">Create Account</button>
+</div>
+<button id="signOutButton" class="hidden">Sign Out</button>
+<div id="accountStatus" class="account-status"></div>
+</div>
+</div>
+
 
 <div id="forestGame" class="game-screen">
 
@@ -73,6 +92,7 @@
 <div class="section">
 <div class="section-title">⚙️ Settings</div>
 <div class="buttons">
+<button id="accountButton">Cloud Save / Account</button>
 <button id="resetButton">Reset Save</button>
 </div>
 </div>
@@ -149,6 +169,7 @@
 
 <div class="village-footer">
 <div id="villageLog" class="village-log"></div>
+<button id="accountButtonVillage">Cloud Save / Account</button>
 <button id="villageResetButton" class="danger-button">Reset Game</button>
 </div>
 
@@ -218,7 +239,7 @@
 <script src="paths.js"></script>
 <script src="village.js"></script>
 <script src="save.js"></script>
-<script src="game.js"></script>
+<script src="game.js?v=2"></script>
 
 <script>
 if ("serviceWorker" in navigator) {
