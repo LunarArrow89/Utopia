@@ -112,7 +112,9 @@ function applySaveData(data) {
 
     if (data.village) {
         village.unlocked = Boolean(data.village.unlocked);
+        village.housesBuilt = Number(data.village.housesBuilt || 0);
         Object.assign(village.resources, data.village.resources || {});
+        Object.assign(village.quests, data.village.quests || {});
         Object.assign(village.buildings, data.village.buildings || {});
         Object.assign(village.walk, data.village.walk || {});
     }
