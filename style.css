@@ -1469,3 +1469,51 @@ button:disabled {
     .village-walk-section { padding:11px; }
     .village-walk-section .health-xp { grid-template-columns:1fr; gap:10px; }
 }
+
+
+/* CLOUD SAVE ACCOUNT SCREEN */
+.account-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 20000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, .82);
+}
+.account-box {
+    position: relative;
+    width: min(430px, 100%);
+    padding: 28px;
+    border: 1px solid #526856;
+    border-radius: 14px;
+    background: #18221b;
+    box-shadow: 0 20px 60px rgba(0,0,0,.4);
+    text-align: center;
+}
+.account-box h2 { margin: 6px 0 8px; color: #dce9df; }
+.account-box p { color: #9cad9f; font-size: 13px; line-height: 1.5; }
+.account-kicker { color: #a9bc91; font-size: 10px; letter-spacing: 2px; font-weight: bold; }
+.account-box input {
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    border: 1px solid #35463a;
+    border-radius: 8px;
+    background: #0d130f;
+    color: #e8eee9;
+    font: inherit;
+}
+.account-status { min-height: 20px; margin-top: 10px; color: #aebcaf; font-size: 12px; }
+.account-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    flex: none;
+    font-size: 22px;
+    line-height: 1;
+}
