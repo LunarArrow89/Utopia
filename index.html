@@ -141,6 +141,14 @@
 </div>
 </div>
 
+<div class="village-panel village-quests">
+<div class="village-panel-title">📜 Quests</div>
+<div class="quest-list">
+<div class="quest-card" id="questVillage"><div><strong>Get to Village</strong><span>Reach Oakshade Village.</span></div><div><small id="questVillageReward">Reward: 6 Gold</small><button type="button" onclick="claimQuest('getToVillage')">Claim</button></div></div>
+<div class="quest-card" id="questHouses"><div><strong>Make Two Houses</strong><span>Build 2 houses. <b><span id="houseCountText">0</span>/2</b></span></div><div><small id="questHousesReward">Reward: 15 Gold</small><button type="button" onclick="claimQuest('makeTwoHouses')">Claim</button></div></div>
+</div>
+</div>
+
 <div class="village-panel">
 <div class="village-panel-title">Resources</div>
 <div class="resource-grid">
@@ -162,6 +170,7 @@
 <div class="village-hint">Each building unlocks more of the village later.</div>
 </div>
 <div class="building-list">
+<div class="building-card" id="houseBuilding"><div><div class="building-name">🏠 House</div><div class="building-description">A home for someone in Oakshade.</div><div class="building-cost"><span id="houseCostText">20 wood · 10 stone</span></div></div><button id="houseBuildButton" type="button" onclick="buildHouse()">Build</button></div>
 <div class="building-card" id="campfireBuilding"><div><div class="building-name">🔥 Campfire</div><div class="building-description">A warm place to gather.</div><div class="building-cost">10 wood · 5 stone</div></div><button id="campfireBuildButton" data-build="campfire">Build</button></div>
 <div class="building-card" id="shelterBuilding"><div><div class="building-name">🏠 Shelter</div><div class="building-description">A safe roof over the village.</div><div class="building-cost">20 wood · 10 stone</div></div><button id="shelterBuildButton" data-build="shelter">Build</button></div>
 <div class="building-card" id="workshopBuilding"><div><div class="building-name">🛠️ Workshop</div><div class="building-description">A place for future village projects.</div><div class="building-cost">35 wood · 25 stone</div></div><button id="workshopBuildButton" data-build="workshop">Build</button></div>
