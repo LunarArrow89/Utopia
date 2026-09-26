@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Whispering Woods</title>
-<link rel="stylesheet" href="./style.css?v=4">
+<link rel="stylesheet" href="./style.css?v=5">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -12,6 +12,7 @@
 
 <div id="accountScreen" class="account-screen hidden">
 <div class="account-box">
+<button id="accountCloseButton" class="account-close" type="button" onclick="hideAccountScreen()">×</button>
 <div class="account-kicker">UTOPIA CLOUD SAVE</div>
 <h2 id="accountTitle">Sign In</h2>
 <p id="accountMessage">Sign in to save your Utopia progress online and use it on another device.</p>
@@ -92,7 +93,7 @@
 <div class="section">
 <div class="section-title">⚙️ Settings</div>
 <div class="buttons">
-<button id="accountButton">Cloud Save / Account</button>
+<button id="accountButton" type="button" onclick="showAccountScreen()">Cloud Save / Account</button>
 <button id="resetButton">Reset Save</button>
 </div>
 </div>
@@ -169,7 +170,7 @@
 
 <div class="village-footer">
 <div id="villageLog" class="village-log"></div>
-<button id="accountButtonVillage">Cloud Save / Account</button>
+<button id="accountButtonVillage" type="button" onclick="showAccountScreen()">Cloud Save / Account</button>
 <button id="villageResetButton" class="danger-button">Reset Game</button>
 </div>
 
