@@ -93,6 +93,7 @@
 <div class="section">
 <div class="section-title">⚙️ Settings</div>
 <div class="buttons">
+<button id="questButtonForest" type="button" onclick="showQuestScreen()">📜 Quests</button>
 <button id="accountButton" type="button" onclick="showAccountScreen()">Cloud Save / Account</button>
 <button id="resetButton">Reset Save</button>
 </div>
@@ -119,7 +120,10 @@
 <h1>Oakshade Village</h1>
 <p>The forest is behind you. Now, rebuild what was left behind.</p>
 </div>
+<div class="village-header-actions">
+<button type="button" onclick="showQuestScreen()">📜 Quests</button>
 <div class="village-status">Rebuilding</div>
+</div>
 </div>
 
 <div class="village-content">
@@ -138,14 +142,6 @@
 <div class="village-message">
 <strong>The village is yours to restore.</strong>
 <span>Gather resources, repair important buildings, and turn this forgotten place into a home.</span>
-</div>
-</div>
-
-<div class="village-panel village-quests">
-<div class="village-panel-title">📜 Quests</div>
-<div class="quest-list">
-<div class="quest-card" id="questVillage"><div><strong>Get to Village</strong><span>Reach Oakshade Village.</span></div><div><small id="questVillageReward">Reward: 6 Gold</small><button type="button" onclick="claimQuest('getToVillage')">Claim</button></div></div>
-<div class="quest-card" id="questHouses"><div><strong>Make Two Houses</strong><span>Build 2 houses. <b><span id="houseCountText">0</span>/2</b></span></div><div><small id="questHousesReward">Reward: 15 Gold</small><button type="button" onclick="claimQuest('makeTwoHouses')">Claim</button></div></div>
 </div>
 </div>
 
@@ -186,6 +182,25 @@
 </div>
 </div>
 
+
+<div id="questScreen" class="quest-screen hidden">
+<div class="quest-screen-box">
+<button class="quest-close" type="button" onclick="hideQuestScreen()">×</button>
+<div class="village-kicker">UTOPIA QUESTS</div>
+<h1>📜 Quests</h1>
+<p class="quest-screen-subtitle">Complete goals to earn gold.</p>
+<div class="quest-list">
+<div class="quest-card" id="questVillage">
+<div><strong>Get to Village</strong><span>Reach Oakshade Village.</span></div>
+<div><small id="questVillageReward">Reward: 6 Gold</small><button type="button" onclick="claimQuest('getToVillage')">Claim</button></div>
+</div>
+<div class="quest-card" id="questHouses">
+<div><strong>Make Two Houses</strong><span>Build 2 houses. <b><span id="houseCountText">0</span>/2</b></span></div>
+<div><small id="questHousesReward">Reward: 15 Gold</small><button type="button" onclick="claimQuest('makeTwoHouses')">Claim</button></div>
+</div>
+</div>
+</div>
+</div>
 
 <div id="villageWalkScreen" class="village-walk-screen hidden">
 <div class="village-walk-box">
