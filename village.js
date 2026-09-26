@@ -161,7 +161,7 @@ function addVillageLog(message) {
 }
 
 function gatherResource(type) {
-    if (!village.unlocked) return;
+    if (!village.unlocked || !village.walk.active) return;
 
     const amounts = { wood: 2, stone: 2, food: 1 };
     const amount = amounts[type] || 1;
