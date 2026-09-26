@@ -1869,3 +1869,89 @@ button:disabled {
         font-size: 13px;
     }
 }
+
+
+/* BETTER VILLAGE QUEST BUTTON */
+#villageScreen .village-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+#villageScreen .village-header-actions > button {
+    appearance: none;
+    min-width: 92px;
+    padding: 7px 11px;
+    border: 1px solid #6b805c;
+    border-radius: 9px;
+    background: linear-gradient(145deg, #394b35, #293628);
+    color: #e7efdf;
+    font-size: 11px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,.18);
+    transition: transform .12s ease, background .12s ease, border-color .12s ease;
+}
+
+#villageScreen .village-header-actions > button:hover {
+    background: linear-gradient(145deg, #465c40, #30412e);
+    border-color: #879d72;
+    transform: translateY(-1px);
+}
+
+#villageScreen .village-header-actions > button:active {
+    transform: translateY(0);
+}
+
+#villageScreen .village-header-actions .village-status {
+    padding: 5px 7px;
+    font-size: 9px;
+}
+
+.quest-screen-box {
+    max-height: calc(100dvh - 30px);
+    overflow-y: auto;
+}
+
+.quest-screen-box h1 {
+    color: #e1ebdf;
+    font-size: 24px;
+}
+
+.quest-screen .quest-card {
+    transition: border-color .15s ease, background .15s ease, transform .15s ease;
+}
+
+.quest-screen .quest-card:hover {
+    border-color: #5b704f;
+    background: #29372a;
+}
+
+.quest-screen .quest-card button:not(:disabled) {
+    border: 1px solid #71875f;
+    background: #3d5137;
+    color: #eef5e9;
+    font-weight: bold;
+}
+
+.quest-screen .quest-card button:not(:disabled):hover {
+    background: #4a6242;
+}
+
+.quest-screen .quest-card.completed button {
+    opacity: .65;
+}
+
+@media(max-width:500px) {
+    #villageScreen .village-header-actions {
+        flex-direction: row;
+        align-items: center;
+        gap: 5px;
+    }
+
+    #villageScreen .village-header-actions > button {
+        min-width: 82px;
+        padding: 6px 8px;
+        font-size: 10px;
+    }
+}
