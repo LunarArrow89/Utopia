@@ -206,10 +206,10 @@ function updateVillageUI() {
     document.getElementById("stoneText").textContent = village.resources.stone;
     document.getElementById("foodText").textContent = village.resources.food;
 
-    document.getElementById("villageHpText")?.textContent = player.hp + " / " + player.maxHp;
-    document.getElementById("villageAttackText")?.textContent = player.attack;
-    document.getElementById("villageLevelText")?.textContent = player.level;
-    document.getElementById("villageGoldText")?.textContent = player.gold;
+    document.getElementById("villageHpText").textContent = player.hp + " / " + player.maxHp;
+    document.getElementById("villageAttackText").textContent = player.attack;
+    document.getElementById("villageLevelText").textContent = player.level;
+    document.getElementById("villageGoldText").textContent = player.gold;
 
     const walkButton = document.getElementById("takeWalkButton");
     if (walkButton) {
