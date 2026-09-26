@@ -1520,3 +1520,113 @@ button:disabled {
     font-size: 22px;
     line-height: 1;
 }
+
+/* QUEST TAB */
+.village-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.village-header-actions button {
+    flex: 0 0 auto;
+    padding: 8px 12px;
+}
+.quest-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 15000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+    background: rgba(7, 12, 8, .94);
+}
+.quest-screen-box {
+    position: relative;
+    width: min(560px, 100%);
+    padding: 28px;
+    border: 1px solid #4b5b47;
+    border-radius: 16px;
+    background: #18221b;
+    box-shadow: 0 20px 60px rgba(0,0,0,.45);
+}
+.quest-screen-box h1 {
+    margin: 5px 0;
+}
+.quest-screen-subtitle {
+    margin: 0 0 18px;
+    color: #9cad9f;
+    font-size: 13px;
+}
+.quest-screen .quest-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.quest-screen .quest-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid #394837;
+    border-radius: 10px;
+    background: #222d21;
+}
+.quest-screen .quest-card strong {
+    display: block;
+    font-size: 14px;
+}
+.quest-screen .quest-card span {
+    display: block;
+    margin-top: 4px;
+    color: #929f8d;
+    font-size: 12px;
+}
+.quest-screen .quest-card > div:last-child {
+    text-align: right;
+}
+.quest-screen .quest-card small {
+    display: block;
+    margin-bottom: 6px;
+    color: #b7c69e;
+    font-size: 11px;
+}
+.quest-screen .quest-card button {
+    flex: 0 0 auto;
+    padding: 7px 12px;
+}
+.quest-screen .quest-card.completed {
+    border-color: #667e58;
+    background: #263526;
+}
+.quest-close {
+    position: absolute;
+    top: 9px;
+    right: 9px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    flex: none;
+    font-size: 23px;
+}
+@media(max-width:500px) {
+    .village-header-actions {
+        align-items: flex-end;
+        flex-direction: column;
+    }
+    .quest-screen {
+        align-items: flex-start;
+        padding: 10px;
+    }
+    .quest-screen-box {
+        padding: 24px 14px;
+    }
+    .quest-screen .quest-card {
+        align-items: flex-start;
+    }
+    .quest-screen .quest-card > div:last-child {
+        flex: 0 0 auto;
+    }
+}
