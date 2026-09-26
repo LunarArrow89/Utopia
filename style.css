@@ -1645,32 +1645,68 @@ button:disabled {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 8px;
+    margin: 0;
 }
+
 .village-player-stats .stat {
-    padding: 9px;
+    min-width: 0;
+    padding: 11px 8px;
     text-align: center;
-    background: #202d24;
-    border: 1px solid #35463a;
-    border-radius: 10px;
+    background:
+        linear-gradient(
+            145deg,
+            #26352a,
+            #1d281f
+        );
+    border: 1px solid #3d4e40;
+    border-radius: 11px;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.035),
+        0 5px 14px rgba(0,0,0,.12);
 }
+
 .village-player-stats .stat-label {
     color: #8fa594;
-    font-size: 11px;
-    margin-bottom: 3px;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: .5px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
 }
+
 .village-player-stats .stat-value {
-    font-size: 15px;
+    color: #e1ebe3;
+    font-size: 16px;
     font-weight: bold;
 }
+
+.village-player-stats .stat:first-child .stat-value {
+    color: #d8e8dc;
+}
+
+.village-player-stats .stat:last-child .stat-value {
+    color: #d8c78d;
+}
+
 @media(max-width:500px) {
     .village-screen {
         padding: 12px 8px 30px;
     }
+
     .village-player-stats {
         grid-template-columns: repeat(2, 1fr);
-        gap: 5px;
+        gap: 6px;
     }
+
     .village-player-stats .stat {
-        padding: 7px 3px;
+        padding: 9px 5px;
+    }
+
+    .village-player-stats .stat-label {
+        font-size: 9px;
+    }
+
+    .village-player-stats .stat-value {
+        font-size: 14px;
     }
 }
