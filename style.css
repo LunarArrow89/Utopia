@@ -1710,3 +1710,162 @@ button:disabled {
         font-size: 14px;
     }
 }
+
+
+/* COMPACT VILLAGE UI */
+#villageScreen {
+    padding: 8px 10px 20px;
+}
+
+#villageScreen .village-header {
+    padding: 2px 0 6px;
+    gap: 7px;
+}
+
+#villageScreen .village-header h1 {
+    font-size: 23px;
+    margin: 2px 0;
+}
+
+#villageScreen .village-header p {
+    margin: 2px 0 0;
+    font-size: 11px;
+}
+
+#villageScreen .village-content {
+    gap: 7px;
+    padding-top: 5px;
+    padding-bottom: 18px;
+}
+
+#villageScreen .village-player-stats {
+    gap: 5px;
+}
+
+#villageScreen .village-player-stats .stat {
+    padding: 7px 5px;
+}
+
+#villageScreen .village-player-stats .stat-label {
+    margin-bottom: 2px;
+    font-size: 9px;
+}
+
+#villageScreen .village-player-stats .stat-value {
+    font-size: 14px;
+}
+
+#villageScreen .village-message {
+    padding: 8px 10px;
+    gap: 3px;
+}
+
+#villageScreen .village-message strong {
+    font-size: 13px;
+}
+
+#villageScreen .village-message span {
+    font-size: 10px;
+    line-height: 1.3;
+}
+
+#villageScreen .village-panel {
+    padding: 9px;
+    border-radius: 11px;
+}
+
+#villageScreen .village-panel-title {
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+#villageScreen .resource-grid {
+    gap: 4px;
+}
+
+#villageScreen .resource-card {
+    padding: 6px 7px;
+}
+
+#villageScreen .resource-icon {
+    font-size: 16px;
+}
+
+#villageScreen .resource-name {
+    font-size: 10px;
+}
+
+#villageScreen .resource-value {
+    font-size: 14px;
+}
+
+#villageScreen .building-list {
+    gap: 4px;
+}
+
+#villageScreen .building-card {
+    padding: 6px 7px;
+    gap: 7px;
+}
+
+#villageScreen .building-name {
+    font-size: 11px;
+}
+
+#villageScreen .building-description {
+    margin-top: 1px;
+    font-size: 9px;
+}
+
+#villageScreen .building-cost {
+    margin-top: 2px;
+    font-size: 8px;
+}
+
+#villageScreen .building-card button {
+    flex-basis: 58px;
+    padding: 6px 4px;
+    font-size: 10px;
+}
+
+#villageScreen .village-walk-description {
+    font-size: 10px;
+}
+
+#villageScreen .village-walk-option button {
+    padding: 7px 9px;
+}
+
+#villageScreen .village-footer {
+    gap: 5px;
+}
+
+@media(max-width:500px) {
+    #villageScreen {
+        padding: 6px 7px 16px;
+    }
+
+    #villageScreen .village-header h1 {
+        font-size: 20px;
+    }
+
+    #villageScreen .village-header p {
+        font-size: 10px;
+    }
+
+    #villageScreen .village-content {
+        gap: 5px;
+    }
+
+    #villageScreen .village-panel {
+        padding: 8px;
+    }
+
+    #villageScreen .village-player-stats .stat {
+        padding: 6px 4px;
+    }
+
+    #villageScreen .village-player-stats .stat-value {
+        font-size: 13px;
+    }
+}
