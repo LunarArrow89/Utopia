@@ -1055,6 +1055,8 @@ button:disabled {
     height: 100vh;
     min-height: 100vh;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 30px;
     background:
         radial-gradient(circle at 50% 0%, #384936 0%, #202b20 35%, #101610 100%);
 }
@@ -1156,6 +1158,7 @@ button:disabled {
     flex-direction: column;
     gap: 10px;
     padding-top: 10px;
+    padding-bottom: 30px;
 }
 
 #villageScreen .village-overview {
