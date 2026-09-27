@@ -100,7 +100,7 @@ begin
     -- ============================================================
 
     for r in
-        select id, user_id, save_data, idle_last_processed_at
+        select id, user_id, save_data, idle_last_processed_at, save_revision
         from public.game_saves
         where target_id is null
            or user_id = target_id
