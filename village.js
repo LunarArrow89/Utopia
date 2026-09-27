@@ -551,6 +551,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (village.walk.active) {
         document.getElementById("villageScreen")?.classList.add("hidden");
         document.getElementById("villageWalkScreen")?.classList.remove("hidden");
+        updateVillageTabs("walk");
         clearInterval(villageWalkTimer);
         villageWalkTimer = setInterval(updateVillageWalk, 1000);
         updateVillageWalk();
