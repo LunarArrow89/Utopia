@@ -126,6 +126,11 @@
 </div>
 </div>
 
+<div class="village-tabs" role="tablist" aria-label="Oakshade Village">
+<button id="villageTabButton" class="village-tab active" type="button" role="tab" aria-selected="true" onclick="showVillageTab()">🏡 Village</button>
+<button id="walkTabButton" class="village-tab" type="button" role="tab" aria-selected="false" onclick="showVillageWalkTab()">🌲 Walk</button>
+</div>
+
 <div class="village-content">
 
 <div class="village-message village-intro">
@@ -152,7 +157,7 @@
 <div class="village-panel village-walk-option">
 <div class="village-panel-title">Explore</div>
 <div class="village-walk-description">Take a 20 minute walk and find 1 random resource every 15 seconds.</div>
-<button id="takeWalkButton">Take a Walk</button>
+<button id="takeWalkButton" onclick="showVillageWalkTab(true)">Take a Walk</button>
 </div>
 
 <div class="village-panel">
