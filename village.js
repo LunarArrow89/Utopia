@@ -1,3 +1,9 @@
+const villageWalkEnemies = [
+    { name: "Wandering Wolf", hp: 20, attack: 11, xp: 12, gold: 5 },
+    { name: "Moss Goblin", hp: 24, attack: 12, xp: 16, gold: 7 },
+    { name: "Wild Boar", hp: 28, attack: 14, xp: 20, gold: 9 }
+];
+
 const village = {
     unlocked: false,
     housesBuilt: 0,
@@ -239,6 +245,14 @@ function showVillageWalkTab(startWalk = false) {
     updateVillageWalkUI();
 }
 
+function healAtVillage() {
+    if (player.hp >= player.maxHp) return;
+
+    player.hp = player.maxHp;
+    updateHP();
+    addVillageLog("You rested in Oakshade Village and fully recovered your HP.");
+}
+
 function showVillage() {
     setVillageTabsVisible(village.walk.active);
     const hub = document.getElementById("villageScreen");
@@ -249,6 +263,7 @@ function showVillage() {
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
     hub.classList.remove("hidden");
     updateVillageTabs("village");
+    healAtVillage();
     updateVillageUI();
     updateQuests();
 }
@@ -497,7 +512,7 @@ function catchUpVillageWalk() {
 
     let encounterSecond = village.walk.nextEncounterTime;
     while (encounterSecond * 1000 <= cappedElapsed) {
-        const enemy = enemies[Math.floor(Math.random() * enemies.length)];
+        const enemy = villageWalkEnemies[Math.floor(Math.random() * villageWalkEnemies.length)];
         const damageTaken = Math.max(0, enemy.attack - player.attack);
 
         if (damageTaken <= 0) {
