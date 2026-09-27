@@ -542,7 +542,7 @@ function catchUpVillageWalk() {
 }
 
 function villageWalkBattle() {
-    const enemy = enemies[Math.floor(Math.random() * enemies.length)];
+    const enemy = villageWalkEnemies[Math.floor(Math.random() * villageWalkEnemies.length)];
     const damageTaken = Math.max(0, enemy.attack - player.attack);
 
     if (damageTaken <= 0) {
