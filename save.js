@@ -163,6 +163,12 @@ async function loadRemoteGame() {
         applySaveData(remoteSave);
         writeLocalSave(remoteSave);
 
+        // Immediately refresh every visible part of the game from the
+        // cloud-loaded state. This is especially important after the
+        // server-side idle engine progressed the game while the device
+        // was closed.
+        refreshGameUI();
+
         return true;
     } catch (error) {
         console.error("Cloud load failed:", error);
