@@ -55,13 +55,18 @@ function updateForest() {
 function giveXP(amount) {
     player.xp += amount;
 
-    if (player.xp >= player.xpToNext) {
+    while (player.xp >= player.xpToNext) {
         player.xp -= player.xpToNext;
         player.level++;
-        player.attack += 2;
+
+        // Each level gives +1 Attack and +3 maximum HP.
+        player.attack += 1;
+        player.maxHp += 3;
+        player.hp = Math.min(player.maxHp, player.hp + 3);
+
         player.xpToNext += 25;
 
-        addLog(`You reached level ${player.level}!`);
+        addLog(`You reached level ${player.level}! Attack +1, Max HP +3.`);
     }
 
     document.getElementById("xpBarText").textContent =
@@ -179,7 +184,7 @@ function leaveRest() {
     saveGame();
 }
 
-async async function resetGame() {
+async function resetGame() {
     if (!confirm("Are you sure you want to reset your save? This cannot be undone.")) {
         return;
     }
