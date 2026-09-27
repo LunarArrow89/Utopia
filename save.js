@@ -54,6 +54,10 @@ function saveGame() {
 async function saveRemoteGame(saveData = getGameSaveData()) {
     if (!currentSupabaseUser) return;
 
+    // Every cloud save needs a timestamp so another device can calculate
+    // the time that passed while this device was closed.
+    saveData.savedAt = Number(saveData.savedAt || Date.now());
+
     try {
         const { data: existing, error: findError } = await supabaseClient
             .from("game_saves")
