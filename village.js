@@ -15,7 +15,7 @@ const village = {
     },
     resources: { wood: 0, stone: 0, food: 0 },
     buildings: { campfire: false, shelter: false, workshop: false },
-    walk: { active: false, startTime: 0, lastUpdateTime: 0, lastRewardCount: 0, nextEncounterTime: 30, duration: 20 * 60 * 1000 }
+    walk: { active: false, startTime: 0, lastUpdateTime: 0, lastRewardCount: 0, nextEncounterTime: 30, duration: 0 }
 };
 
 const buildingCosts = {
@@ -410,13 +410,15 @@ function startVillageWalk() {
     village.walk.lastUpdateTime = village.walk.startTime;
     village.walk.lastRewardCount = 0;
     village.walk.nextEncounterTime = 30 + Math.floor(Math.random() * 31);
+    currentPath = "villageWalk";
+    gameEnded = false;
 
     document.getElementById("villageScreen")?.classList.add("hidden");
     document.getElementById("villageWalkScreen")?.classList.remove("hidden");
     updateVillageTabs("walk");
 
     updateVillageWalkUI();
-    addVillageLog("You set out for a 20 minute walk.");
+    addVillageLog("You set out on an endless village walk. Return whenever you want.");
     saveGame();
 
     clearInterval(villageWalkTimer);
@@ -428,20 +430,21 @@ function updateVillageWalk() {
     if (!village.walk.active) return;
 
     const now = Date.now();
-    const elapsed = now - village.walk.startTime;
-    const progress = Math.min(1, elapsed / village.walk.duration);
+    const elapsed = Math.max(0, now - village.walk.startTime);
 
+    // The village walk is infinite. There is no path timer or completion.
     const bar = document.getElementById("villageWalkBar");
     const text = document.getElementById("villageWalkText");
     const next = document.getElementById("nextWalkRewardText");
 
-    if (bar) bar.style.width = (progress * 100) + "%";
+    if (bar) {
+        bar.style.width = "0%";
+        bar.parentElement?.classList.add("hidden");
+    }
 
-    const remaining = Math.max(0, village.walk.duration - elapsed);
-    const minutes = Math.floor(remaining / 60000);
-    const seconds = Math.floor((remaining % 60000) / 1000);
-
-    if (text) text.textContent = minutes + ":" + String(seconds).padStart(2, "0") + " remaining";
+    if (text) {
+        text.textContent = "Endless walk — return whenever you want";
+    }
 
     const rewardCount = Math.floor(elapsed / 15000);
 
@@ -467,14 +470,8 @@ function updateVillageWalk() {
     }
 
     updateVillageWalkUI();
-
     village.walk.lastUpdateTime = now;
-
-    if (elapsed >= village.walk.duration) {
-        finishVillageWalk();
-    } else {
-        saveGame();
-    }
+    saveGame();
 }
 
 function catchUpVillageWalk() {
@@ -482,45 +479,12 @@ function catchUpVillageWalk() {
 
     const now = Date.now();
     const elapsed = Math.max(0, now - village.walk.startTime);
-    const cappedElapsed = Math.min(elapsed, village.walk.duration);
-    const rewardCount = Math.floor(cappedElapsed / 15000);
-    const resources = ["wood", "stone", "food"];
+    const cappedElapsed = Math.min(elapsed, villagefunction catchUpVillageWalk() {
+    if (!village.walk.active) return;
 
-    while (village.walk.lastRewardCount < rewardCount) {
-        village.walk.lastRewardCount++;
-        const resource = resources[Math.floor(Math.random() * resources.length)];
-        village.resources[resource]++;
-    }
-
-    let encounterSecond = village.walk.nextEncounterTime;
-    while (encounterSecond * 1000 <= cappedElapsed) {
-        const enemy = villageWalkEnemies[Math.floor(Math.random() * villageWalkEnemies.length)];
-        const damageTaken = Math.max(0, enemy.attack - player.attack);
-
-        if (damageTaken <= 0) {
-            player.gold += enemy.gold;
-            giveXP(enemy.xp);
-        } else {
-            player.hp -= damageTaken;
-            if (player.hp <= 0) player.hp = player.maxHp;
-        }
-
-        encounterSecond = Math.floor(encounterSecond) + 30 + Math.floor(Math.random() * 31);
-    }
-
-    village.walk.nextEncounterTime = encounterSecond;
-    village.walk.lastUpdateTime = now;
-
-    if (elapsed >= village.walk.duration) {
-        village.walk.active = false;
-        addVillageLog("Your 20 minute walk finished while you were away.");
-    }
-
-    updateHP();
-    updateGold();
-    updateVillageUI();
+    // The server is now authoritative for offline village-walk progress.
+    // This function is kept only for compatibility with older code.
     updateVillageWalkUI();
-    saveGame();
 }
 
 function villageWalkBattle() {
@@ -621,6 +585,7 @@ function leaveVillageWalk() {
     if (!village.walk.active) return;
 
     village.walk.active = false;
+    currentPath = "village";
     clearInterval(villageWalkTimer);
     villageWalkTimer = null;
 
@@ -635,20 +600,10 @@ function leaveVillageWalk() {
 }
 
 function finishVillageWalk() {
-    if (!village.walk.active) return;
-
-    village.walk.active = false;
-    clearInterval(villageWalkTimer);
-    villageWalkTimer = null;
-
-    document.getElementById("villageWalkScreen")?.classList.add("hidden");
-    document.getElementById("villageScreen")?.classList.remove("hidden");
-    document.getElementById("villageScreen")?.classList.remove("walk-view-only");
-    updateVillageTabs("village");
-
-    addVillageLog("You finished your 20 minute walk and returned to Oakshade Village.");
-    updateVillageUI();
-    saveGame();
+    // Village walks are endless now. Kept as a compatibility function.
+    if (village.walk.active) {
+        leaveVillageWalk();
+    }
 }
 
 function resetVillage() {
@@ -663,7 +618,7 @@ function resetVillage() {
     };
     village.resources = { wood: 0, stone: 0, food: 0 };
     village.buildings = { campfire: false, shelter: false, workshop: false };
-    village.walk = { active: false, startTime: 0, lastUpdateTime: 0, lastRewardCount: 0, nextEncounterTime: 30, duration: 20 * 60 * 1000 };
+    village.walk = { active: false, startTime: 0, lastUpdateTime: 0, lastRewardCount: 0, nextEncounterTime: 30, duration: 0 };
     clearInterval(villageWalkTimer);
     villageWalkTimer = null;
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
