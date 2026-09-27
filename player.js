@@ -102,6 +102,72 @@ function updateRest() {
 let restTimer = null;
 let restStartTime = 0;
 let restDuration = 0;
+let restForced = false;
+
+function finishRest() {
+    clearInterval(restTimer);
+    restTimer = null;
+
+    player.hp = player.maxHp;
+    resting = false;
+    restForced = false;
+    restStartTime = 0;
+    restDuration = 0;
+
+    document.getElementById("statusText").textContent = "Walking";
+    document.getElementById("restText").textContent =
+        "Rest when you need to recover.";
+
+    const restBar = document.getElementById("restBar");
+    if (restBar) restBar.style.width = "0%";
+
+    const ashRestBar = document.getElementById("ashHillsRestBar");
+    if (ashRestBar) ashRestBar.style.width = "0%";
+
+    const restButton = document.getElementById("restButton");
+    const leaveButton = document.getElementById("leaveButton");
+
+    if (restButton) restButton.disabled = false;
+    if (leaveButton) leaveButton.disabled = true;
+
+    updateHP();
+    saveGame();
+}
+
+function runRestTimer() {
+    clearInterval(restTimer);
+
+    const tickRest = () => {
+        if (!resting || restDuration <= 0) return;
+
+        const elapsed = Date.now() - restStartTime;
+        const progress = Math.min(1, elapsed / restDuration);
+        const remaining = Math.max(0, restDuration - elapsed);
+
+        const restBar = document.getElementById("restBar");
+        if (restBar) restBar.style.width = `${progress * 100}%`;
+
+        const ashRestBar = document.getElementById("ashHillsRestBar");
+        if (ashRestBar) ashRestBar.style.width = `${progress * 100}%`;
+
+        const restText = document.getElementById("restText");
+        if (restText) {
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            restText.textContent =
+                `${minutes}:${String(seconds).padStart(2, "0")} remaining`;
+        }
+
+        if (progress >= 1) {
+            finishRest();
+        }
+    };
+
+    tickRest();
+    if (resting) {
+        restTimer = setInterval(tickRest, 1000);
+    }
+}
 
 function startRest(force = false) {
     if (resting) return;
@@ -114,7 +180,7 @@ function startRest(force = false) {
     }
 
     resting = true;
-
+    restForced = force;
     restDuration = missingHp * 0.5 * 60 * 1000;
     restStartTime = Date.now();
 
@@ -134,49 +200,36 @@ function startRest(force = false) {
 
     addLog(force ? "You must rest." : "You are resting.");
 
-    clearInterval(restTimer);
+    saveGame();
+    runRestTimer();
+}
 
-    restTimer = setInterval(() => {
-        const elapsed = Date.now() - restStartTime;
-        const remaining = Math.max(0, restDuration - elapsed);
-        const progress = Math.min(1, elapsed / restDuration);
+function resumeRest() {
+    if (!resting) return;
 
-        document.getElementById("restBar").style.width =
-            `${progress * 100}%`;
+    if (!restStartTime || !restDuration) {
+        resting = false;
+        restForced = false;
+        return;
+    }
 
-        const restText = document.getElementById("restText");
-        if (restText) {
-            const minutes = Math.floor(remaining / 60000);
-            const seconds = Math.floor((remaining % 60000) / 1000);
-            restText.textContent =
-                `${minutes}:${String(seconds).padStart(2, "0")} remaining`;
-        }
+    const elapsed = Date.now() - restStartTime;
 
-        const ashRestBar = document.getElementById("ashHillsRestBar");
-        if (ashRestBar) ashRestBar.style.width = `${progress * 100}%`;
+    if (elapsed >= restDuration) {
+        finishRest();
+        return;
+    }
 
-        if (progress >= 1) {
-            clearInterval(restTimer);
-            restTimer = null;
+    const restButton = document.getElementById("restButton");
+    const leaveButton = document.getElementById("leaveButton");
 
-            player.hp = player.maxHp;
-            resting = false;
+    document.getElementById("statusText").textContent =
+        restForced ? "Forced Rest" : "Resting";
 
-            document.getElementById("statusText").textContent = "Walking";
-            document.getElementById("restText").textContent =
-                "Rest when you need to recover.";
+    if (restButton) restButton.disabled = true;
+    if (leaveButton) leaveButton.disabled = restForced;
 
-            const ashRestBar = document.getElementById("ashHillsRestBar");
-            if (ashRestBar) ashRestBar.style.width = "0%";
-
-            if (restButton) restButton.disabled = false;
-            if (leaveButton) leaveButton.disabled = true;
-
-            updateHP();
-            addLog("You feel refreshed!");
-            saveGame();
-        }
-    }, 1000);
+    runRestTimer();
 }
 
 function leaveRest() {
@@ -189,6 +242,9 @@ function leaveRest() {
     restTimer = null;
 
     resting = false;
+    restForced = false;
+    restStartTime = 0;
+    restDuration = 0;
 
     document.getElementById("statusText").textContent = "Walking";
     document.getElementById("restText").textContent =
@@ -221,6 +277,9 @@ async function resetGame() {
     player.gold = 0;
 
     resting = false;
+    restForced = false;
+    restStartTime = 0;
+    restDuration = 0;
     gameEnded = false;
     currentPath = "forest";
 
@@ -277,7 +336,7 @@ async function resetGame() {
     updateRest();
     updateVillageUI();
 
-    localStorage.setItem(SAVE_KEY, JSON.stringify(getGameSaveData()));
+    localStorage.setItem(SAVE_KEY, JSON.stringify(getGameSaveData(Date.now())));
 
     if (typeof currentSupabaseUser !== "undefined" && currentSupabaseUser) {
         await saveRemoteGame(getGameSaveData());
@@ -290,6 +349,11 @@ async function resetGame() {
 document.addEventListener("DOMContentLoaded", () => {
     updateHP();
     updateGold();
+
+    if (resting) {
+        resumeRest();
+    }
+
     document.getElementById("levelText").textContent = player.level;
     document.getElementById("attackText").textContent = player.attack;
 
