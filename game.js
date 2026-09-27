@@ -1,3 +1,5 @@
+let gameInitialized = false;
+
 async function initializeGame() {
     const loggedIn = await loadGame();
 
@@ -6,36 +8,28 @@ async function initializeGame() {
         return;
     }
 
-    // Recalculate time-based progress that happened while the device was off.
-    catchUpPathsWhileAway();
+    // The server has already processed all offline idle time and
+    // loadGame() has loaded the authoritative cloud save.
+    // Do not run browser catch-up here or save the old browser state back
+    // over the server's offline progress.
 
-    if (typeof catchUpVillageWalk === "function") {
-        catchUpVillageWalk();
-    }
-
-    // Push all offline catch-up rewards/progress to the account immediately.
-    if (typeof saveRemoteGame === "function" && typeof getGameSaveData === "function") {
-        await saveRemoteGame(getGameSaveData(Date.now()));
-        lastRemoteSaveAt = Date.now();
-    }
-
-    updateHP();
-    updateGold();
-    updateForest();
+    refreshGameUI();
 
     if (paths.ashHills.active) {
         showAshHills();
-    } else if (village.unlocked && paths.forest.completed) {
-        showVillage();
-    } else if (paths.forest.completed) {
-        gameEnded = true;
-        showArrivalScene();
     }
+
+    gameInitialized = true;
 }
 
 document.addEventListener("DOMContentLoaded", initializeGame);
 
 function tick() {
+    // Do not save or advance anything while the initial cloud save is
+    // still loading. This prevents an old local save from racing the
+    // server-side idle engine during startup.
+    if (!gameInitialized) return;
+
     if (!paths.forest.lastUpdateTime) {
         paths.forest.lastUpdateTime = Date.now();
     }
