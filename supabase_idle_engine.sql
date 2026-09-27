@@ -1569,8 +1569,22 @@ create extension if not exists pg_cron;
 
 -- The job runs once every minute.
 --
--- If the job already exists, Supabase Cron replaces the job
--- with the same name.
+-- Remove an older copy first so rerunning this file never creates
+-- duplicate idle-engine jobs.
+
+do $cron$
+begin
+    if exists (
+        select 1
+        from cron.job
+        where jobname = 'utopia-idle-engine'
+    ) then
+        perform cron.unschedule(jobid)
+        from cron.job
+        where jobname = 'utopia-idle-engine';
+    end if;
+end;
+$cron$;
 
 select cron.schedule(
     'utopia-idle-engine',
