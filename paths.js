@@ -54,12 +54,9 @@ function finishPath(pathName = currentPath) {
 }
 
 function updatePaths() {
+    // Normal on-screen progression.
     if (!resting && !gameEnded && !village.unlocked && !paths.forest.completed) {
         updatePath("forest");
-    }
-
-    if (resting && paths.ashHills.active && !paths.ashHills.completed) {
-        paths.ashHills.lastUpdateTime = Date.now();
     }
 
     if (!resting && paths.ashHills.active && !paths.ashHills.completed) {
