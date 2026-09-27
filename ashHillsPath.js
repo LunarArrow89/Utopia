@@ -1,3 +1,10 @@
+const ashEnemies = [
+    { name: "Ash Hound", hp: 32, attack: 17, xp: 28, gold: 12 },
+    { name: "Cinder Goblin", hp: 38, attack: 19, xp: 32, gold: 15 },
+    { name: "Burnt Stalker", hp: 42, attack: 21, xp: 38, gold: 18 },
+    { name: "Ash Brute", hp: 50, attack: 23, xp: 45, gold: 22 }
+];
+
 registerPath("ashHills", {
     name: "Ash Hills",
     progress: 0,
