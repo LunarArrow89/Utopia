@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ash Hills Animation</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#111216}
+.stage{position:relative;width:100%;height:140px;overflow:hidden;background:linear-gradient(#17191e 0%,#202229 58%,#111216 59%,#0d0e11 100%);border:1px dashed #7c808922}
+.player{position:absolute;left:40px;top:56px;width:16px;height:16px;border:2px solid #00bcff;filter:drop-shadow(0 0 6px #00bcff);z-index:50;animation:walk .8s ease-in-out infinite alternate}
+@keyframes walk{from{transform:translateX(0) scale(.95)}to{transform:translateX(10px) scale(1.05)}}
+.hills{position:absolute;inset:0;z-index:5;pointer-events:none}
+.hill{position:absolute;bottom:28px;width:150px;height:85px;border-radius:60% 60% 0 0;background:#64676d;animation:hillMove 9s linear infinite}
+.hill:after{content:"";position:absolute;left:25%;bottom:0;width:55%;height:35%;background:#4b4e54;border-radius:50% 50% 0 0}
+.hill:nth-child(1){animation-delay:-1s;transform:scale(.8);opacity:.7}
+.hill:nth-child(2){animation-delay:-3.5s;transform:scale(1.05);opacity:.9}
+.hill:nth-child(3){animation-delay:-6s;transform:scale(.7);opacity:.55}
+.hill:nth-child(4){animation-delay:-8s;transform:scale(1.15);opacity:.8}
+@keyframes hillMove{from{transform:translateX(110vw)}to{transform:translateX(-190px)}}
+.hill:nth-child(1),.hill:nth-child(3){bottom:38px}
+.ash{position:absolute;bottom:0;left:0;width:100%;height:31px;background:#292b30;z-index:15}
+.rock{position:absolute;bottom:27px;width:14px;height:9px;background:#858990;transform:skew(-20deg);z-index:25;animation:rockMove 5s linear infinite}
+.rock:nth-child(1){animation-delay:-1s}.rock:nth-child(2){animation-delay:-2.7s}.rock:nth-child(3){animation-delay:-4.1s}.rock:nth-child(4){animation-delay:-.4s}
+@keyframes rockMove{from{transform:translateX(110vw) skew(-20deg)}to{transform:translateX(-40px) skew(-20deg)}}
+.smoke{position:absolute;bottom:48px;width:24px;height:24px;border-radius:50%;background:#777b82;opacity:.22;animation:smokeMove 4s ease-in-out infinite alternate}
+.smoke:nth-child(1){left:72%;animation-delay:-1s}.smoke:nth-child(2){left:82%;animation-delay:-2s}.smoke:nth-child(3){left:91%;animation-delay:-3s}
+@keyframes smokeMove{from{transform:translateY(4px) scale(.8)}to{transform:translateY(-12px) scale(1.2)}}
+</style>
+</head>
+<body>
+<div class="stage">
+<div class="hills"><div class="hill"></div><div class="hill"></div><div class="hill"></div><div class="hill"></div></div>
+<div class="smoke"></div><div class="smoke"></div><div class="smoke"></div>
+<div class="rock"></div><div class="rock"></div><div class="rock"></div><div class="rock"></div>
+<div class="ash"></div>
+<div class="player"></div>
+</div>
+</body>
+</html>
