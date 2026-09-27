@@ -603,6 +603,7 @@ function villageWalkRest() {
 function updateVillageWalkUI() {
     const hpText = document.getElementById("villageWalkHpText");
     const hpBar = document.getElementById("villageWalkHpBar");
+    const hpBarText = document.getElementById("villageWalkHpBarText");
     const xpText = document.getElementById("villageWalkXpText");
     const xpBar = document.getElementById("villageWalkXpBar");
     const goldText = document.getElementById("villageWalkGoldText");
@@ -611,6 +612,7 @@ function updateVillageWalkUI() {
 
     if (hpText) hpText.textContent = player.hp + " / " + player.maxHp;
     if (hpBar) hpBar.style.width = (player.hp / player.maxHp * 100) + "%";
+    if (hpBarText) hpBarText.textContent = player.hp + " / " + player.maxHp + " HP";
     if (xpText) xpText.textContent = player.xp + " / " + player.xpToNext + " XP";
     if (xpBar) xpBar.style.width = (player.xp / player.xpToNext * 100) + "%";
     if (goldText) goldText.textContent = player.gold;
