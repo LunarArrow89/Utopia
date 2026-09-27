@@ -72,6 +72,10 @@ function giveXP(amount) {
 
     document.getElementById("levelText").textContent = player.level;
     document.getElementById("attackText").textContent = player.attack;
+
+    if (typeof updateVillageUI === "function") updateVillageUI();
+    if (typeof updateVillageWalkUI === "function") updateVillageWalkUI();
+    if (typeof updateAshHillsUI === "function") updateAshHillsUI();
 }
 
 function updateRest() {
@@ -125,6 +129,9 @@ function startRest(force = false) {
         document.getElementById("restBar").style.width =
             `${progress * 100}%`;
 
+        const ashRestBar = document.getElementById("ashHillsRestBar");
+        if (ashRestBar) ashRestBar.style.width = `${progress * 100}%`;
+
         if (progress >= 1) {
             clearInterval(restTimer);
             restTimer = null;
@@ -135,6 +142,9 @@ function startRest(force = false) {
             document.getElementById("statusText").textContent = "Walking";
             document.getElementById("restText").textContent =
                 "Rest when you need to recover.";
+
+            const ashRestBar = document.getElementById("ashHillsRestBar");
+            if (ashRestBar) ashRestBar.style.width = "0%";
 
             if (restButton) restButton.disabled = false;
             if (leaveButton) leaveButton.disabled = true;
@@ -230,6 +240,8 @@ function resetGame() {
         document.getElementById("forestText").textContent = "0:00 / 5:00";
 
         document.getElementById("restBar").style.width = "0%";
+        const ashRestBar = document.getElementById("ashHillsRestBar");
+        if (ashRestBar) ashRestBar.style.width = "0%";
         document.getElementById("restText").textContent = "Rest when you need to recover.";
         document.getElementById("restButton").disabled = false;
         document.getElementById("leaveButton").disabled = true;
