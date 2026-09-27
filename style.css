@@ -2136,3 +2136,19 @@ button:disabled {
         line-height: 1;
     }
 }
+
+
+/* FINAL VILLAGE TAB SCROLL SPACE */
+#villageScreen {
+    padding-bottom: 105px !important;
+}
+
+@media (max-width: 500px) {
+    #villageScreen {
+        padding-bottom: 120px !important;
+    }
+
+    #villageScreen .village-content {
+        padding-bottom: 35px !important;
+    }
+}
