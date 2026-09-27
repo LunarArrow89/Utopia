@@ -2027,3 +2027,20 @@ button:disabled {
         padding-bottom: 75px !important;
     }
 }
+
+
+/* Village is view-only while a walk is active */
+.walk-view-only .village-walk-option,
+.walk-view-only .building-list,
+.walk-view-only .village-header-actions,
+.walk-view-only .village-footer button {
+    pointer-events: none;
+    opacity: .55;
+}
+
+.walk-view-only .village-walk-option button,
+.walk-view-only .building-list button,
+.walk-view-only .village-header-actions button,
+.walk-view-only .village-footer button {
+    cursor: not-allowed;
+}
