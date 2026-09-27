@@ -1469,7 +1469,7 @@ returns jsonb
 language plpgsql
 security definer
 set search_path = ''
-as $
+as $function$
 declare
     uid uuid := (select auth.uid());
     existing public.game_saves%rowtype;
@@ -1544,7 +1544,7 @@ begin
         'save_revision', new_revision
     );
 end;
-$;
+$function$;
 
 grant execute
 on function public.save_game_state(jsonb, bigint)
@@ -1575,5 +1575,5 @@ create extension if not exists pg_cron;
 select cron.schedule(
     'utopia-idle-engine',
     '* * * * *',
-    $$select public.process_idle_games();$$
+    $sql$select public.process_idle_games();$sql$
 );
