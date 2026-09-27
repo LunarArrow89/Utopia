@@ -713,3 +713,90 @@ document.addEventListener("DOMContentLoaded", () => {
         updateVillageWalk();
     }
 });
+
+
+/* QUEST STORY DIALOGUES */
+const questStories = {
+    getToVillage: {
+        title: "A Place to Call Home",
+        story: "After surviving the Whispering Woods, you discover Oakshade Village. Its homes are broken and its streets are quiet, but the village could become a safe place again.",
+        objective: "Objective: Reach and enter Oakshade Village.",
+        reward: "Reward: 6 Gold"
+    },
+    makeTwoHouses: {
+        title: "Rebuild the Village",
+        story: "The empty houses tell you that Oakshade needs more than a traveler passing through. If you can rebuild two homes, there may finally be a place for people to return to.",
+        objective: "Objective: Build 2 houses in Oakshade Village.",
+        reward: "Reward: 15 Gold"
+    },
+    reachAshLevel: {
+        title: "The Road to Ash Hills",
+        story: "A villager points toward the burned hills beyond the forest. The road is dangerous, so you will need to grow stronger before you can safely travel there.",
+        objective: "Objective: Reach Level 3.",
+        reward: "Reward: 25 Gold"
+    },
+    rescueCivilian: {
+        title: "Someone Beyond the Hills",
+        story: "A worried villager tells you that someone is trapped somewhere beyond Ash Hills. The path is long and dangerous, but bringing them home could give Oakshade hope again.",
+        objective: "Objective: Complete Ash Hills and rescue the civilian.",
+        reward: "Reward: 50 Gold"
+    }
+};
+
+let openQuestStoryId = null;
+
+function openQuestStory(questId) {
+    if (!village.unlocked || !questStories[questId]) return;
+
+    const quest = questStories[questId];
+    openQuestStoryId = questId;
+
+    const overlay = document.getElementById("questStoryOverlay");
+    const title = document.getElementById("questStoryTitle");
+    const story = document.getElementById("questStoryText");
+    const objective = document.getElementById("questStoryObjective");
+    const reward = document.getElementById("questStoryReward");
+    const action = document.getElementById("questStoryAction");
+
+    if (!overlay) return;
+
+    title.textContent = quest.title;
+    story.textContent = quest.story;
+    objective.textContent = quest.objective;
+    reward.textContent = quest.reward;
+
+    const state = village.quests[questId];
+    if (state?.claimed) {
+        action.textContent = "Completed";
+        action.disabled = true;
+    } else if (state?.completed) {
+        action.textContent = "Claim Reward";
+        action.disabled = false;
+    } else {
+        action.textContent = "Accept Quest";
+        action.disabled = false;
+    }
+
+    overlay.classList.remove("hidden");
+}
+
+function closeQuestStory() {
+    document.getElementById("questStoryOverlay")?.classList.add("hidden");
+    openQuestStoryId = null;
+}
+
+function acceptQuestFromStory() {
+    if (!openQuestStoryId) return;
+
+    const state = village.quests[openQuestStoryId];
+    if (!state) return;
+
+    if (state.completed && !state.claimed) {
+        claimQuest(openQuestStoryId);
+        openQuestStory(openQuestStoryId);
+        return;
+    }
+
+    closeQuestStory();
+    addVillageLog("Quest accepted: " + questStories[openQuestStoryId].title + ".");
+}
