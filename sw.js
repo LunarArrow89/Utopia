@@ -1,4 +1,4 @@
-const CACHE_NAME = "utopia-offline-v7";
+const CACHE_NAME = "utopia-offline-v8";
 
 const FILES = [
     "./",
@@ -7,6 +7,9 @@ const FILES = [
     "./player.js",
     "./battle.js",
     "./paths.js",
+    "./forestPath.js",
+    "./crystalCavePath.js",
+    "./ashHillsPath.js",
     "./village.js",
     "./save.js",
     "./game.js",
