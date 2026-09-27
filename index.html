@@ -182,7 +182,7 @@
 <div class="village-footer">
 <div class="village-footer-actions">
 <button id="accountButtonVillage" type="button" onclick="showAccountScreen()">Cloud Save / Account</button>
-<button id="villageResetButton" class="danger-button">Reset Game</button>
+<button id="villageResetButton" class="danger-button" type="button" onclick="resetGame()">Reset Game</button>
 </div>
 </div>
 </div>
@@ -234,6 +234,9 @@
 <div><span>Gold</span><strong id="ashHillsGoldText">0</strong></div>
 </div>
 <div class="walk-section">
+<iframe src="animationAsh.html?v=1" class="forest-animation ash-hills-animation" title="Ash Hills animation" scrolling="no"></iframe>
+</div>
+<div class="walk-section">
 <div class="walk-title">🌋 Walk Progress</div>
 <div class="bar"><div class="bar-fill" id="ashHillsBar"></div></div>
 <div class="bar-text" id="ashHillsText">45:00 remaining</div>
@@ -279,6 +282,9 @@
 <div><span>Attack</span><strong id="villageWalkAttackText">8</strong></div>
 <div><span>Level</span><strong id="villageWalkLevelText">1</strong></div>
 <div><span>Gold</span><strong id="villageWalkGoldText">0</strong></div>
+</div>
+<div class="walk-section">
+<iframe src="animation1.html?v=2" class="forest-animation" title="Forest walk animation" scrolling="no"></iframe>
 </div>
 <div class="walk-section">
 <div class="walk-title">🌲 Walk Progress</div>
