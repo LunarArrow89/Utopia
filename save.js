@@ -14,6 +14,7 @@ let remoteSaveTimer = null;
 let remoteSaveInProgress = false;
 let pendingRemoteSave = null;
 let lastRemoteSaveAt = 0;
+let remoteSaveRevision = 0;
 
 function cloneSaveData(data) {
     return JSON.parse(JSON.stringify(data));
@@ -83,45 +84,36 @@ async function saveRemoteGame(saveData = getGameSaveData()) {
 
     const dataToSave = cloneSaveData(saveData);
     dataToSave.version = SAVE_VERSION;
-    dataToSave.savedAt = Number(dataToSave.savedAt || Date.now());
+    dataToSave.savedAt = Date.now();
 
     try {
-        const { data: existing, error: findError } = await supabaseClient
-            .from("game_saves")
-            .select("id, save_data")
-            .eq("user_id", currentSupabaseUser.id)
-            .maybeSingle();
+        // All writes go through one server-side RPC. The database stamps
+        // the save with server time and advances its revision, so a stale
+        // browser/device cannot silently overwrite a newer cloud save.
+        const { data, error } = await supabaseClient.rpc("save_game_state", {
+            p_save_data: dataToSave,
+            p_expected_revision: remoteSaveRevision
+        });
 
-        if (findError) throw findError;
+        if (error) throw error;
 
-        const remoteTime = Number(existing?.save_data?.savedAt || 0);
+        if (data?.conflict) {
+            remoteSaveRevision = Number(data.save_revision || 0);
 
-        // Never overwrite a newer cloud save with an older request.
-        if (existing && remoteTime > dataToSave.savedAt) {
+            if (data.save_data) {
+                applySaveData(data.save_data);
+                refreshGameUI();
+            }
+
             return false;
         }
 
-        if (existing) {
-            const { error } = await supabaseClient
-                .from("game_saves")
-                .update({
-                    save_data: dataToSave,
-                    updated_at: new Date().toISOString()
-                })
-                .eq("id", existing.id)
-                .eq("user_id", currentSupabaseUser.id);
-
-            if (error) throw error;
-        } else {
-            const { error } = await supabaseClient
-                .from("game_saves")
-                .insert({
-                    user_id: currentSupabaseUser.id,
-                    save_data: dataToSave
-                });
-
-            if (error) throw error;
+        if (!data || !data.save_data) {
+            throw new Error("The server did not return the saved game.");
         }
+
+        remoteSaveRevision = Number(data.save_revision || remoteSaveRevision);
+        applySaveData(data.save_data);
 
         return true;
     } catch (error) {
@@ -138,7 +130,7 @@ async function loadRemoteGame() {
     try {
         const { data, error } = await supabaseClient
             .from("game_saves")
-            .select("save_data")
+            .select("save_data, save_revision")
             .eq("user_id", currentSupabaseUser.id)
             .maybeSingle();
 
@@ -146,6 +138,7 @@ async function loadRemoteGame() {
         if (!data || !data.save_data) return false;
 
         const remoteSave = data.save_data;
+        remoteSaveRevision = Number(data.save_revision || 0);
 
         // Supabase is the authoritative save for the signed-in account.
         // The server-side idle engine may have progressed this save while
