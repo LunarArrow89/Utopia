@@ -1,3 +1,9 @@
+const forestEnemies = [
+    { name: "Lost Wolf", hp: 18, attack: 12, xp: 12, gold: 5 },
+    { name: "Forest Goblin", hp: 22, attack: 10, xp: 15, gold: 7 },
+    { name: "Shadow Spider", hp: 15, attack: 13, xp: 18, gold: 8 }
+];
+
 registerPath("forest", {
     name: "Whispering Woods",
     progress: 0,
@@ -20,7 +26,7 @@ registerPath("forest", {
         }
 
         if (path.progress >= path.encounterTime) {
-            startBattle();
+            startBattle(forestEnemies);
             path.encounterTime = path.progress + randomEncounterTime();
         }
 
@@ -48,7 +54,7 @@ registerPath("forest", {
         let diedOffline = false;
 
         while (encounterTime <= targetProgress && encounterTime > oldProgress) {
-            const enemy = enemies[Math.floor(Math.random() * enemies.length)];
+            const enemy = forestEnemies[Math.floor(Math.random() * forestEnemies.length)];
             const damageTaken = Math.max(0, enemy.attack - player.attack);
 
             if (damageTaken <= 0) {
