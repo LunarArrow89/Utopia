@@ -171,9 +171,13 @@ function showVillageTab() {
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
     document.getElementById("villageScreen")?.classList.remove("hidden");
     updateVillageTabs("village");
-
-    updateVillageTabs("village");
     updateVillageUI();
+
+    if (village.walk.active) {
+        document.getElementById("villageScreen")?.classList.add("walk-view-only");
+    } else {
+        document.getElementById("villageScreen")?.classList.remove("walk-view-only");
+    }
 }
 
 function showVillageWalkTab(startWalk = false) {
@@ -291,6 +295,7 @@ function buildHouse() {
 let villageWalkTimer = null;
 
 function updateVillageUI() {
+    setVillageTabsVisible(village.unlocked && paths.forest.completed);
     const screen = document.getElementById("villageScreen");
     if (!screen) return;
 
@@ -336,6 +341,8 @@ function updateVillageUI() {
 
 function startVillageWalk() {
     if (!village.unlocked || village.walk.active) return;
+
+    setVillageTabsVisible(true);
 
     clearInterval(villageWalkTimer);
 
@@ -508,6 +515,8 @@ function leaveVillageWalk() {
 
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
     document.getElementById("villageScreen")?.classList.remove("hidden");
+    document.getElementById("villageScreen")?.classList.remove("walk-view-only");
+    updateVillageTabs("village");
 
     addVillageLog("You returned to Oakshade Village.");
     updateVillageUI();
@@ -523,6 +532,8 @@ function finishVillageWalk() {
 
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
     document.getElementById("villageScreen")?.classList.remove("hidden");
+    document.getElementById("villageScreen")?.classList.remove("walk-view-only");
+    updateVillageTabs("village");
 
     addVillageLog("You finished your 20 minute walk and returned to Oakshade Village.");
     updateVillageUI();
@@ -562,6 +573,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateVillageUI();
 
     if (village.walk.active) {
+        setVillageTabsVisible(true);
         document.getElementById("villageScreen")?.classList.add("hidden");
         document.getElementById("villageWalkScreen")?.classList.remove("hidden");
         updateVillageTabs("walk");
