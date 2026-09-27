@@ -2407,3 +2407,123 @@ body {
         padding: 8px 4px;
     }
 }
+
+
+/* ==========================================================
+   WALK SCREENS: PHONE-SIZED ON DESKTOP TOO
+   Keep the actual game panel narrow instead of stretching it.
+   ========================================================== */
+.walk-screen {
+    width: 100%;
+    min-height: 100vh;
+    padding: 18px 10px 140px;
+    overflow-y: auto;
+}
+
+.walk-screen .walk-box {
+    width: min(390px, 100%);
+    margin: 0 auto;
+    padding: 14px;
+    border: 1px solid #35463a;
+    border-radius: 16px;
+    background: #18221b;
+    box-shadow: 0 12px 35px rgba(0,0,0,.28);
+}
+
+.walk-screen .walk-header {
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.walk-screen .walk-header h1 {
+    font-size: 24px;
+}
+
+.walk-screen .walk-header p {
+    margin: 5px 0 0;
+    color: #8fa594;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.walk-screen .walk-stats {
+    gap: 5px;
+    margin-bottom: 9px;
+}
+
+.walk-screen .walk-stats > div {
+    padding: 7px 3px;
+    background: #202d24;
+    border: 1px solid #35463a;
+}
+
+.walk-screen .walk-stats span {
+    font-size: 9px;
+}
+
+.walk-screen .walk-stats strong {
+    font-size: 13px;
+}
+
+.walk-screen .walk-section {
+    margin-bottom: 8px;
+    padding: 9px;
+    background: #18221b;
+    border: 1px solid #35463a;
+    border-radius: 11px;
+}
+
+.walk-screen .walk-title {
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+
+.walk-screen .bar {
+    height: 10px;
+}
+
+.walk-screen .bar-text {
+    margin-top: 4px;
+    font-size: 10px;
+}
+
+.walk-screen .small-title {
+    margin-bottom: 4px;
+    font-size: 11px;
+}
+
+.walk-screen .health-xp {
+    gap: 8px;
+}
+
+.walk-screen .log {
+    height: 140px;
+}
+
+.walk-screen .buttons {
+    margin-top: 6px;
+}
+
+.walk-screen button {
+    padding: 8px;
+    font-size: 12px;
+}
+
+/* Keep Ash Hills the same phone-sized shape while preserving its theme. */
+.walk-screen[data-walk-theme="ash"] .walk-box {
+    border-color: #69463d;
+    background: linear-gradient(180deg, #211a19, #171312);
+}
+
+@media (min-width: 700px) {
+    .walk-screen {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+    }
+
+    .walk-screen .walk-box {
+        width: 390px;
+        margin-top: 8px;
+    }
+}
