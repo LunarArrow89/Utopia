@@ -59,7 +59,6 @@ function giveXP(amount) {
         player.xp -= player.xpToNext;
         player.level++;
 
-        // Each level gives +1 Attack and +3 maximum HP.
         player.attack += 1;
         player.maxHp += 3;
         player.hp = Math.min(player.maxHp, player.hp + 3);
@@ -86,7 +85,18 @@ function giveXP(amount) {
 function updateRest() {
     if (!resting) return;
 
-    document.getElementById("statusText").textContent = "Resting";
+    const restText = document.getElementById("restText");
+    if (!restText || !restStartTime || !restDuration) return;
+
+    const remaining = Math.max(0, restDuration - (Date.now() - restStartTime));
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
+
+    restText.textContent =
+        `${minutes}:${String(seconds).padStart(2, "0")} remaining`;
+
+    document.getElementById("statusText").textContent =
+        "Resting";
 }
 
 let restTimer = null;
@@ -105,7 +115,6 @@ function startRest(force = false) {
 
     resting = true;
 
-    // Rest time = HP missing × 0.5 minutes.
     restDuration = missingHp * 0.5 * 60 * 1000;
     restStartTime = Date.now();
 
@@ -116,7 +125,7 @@ function startRest(force = false) {
         force ? "Forced Rest" : "Resting";
 
     document.getElementById("restText").textContent =
-        force ? "You must rest before you can continue." : "You are resting...";
+        `${Math.floor(restDuration / 60000)}:00 remaining`;
 
     document.getElementById("restBar").style.width = "0%";
 
@@ -129,10 +138,19 @@ function startRest(force = false) {
 
     restTimer = setInterval(() => {
         const elapsed = Date.now() - restStartTime;
+        const remaining = Math.max(0, restDuration - elapsed);
         const progress = Math.min(1, elapsed / restDuration);
 
         document.getElementById("restBar").style.width =
             `${progress * 100}%`;
+
+        const restText = document.getElementById("restText");
+        if (restText) {
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            restText.textContent =
+                `${minutes}:${String(seconds).padStart(2, "0")} remaining`;
+        }
 
         const ashRestBar = document.getElementById("ashHillsRestBar");
         if (ashRestBar) ashRestBar.style.width = `${progress * 100}%`;
@@ -259,8 +277,6 @@ async function resetGame() {
     updateRest();
     updateVillageUI();
 
-    // Save the reset state to both local storage and the cloud before reloading.
-    // Otherwise an older Supabase save could immediately restore the old game.
     localStorage.setItem(SAVE_KEY, JSON.stringify(getGameSaveData()));
 
     if (typeof currentSupabaseUser !== "undefined" && currentSupabaseUser) {
@@ -271,20 +287,17 @@ async function resetGame() {
     location.reload();
 }
 
-// Initialize UI on page load
 document.addEventListener("DOMContentLoaded", () => {
     updateHP();
     updateGold();
     document.getElementById("levelText").textContent = player.level;
     document.getElementById("attackText").textContent = player.attack;
-    
+
     const resetButton = document.getElementById("resetButton");
     if (resetButton) {
         resetButton.addEventListener("click", resetGame);
     }
 
-
-    
     const restButton = document.getElementById("restButton");
     if (restButton) {
         restButton.addEventListener("click", () => startRest(false));
