@@ -136,29 +136,11 @@ function updateQuests() {
     if (ashLevelReward) ashLevelReward.textContent = village.quests.reachAshLevel.claimed ? "✓ Claimed" : "Reward: 25 Gold";
     if (rescueReward) rescueReward.textContent = village.quests.rescueCivilian.claimed ? "✓ Claimed" : "Reward: 50 Gold";
 
-    if (villageClaimButton) {
-        villageClaimButton.disabled =
-            !village.quests.getToVillage.completed ||
-            village.quests.getToVillage.claimed;
-    }
-
-    if (houseClaimButton) {
-        houseClaimButton.disabled =
-            !village.quests.makeTwoHouses.completed ||
-            village.quests.makeTwoHouses.claimed;
-    }
-
-    if (ashLevelClaimButton) {
-        ashLevelClaimButton.disabled =
-            !village.quests.reachAshLevel.completed ||
-            village.quests.reachAshLevel.claimed;
-    }
-
-    if (rescueClaimButton) {
-        rescueClaimButton.disabled =
-            !village.quests.rescueCivilian.completed ||
-            village.quests.rescueCivilian.claimed;
-    }
+    /* Quest buttons open their story instead of immediately claiming. */
+    if (villageClaimButton) villageClaimButton.disabled = village.quests.getToVillage.claimed;
+    if (houseClaimButton) houseClaimButton.disabled = village.quests.makeTwoHouses.claimed;
+    if (ashLevelClaimButton) ashLevelClaimButton.disabled = village.quests.reachAshLevel.claimed;
+    if (rescueClaimButton) rescueClaimButton.disabled = village.quests.rescueCivilian.claimed;
 }
 
 function claimQuest(type) {
