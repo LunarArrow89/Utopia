@@ -126,11 +126,6 @@
 </div>
 </div>
 
-<div class="village-tabs" role="tablist" aria-label="Oakshade Village">
-<button id="villageTabButton" class="village-tab active" type="button" role="tab" aria-selected="true" onclick="showVillageTab()">🏡 Village</button>
-<button id="walkTabButton" class="village-tab" type="button" role="tab" aria-selected="false" onclick="showVillageWalkTab()">🌲 Walk</button>
-</div>
-
 <div class="village-content">
 
 <div class="village-message village-intro">
@@ -182,6 +177,11 @@
 </div>
 </div>
 
+
+<div id="villageTabs" class="village-tabs hidden" role="tablist" aria-label="Oakshade Village">
+<button id="villageTabButton" class="village-tab active" type="button" role="tab" aria-selected="true" onclick="showVillageTab()">🏡 Village</button>
+<button id="walkTabButton" class="village-tab" type="button" role="tab" aria-selected="false" onclick="showVillageWalkTab()">🌲 Walk</button>
+</div>
 
 <div id="questScreen" class="quest-screen hidden">
 <div class="quest-screen-box">
