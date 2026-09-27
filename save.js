@@ -23,9 +23,23 @@ function getGameSaveData() {
 }
 
 function saveGame() {
-    // Store the moment this save represents so idle progress can be calculated later.
+    // Save the exact moment gameplay was last active.
+    // If a cutscene is waiting for the player, do not let offline time
+    // accidentally advance the path behind the cutscene.
+    const now = Date.now();
+
+    if (gameEnded) {
+        if (paths.forest && paths.forest.completed) {
+            paths.forest.lastUpdateTime = now;
+        }
+
+        if (paths.ashHills && paths.ashHills.completed) {
+            paths.ashHills.lastUpdateTime = now;
+        }
+    }
+
     const saveData = getGameSaveData();
-    saveData.savedAt = Date.now();
+    saveData.savedAt = now;
 
     localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
 
@@ -88,6 +102,23 @@ async function loadRemoteGame() {
         if (error) throw error;
         if (!data || !data.save_data) return false;
 
+        const localRaw = localStorage.getItem(SAVE_KEY);
+        let localSave = null;
+
+        try {
+            localSave = localRaw ? JSON.parse(localRaw) : null;
+        } catch {
+            localSave = null;
+        }
+
+        const localTime = Number(localSave?.savedAt || 0);
+        const remoteTime = Number(data.save_data?.savedAt || 0);
+
+        // Never replace a newer local idle save with an older cloud save.
+        if (localSave && localTime > remoteTime) {
+            return false;
+        }
+
         applySaveData(data.save_data);
         localStorage.setItem(SAVE_KEY, JSON.stringify(data.save_data));
 
@@ -101,17 +132,6 @@ async function loadRemoteGame() {
 
 function applySaveData(data) {
     Object.assign(player, data.player || {});
-
-    // Older saves do not have savedAt, so simply use the current time for them.
-    const savedAt = Number(data.savedAt || Date.now());
-    const now = Date.now();
-    const offlineSeconds = Math.max(0, Math.floor((now - savedAt) / 1000));
-
-    // Offline idle time is applied by each path's catchUp() function.
-    // Do not advance while a cutscene/rest is paused.
-    if (offlineSeconds > 0 && typeof applyOfflineProgress === "function") {
-        applyOfflineProgress(offlineSeconds);
-    }
 
     Object.keys(paths).forEach(pathName => {
         if (data.paths && data.paths[pathName]) {
