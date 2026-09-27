@@ -2220,21 +2220,25 @@ button:disabled {
 
 /* COMPACT VILLAGE RESOURCES */
 .resource-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 5px;
 }
 
 .resource-card {
     display: flex;
     align-items: center;
-    gap: 7px;
-    padding: 6px 8px;
-    text-align: left;
+    justify-content: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 5px 6px;
+    text-align: center;
     border-radius: 8px;
 }
 
 .resource-icon {
     flex: 0 0 auto;
-    font-size: 17px;
+    font-size: 16px;
 }
 
 .resource-name {
@@ -2243,13 +2247,35 @@ button:disabled {
 }
 
 .resource-value {
-    margin: 1px 0 0;
-    font-size: 15px;
+    margin: 0;
+    font-size: 14px;
 }
 
-/* KEEP THE VILLAGE WALK HP BAR IN SYNC */
-#villageWalkHpBar {
-    width: 0;
-    min-width: 0;
-    max-width: 100%;
+.resource-card button {
+    padding: 4px;
+    font-size: 10px;
+}
+
+@media (max-width: 500px) {
+    .resource-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 3px;
+    }
+
+    .resource-card {
+        gap: 4px;
+        padding: 5px 3px;
+    }
+
+    .resource-icon {
+        font-size: 14px;
+    }
+
+    .resource-name {
+        font-size: 9px;
+    }
+
+    .resource-value {
+        font-size: 13px;
+    }
 }
