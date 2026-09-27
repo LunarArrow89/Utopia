@@ -1955,3 +1955,56 @@ button:disabled {
         font-size: 10px;
     }
 }
+
+
+/* VILLAGE / WALK TABS */
+.village-tabs {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    margin: 4px 0 8px;
+    padding: 4px;
+    border: 1px solid #394837;
+    border-radius: 11px;
+    background: #182019;
+}
+
+.village-tab {
+    flex: 1;
+    min-height: 36px;
+    padding: 7px 10px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: #9eaa9a;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.village-tab:hover {
+    background: #263126;
+    color: #dce7d9;
+}
+
+.village-tab.active {
+    border-color: #667e58;
+    background: #34452f;
+    color: #eef5e9;
+    box-shadow: 0 2px 7px rgba(0,0,0,.18);
+}
+
+@media(max-width:500px) {
+    .village-tabs {
+        margin: 3px 0 6px;
+        gap: 4px;
+        padding: 3px;
+    }
+
+    .village-tab {
+        min-height: 32px;
+        padding: 6px 7px;
+        font-size: 10px;
+    }
+}
