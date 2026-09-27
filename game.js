@@ -1,6 +1,10 @@
 async function initializeGame() {
     await loadGame();
 
+    if (typeof catchUpVillageWalk === "function") {
+        catchUpVillageWalk();
+    }
+
     updateHP();
     updateGold();
     updateForest();
