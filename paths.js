@@ -14,10 +14,25 @@ const paths = {
         duration: 420,
         encounterTime: 60,
         completed: false
+    },
+
+    ashHills: {
+        name: "Ash Hills",
+        progress: 0,
+        duration: 45 * 60,
+        encounterTime: 45,
+        completed: false,
+        active: false,
+        lastUpdateTime: 0,
+        levelRequirement: 3
     }
 };
 
 let currentPath = "forest";
+
+function randomEncounterTime() {
+    return 30 + Math.floor(Math.random() * 31);
+}
 
 function updatePath() {
     const path = paths[currentPath];
@@ -34,20 +49,147 @@ function updatePath() {
 
     if (path.progress >= path.encounterTime) {
         startBattle();
-        path.encounterTime =
-            path.progress + randomEncounterTime();
+        path.encounterTime = path.progress + randomEncounterTime();
     }
 
     updateForest();
 }
 
-function randomEncounterTime() {
-    return 30 + Math.floor(Math.random() * 31);
+function startAshHills() {
+    const path = paths.ashHills;
+
+    if (!village.unlocked || village.housesBuilt < 2) return;
+
+    if (player.level < path.levelRequirement) {
+        addVillageLog("You must reach level " + path.levelRequirement + " before entering Ash Hills.");
+        return;
+    }
+
+    if (path.completed || path.active) {
+        showAshHills();
+        return;
+    }
+
+    path.active = true;
+    path.lastUpdateTime = Date.now();
+    path.encounterTime = 45;
+    currentPath = "ashHills";
+    gameEnded = false;
+
+    addVillageLog("You entered Ash Hills. The path will take 45 minutes.");
+    showAshHills();
+    saveGame();
+}
+
+function showAshHills() {
+    setVillageTabsVisible(false);
+    document.getElementById("arrivalScene")?.classList.add("hidden");
+    document.getElementById("forestGame")?.classList.add("hidden");
+    document.getElementById("villageScreen")?.classList.add("hidden");
+    document.getElementById("villageWalkScreen")?.classList.add("hidden");
+    document.getElementById("questScreen")?.classList.add("hidden");
+    document.getElementById("ashHillsScreen")?.classList.remove("hidden");
+    updateAshHillsUI();
+}
+
+function returnToVillageFromAshHills() {
+    showVillage();
+    if (paths.ashHills.active) {
+        addVillageLog("You returned to Oakshade Village. Ash Hills is still in progress.");
+    }
+    saveGame();
+}
+
+function updateAshHills() {
+    const path = paths.ashHills;
+    if (!path.active || path.completed || resting) return;
+
+    const now = Date.now();
+    const elapsed = Math.floor((now - path.lastUpdateTime) / 1000);
+    if (elapsed <= 0) return;
+
+    path.lastUpdateTime = now;
+    path.progress = Math.min(path.duration, path.progress + elapsed);
+
+    if (path.progress >= path.encounterTime) {
+        startAshBattle();
+        if (path.active && !path.completed) {
+            path.encounterTime = path.progress + randomEncounterTime();
+        }
+    }
+
+    updateAshHillsUI();
+
+    if (path.progress >= path.duration) finishAshHills();
+}
+
+function finishAshHills() {
+    const path = paths.ashHills;
+    if (path.completed) return;
+
+    path.progress = path.duration;
+    path.active = false;
+    path.completed = true;
+    currentPath = "forest";
+    gameEnded = true;
+
+    addLog("Ash Hills completed!");
+    addLog("You found a civilian trapped beyond the hills.");
+    addLog("You rescued the civilian and brought them safely back to Oakshade Village.");
+
+    village.quests.rescueCivilian.completed = true;
+
+    document.getElementById("ashHillsScreen")?.classList.add("hidden");
+
+    if (village.unlocked) {
+        showVillage();
+        addVillageLog("You returned with a rescued civilian from Ash Hills.");
+    }
+
+    updateQuests();
+    updateAshHillsUI();
+    saveGame();
+}
+
+function updateAshHillsUI() {
+    const path = paths.ashHills;
+    const bar = document.getElementById("ashHillsBar");
+    const text = document.getElementById("ashHillsText");
+    const hpText = document.getElementById("ashHillsHpText");
+    const hpBar = document.getElementById("ashHillsHpBar");
+    const xpText = document.getElementById("ashHillsXpText");
+    const xpBar = document.getElementById("ashHillsXpBar");
+    const levelText = document.getElementById("ashHillsLevelText");
+    const attackText = document.getElementById("ashHillsAttackText");
+    const goldText = document.getElementById("ashHillsGoldText");
+    const restText = document.getElementById("ashHillsRestText");
+
+    if (bar) bar.style.width = (path.progress / path.duration * 100) + "%";
+
+    if (text) {
+        const remaining = Math.max(0, path.duration - path.progress);
+        text.textContent =
+            Math.floor(remaining / 60) + ":" +
+            String(remaining % 60).padStart(2, "0") + " remaining";
+    }
+
+    if (hpText) hpText.textContent = player.hp + " / " + player.maxHp;
+    if (hpBar) hpBar.style.width = (player.hp / player.maxHp * 100) + "%";
+    if (xpText) xpText.textContent = player.xp + " / " + player.xpToNext + " XP";
+    if (xpBar) xpBar.style.width = (player.xp / player.xpToNext * 100) + "%";
+    if (levelText) levelText.textContent = player.level;
+    if (attackText) attackText.textContent = player.attack;
+    if (goldText) goldText.textContent = player.gold;
+
+    if (restText) {
+        restText.textContent = resting
+            ? "You are resting before continuing Ash Hills."
+            : "Rest when you need to recover.";
+    }
 }
 
 function finishPath() {
     const path = paths[currentPath];
-
     path.completed = true;
     gameEnded = true;
 
