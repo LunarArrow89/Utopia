@@ -9,6 +9,11 @@
 -- SERVER-SIDE IDLE PROCESSOR
 -- ============================================================
 
+-- This timestamp lives OUTSIDE save_data so browser saves cannot
+-- reset the server's offline clock.
+alter table if exists public.game_saves
+add column if not exists idle_last_processed_at bigint;
+
 create or replace function public.process_idle_games(p_user_id uuid default null)
 returns void
 language plpgsql
@@ -26,6 +31,8 @@ declare
     cave jsonb;
     village jsonb;
     walk jsonb;
+
+    server_last_ms bigint;
 
     now_ms bigint := floor(extract(epoch from clock_timestamp()) * 1000);
 
@@ -89,7 +96,7 @@ begin
     -- ============================================================
 
     for r in
-        select id, user_id, save_data
+        select id, user_id, save_data, idle_last_processed_at
         from public.game_saves
         where target_id is null
            or user_id = target_id
@@ -97,6 +104,17 @@ begin
     loop
 
         d := coalesce(r.save_data, '{}'::jsonb);
+
+        -- Use the database-owned clock. If this is an older save,
+        -- initialize it from the last browser save exactly once.
+        server_last_ms := greatest(
+            coalesce(r.idle_last_processed_at, 0),
+            coalesce((d->>'savedAt')::bigint, 0)
+        );
+
+        if server_last_ms <= 0 then
+            server_last_ms := now_ms;
+        end if;
 
         p := coalesce(
             d->'player',
@@ -233,6 +251,12 @@ begin
 
         end if;
 
+        -- Rest time is handled by restStartTime/restDuration, so it must
+        -- never also become path progress. The next idle tick starts now.
+        if coalesce((d->>'resting')::boolean, false) then
+            server_last_ms := now_ms;
+        end if;
+
 
         -- ============================================================
         -- FOREST
@@ -269,10 +293,7 @@ begin
                 (
                     now_ms
                     -
-                    coalesce(
-                        (forest->>'lastUpdateTime')::bigint,
-                        now_ms
-                    )
+                    server_last_ms
                 ) / 1000
             );
 
@@ -650,10 +671,7 @@ begin
                 (
                     now_ms
                     -
-                    coalesce(
-                        (ash->>'lastUpdateTime')::bigint,
-                        now_ms
-                    )
+                    server_last_ms
                 ) / 1000
             );
 
@@ -1011,10 +1029,7 @@ begin
                 (
                     now_ms
                     -
-                    coalesce(
-                        (walk->>'startTime')::bigint,
-                        now_ms
-                    )
+                    server_last_ms
                 ) / 1000
             );
 
@@ -1411,7 +1426,8 @@ begin
 
         set
             save_data = d,
-            updated_at = clock_timestamp()
+            updated_at = clock_timestamp(),
+            idle_last_processed_at = now_ms
 
         where id = r.id;
 
