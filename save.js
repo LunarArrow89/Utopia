@@ -345,13 +345,21 @@ async function signIn() {
 
     currentSupabaseUser = data.user;
 
-    const hadRemoteSave = await loadRemoteGame();
+    // Process offline time on the server before loading the save.
+    // This keeps sign-in consistent with normal game startup.
+    try {
+        const { error: idleError } = await supabaseClient.rpc("process_idle_games", {
+            p_user_id: currentSupabaseUser.id
+        });
 
-    catchUpPathsWhileAway();
-
-    if (typeof catchUpVillageWalk === "function") {
-        catchUpVillageWalk();
+        if (idleError) {
+            console.warn("Server idle processing failed during sign-in:", idleError);
+        }
+    } catch (error) {
+        console.warn("Server idle processing unavailable during sign-in:", error);
     }
+
+    const hadRemoteSave = await loadRemoteGame();
 
     if (typeof resumeRest === "function" && resting) {
         resumeRest();
@@ -360,10 +368,6 @@ async function signIn() {
     updateAccountUI();
     unlockLogin();
     refreshGameUI();
-
-    // Save the post-offline catch-up immediately so another device can see it.
-    await saveRemoteGame(getGameSaveData(Date.now()));
-    lastRemoteSaveAt = Date.now();
 
     setAccountStatus(hadRemoteSave
         ? "Cloud save loaded and offline progress caught up!"
