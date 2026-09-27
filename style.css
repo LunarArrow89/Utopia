@@ -2819,3 +2819,23 @@ body {
 .ash-hills-animation {
     background: #111216;
 }
+
+
+/* Slightly wider phone frame for all path screens. */
+@media (min-width: 501px) {
+    #forestGame > .game,
+    .walk-screen .walk-box,
+    .quest-screen-box,
+    .account-box,
+    .arrival-box {
+        width: 420px;
+    }
+
+    #villageScreen {
+        width: 420px !important;
+    }
+
+    #villageScreen + #villageTabs {
+        width: 404px;
+    }
+}
