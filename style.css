@@ -2076,3 +2076,63 @@ button:disabled {
         font-size: 11px;
     }
 }
+
+
+/* FINAL VILLAGE PHONE FIXES */
+@media (max-width: 500px) {
+    /* Give village text the full phone width so it does not get squeezed by the status badge. */
+    #villageScreen .village-header {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    #villageScreen .village-header > div:first-child {
+        width: 100%;
+        min-width: 0;
+    }
+
+    #villageScreen .village-header p {
+        width: 100%;
+        max-width: none;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }
+
+    #villageScreen .village-header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    #villageScreen .village-message span {
+        overflow-wrap: anywhere;
+        word-break: normal;
+    }
+
+    /* Make the resource rows shorter so the amounts take much less space. */
+    #villageScreen .resource-grid {
+        gap: 3px;
+    }
+
+    #villageScreen .resource-card {
+        grid-template-columns: 22px 1fr auto;
+        gap: 5px;
+        padding: 5px 6px;
+        min-height: 0;
+    }
+
+    #villageScreen .resource-icon {
+        font-size: 15px;
+    }
+
+    #villageScreen .resource-name {
+        font-size: 10px;
+    }
+
+    #villageScreen .resource-value {
+        margin: 0;
+        font-size: 12px;
+        line-height: 1;
+    }
+}
