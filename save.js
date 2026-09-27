@@ -155,28 +155,14 @@ async function loadRemoteGame() {
         if (!data || !data.save_data) return false;
 
         const remoteSave = data.save_data;
-        const remoteTime = Number(remoteSave.savedAt || 0);
 
-        let localSave = null;
-        try {
-            const localRaw = localStorage.getItem(SAVE_KEY);
-            localSave = localRaw ? JSON.parse(localRaw) : null;
-        } catch {
-            localSave = null;
-        }
-
-        const localTime = Number(localSave?.savedAt || 0);
-
-        // The newest copy belongs to this account. This prevents an older
-        // phone/computer copy from replacing newer progress made elsewhere.
-        if (localSave && localTime > remoteTime) {
-            applySaveData(localSave);
-            await saveRemoteGame(localSave);
-            return false;
-        }
-
+        // Supabase is the authoritative save for logged-in accounts.
+        // The server-side idle engine may have progressed this save while
+        // every device was closed, so never let an older browser copy win
+        // just because its local savedAt timestamp is newer.
         applySaveData(remoteSave);
         writeLocalSave(remoteSave);
+
         return true;
     } catch (error) {
         console.error("Cloud load failed:", error);
