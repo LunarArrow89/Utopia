@@ -64,6 +64,7 @@ declare
     walk_elapsed integer;
     walk_capped integer;
     walk_encounter integer;
+    walk_duration_seconds bigint;
 
 begin
 
@@ -1035,12 +1036,23 @@ begin
             );
 
 
+            -- The browser stores village walk duration in milliseconds,
+            -- while the idle engine works in seconds. Accept either format
+            -- so existing saves continue to work correctly.
+            walk_duration_seconds := coalesce(
+                (walk->>'duration')::bigint,
+                1200
+            );
+
+            if walk_duration_seconds > 10000 then
+                walk_duration_seconds := floor(
+                    walk_duration_seconds / 1000
+                );
+            end if;
+
             walk_capped := least(
                 walk_elapsed,
-                coalesce(
-                    (walk->>'duration')::integer,
-                    1200
-                )
+                walk_duration_seconds
             );
 
 
@@ -1350,10 +1362,7 @@ begin
 
 
             -- Village walk finished.
-            if walk_elapsed >= coalesce(
-                (walk->>'duration')::integer,
-                1200
-            )
+            if walk_elapsed >= walk_duration_seconds
             then
 
                 walk := jsonb_set(
@@ -1451,6 +1460,9 @@ to authenticated;
 -- ============================================================
 -- CRON JOB
 -- ============================================================
+
+-- Make sure Supabase Cron is available for the project.
+create extension if not exists pg_cron;
 
 -- The job runs once every minute.
 --
