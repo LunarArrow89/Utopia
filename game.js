@@ -29,7 +29,11 @@ function tick() {
         paths.forest.lastUpdateTime = Date.now();
     }
 
-    updatePaths();
+    // Cutscenes/rest are deliberate pauses. Time spent away during them
+    // must not advance the path.
+    if (!gameEnded && !resting) {
+        updatePaths();
+    }
 
     if (!village.unlocked) {
         updateRest();
