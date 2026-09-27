@@ -1030,33 +1030,21 @@ begin
 
         then
 
+            -- Village Walk is infinite. Its elapsed time is measured
+            -- from the walk's own server-saved start time so rewards
+            -- continue accumulating correctly across every Cron run.
             walk_elapsed := floor(
                 (
                     now_ms
                     -
-                    server_last_ms
+                    coalesce(
+                        (walk->>'startTime')::bigint,
+                        now_ms
+                    )
                 ) / 1000
             );
 
-
-            -- The browser stores village walk duration in milliseconds,
-            -- while the idle engine works in seconds. Accept either format
-            -- so existing saves continue to work correctly.
-            walk_duration_seconds := coalesce(
-                (walk->>'duration')::bigint,
-                1200
-            );
-
-            if walk_duration_seconds > 10000 then
-                walk_duration_seconds := floor(
-                    walk_duration_seconds / 1000
-                );
-            end if;
-
-            walk_capped := least(
-                walk_elapsed,
-                walk_duration_seconds
-            );
+            walk_capped := greatest(0, walk_elapsed);
 
 
             -- ========================================================
@@ -1364,17 +1352,8 @@ begin
             );
 
 
-            -- Village walk finished.
-            if walk_elapsed >= walk_duration_seconds
-            then
-
-                walk := jsonb_set(
-                    walk,
-                    '{active}',
-                    'false'::jsonb
-                );
-
-            end if;
+            -- Village Walk is infinite, so it never auto-finishes.
+            -- The player leaves manually and keeps all resources earned.
 
         end if;
 
