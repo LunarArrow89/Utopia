@@ -149,6 +149,13 @@
 </div>
 </div>
 
+<div class="village-panel ash-hills-option">
+<div class="village-panel-title">⚠️ Dangerous Path</div>
+<div class="village-walk-description">Ash Hills is a dangerous 45 minute path filled with tougher enemies. Reach level 3 before entering. Rescue the civilian waiting beyond the hills.</div>
+<div class="ash-hills-requirement">Requires 2 houses and Level 3</div>
+<button id="ashHillsButton" type="button" onclick="startAshHills()">Build 2 Houses First</button>
+</div>
+
 <div class="village-panel village-walk-option">
 <div class="village-panel-title">Explore</div>
 <div class="village-walk-description">Take a 20 minute walk and find 1 random resource every 15 seconds.</div>
@@ -199,6 +206,68 @@
 <div><strong>Make Two Houses</strong><span>Build 2 houses. <b><span id="houseCountText">0</span>/2</b></span></div>
 <div><small id="questHousesReward">Reward: 15 Gold</small><button type="button" onclick="claimQuest('makeTwoHouses')">Claim</button></div>
 </div>
+</div>
+<div class="quest-card hidden" id="questAshLevel">
+<div><strong>Prepare for Ash Hills</strong><span>Reach level 3 after rebuilding two houses.</span></div>
+<div><small id="questAshLevelReward">Reward: 25 Gold</small><button type="button" onclick="claimQuest('reachAshLevel')">Claim</button></div>
+</div>
+<div class="quest-card hidden" id="questRescue">
+<div><strong>Rescue the Civilian</strong><span>Complete Ash Hills and bring the civilian home.</span></div>
+<div><small id="questRescueReward">Reward: 50 Gold</small><button type="button" onclick="claimQuest('rescueCivilian')">Claim</button></div>
+</div>
+</div>
+</div>
+
+<div id="ashHillsScreen" class="ash-hills-screen hidden">
+<div class="ash-hills-box">
+<div class="village-kicker">DANGEROUS PATH</div>
+<h1>🌋 Ash Hills</h1>
+<p>Push through the burned hills for 45 minutes. Tough enemies guard the path.</p>
+
+<div class="village-walk-stats">
+<div><span>HP</span><strong id="ashHillsHpText">40 / 40</strong></div>
+<div><span>Attack</span><strong id="ashHillsAttackText">8</strong></div>
+<div><span>Level</span><strong id="ashHillsLevelText">1</strong></div>
+<div><span>Gold</span><strong id="ashHillsGoldText">0</strong></div>
+</div>
+
+<div class="village-walk-section">
+<div class="village-walk-title">🌋 Ash Hills Progress</div>
+<div class="bar"><div class="bar-fill" id="ashHillsBar"></div></div>
+<div class="bar-text" id="ashHillsText">45:00 remaining</div>
+</div>
+
+<div class="village-walk-section">
+<div class="village-walk-title">❤️ Health & Experience</div>
+<div class="health-xp">
+<div>
+<div class="small-title">Health</div>
+<div class="bar"><div class="bar-fill" id="ashHillsHpBar"></div></div>
+</div>
+<div>
+<div class="small-title">Experience</div>
+<div class="bar"><div class="bar-fill" id="ashHillsXpBar"></div></div>
+<div class="bar-text" id="ashHillsXpText">0 / 50 XP</div>
+</div>
+</div>
+</div>
+
+<div class="village-walk-section">
+<div class="village-walk-title">💤 Rest</div>
+<div class="bar"><div class="bar-fill" id="ashHillsRestBar"></div></div>
+<div class="bar-text" id="ashHillsRestText">Rest when you need to recover.</div>
+<div class="buttons">
+<button type="button" onclick="startRest(false)">Rest</button>
+</div>
+</div>
+
+<div class="village-walk-section">
+<div class="village-walk-title">📖 Adventure Log</div>
+<div class="log" id="ashHillsLog"></div>
+</div>
+
+<div class="buttons">
+<button id="ashHillsReturnButton" type="button" onclick="returnToVillageFromAshHills()">Return to Village</button>
 </div>
 </div>
 </div>
