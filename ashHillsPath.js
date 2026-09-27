@@ -127,15 +127,15 @@ function catchUpAshHillsWhileAway() {
 
     while (encounterTime <= targetProgress && encounterTime > oldProgress) {
         const enemy = ashEnemies[Math.floor(Math.random() * ashEnemies.length)];
-        const damageTaken = Math.max(0, enemy.attack - player.attack);
+        const result = resolveBattle(enemy);
 
-        if (damageTaken <= 0) {
+        if (result.won) {
             player.gold += enemy.gold;
             giveXP(enemy.xp);
             addLog("You defeated " + enemy.name + ".");
         } else {
-            player.hp -= damageTaken;
-            addLog(enemy.name + " attacked you for " + damageTaken + " damage.");
+            player.hp -= result.damageTaken;
+            addLog(enemy.name + " attacked you for " + result.damageTaken + " damage.");
 
             if (player.hp <= 0) {
                 player.hp = 0;
