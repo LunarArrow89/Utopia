@@ -1,17 +1,9 @@
 function resolveBattle(enemy) {
-    const playerPower = player.attack + Math.floor(Math.random() * 6);
-    const enemyPower = enemy.attack;
-
-    if (playerPower >= enemyPower) {
-        return {
-            won: true,
-            damageTaken: 0
-        };
-    }
+    const damageTaken = Math.max(0, enemy.attack - player.attack);
 
     return {
-        won: false,
-        damageTaken: enemyPower - playerPower
+        damageTaken,
+        defeated: damageTaken <= 0
     };
 }
 
@@ -21,7 +13,7 @@ function startBattle(enemyList) {
     const enemy = enemyList[Math.floor(Math.random() * enemyList.length)];
     const result = resolveBattle(enemy);
 
-    if (result.won) {
+    if (result.defeated) {
         addLog(`You defeated ${enemy.name}.`);
         player.gold += enemy.gold;
         giveXP(enemy.xp);
