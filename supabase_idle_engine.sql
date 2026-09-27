@@ -14,6 +14,9 @@
 alter table if exists public.game_saves
 add column if not exists idle_last_processed_at bigint;
 
+alter table if exists public.game_saves
+add column if not exists save_revision bigint not null default 0;
+
 create or replace function public.process_idle_games(p_user_id uuid default null)
 returns void
 language plpgsql
@@ -1437,7 +1440,8 @@ begin
         set
             save_data = d,
             updated_at = clock_timestamp(),
-            idle_last_processed_at = now_ms
+            idle_last_processed_at = now_ms,
+            save_revision = coalesce(r.save_revision, 0) + 1
 
         where id = r.id;
 
@@ -1446,6 +1450,105 @@ begin
 
 end;
 $$;
+
+
+-- ============================================================
+-- SERVER-AUTHORITATIVE SAVE RPC
+-- ============================================================
+--
+-- The browser never writes game_saves directly anymore.
+-- Each write is checked against a server-side revision number.
+-- This prevents an old device/browser from overwriting progress
+-- that happened on another device or while the device was off.
+
+create or replace function public.save_game_state(
+    p_save_data jsonb,
+    p_expected_revision bigint default 0
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $
+declare
+    uid uuid := (select auth.uid());
+    existing public.game_saves%rowtype;
+    new_data jsonb;
+    now_ms bigint := floor(extract(epoch from clock_timestamp()) * 1000);
+    new_revision bigint;
+begin
+    if uid is null then
+        raise exception 'You must be signed in to save Utopia.';
+    end if;
+
+    new_data := coalesce(p_save_data, '{}'::jsonb);
+
+    new_data := jsonb_set(
+        new_data,
+        '{savedAt}',
+        to_jsonb(now_ms)
+    );
+
+    select *
+    into existing
+    from public.game_saves
+    where user_id = uid
+    for update;
+
+    if not found then
+        new_revision := 1;
+
+        insert into public.game_saves (
+            user_id,
+            save_data,
+            updated_at,
+            idle_last_processed_at,
+            save_revision
+        )
+        values (
+            uid,
+            new_data,
+            clock_timestamp(),
+            now_ms,
+            new_revision
+        );
+
+        return jsonb_build_object(
+            'conflict', false,
+            'save_data', new_data,
+            'save_revision', new_revision
+        );
+    end if;
+
+    if coalesce(existing.save_revision, 0) <> coalesce(p_expected_revision, 0) then
+        return jsonb_build_object(
+            'conflict', true,
+            'save_data', existing.save_data,
+            'save_revision', coalesce(existing.save_revision, 0)
+        );
+    end if;
+
+    new_revision := coalesce(existing.save_revision, 0) + 1;
+
+    update public.game_saves
+    set
+        save_data = new_data,
+        updated_at = clock_timestamp(),
+        idle_last_processed_at = now_ms,
+        save_revision = new_revision
+    where id = existing.id;
+
+    return jsonb_build_object(
+        'conflict', false,
+        'save_data', new_data,
+        'save_revision', new_revision
+    );
+end;
+$;
+
+grant execute
+on function public.save_game_state(jsonb, bigint)
+to authenticated;
 
 
 -- ============================================================
