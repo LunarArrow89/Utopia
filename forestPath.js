@@ -58,7 +58,7 @@ registerPath("forest", {
             const enemy = forestEnemies[Math.floor(Math.random() * forestEnemies.length)];
             const result = resolveBattle(enemy);
 
-            if (result.won) {
+            if (result.defeated) {
                 player.gold += enemy.gold;
                 giveXP(enemy.xp);
                 addLog("You defeated " + enemy.name + ".");
