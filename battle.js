@@ -17,18 +17,15 @@ function startBattle(){
 
     if(damageTaken <= 0){
         addLog(`You defeated ${enemy.name}.`);
-        addAshHillsLog(`You defeated ${enemy.name}. +${enemy.xp} XP, +${enemy.gold} Gold.`);
         player.gold += enemy.gold;
         giveXP(enemy.xp);
     } else {
         player.hp -= damageTaken;
         addLog(`${enemy.name} attacked you for ${damageTaken} damage.`);
-        addAshHillsLog(`${enemy.name} attacked you for ${damageTaken} damage.`);
 
         if(player.hp <= 0){
             player.hp = 0;
             addLog(`${enemy.name} defeated you.`);
-            addAshHillsLog(`${enemy.name} defeated you.`);
             startRest(true);
         }
     }
@@ -60,15 +57,18 @@ function startAshBattle(){
 
     if(damageTaken <= 0){
         addLog(`You defeated ${enemy.name}.`);
+        addAshHillsLog(`You defeated ${enemy.name}. +${enemy.xp} XP, +${enemy.gold} Gold.`);
         player.gold += enemy.gold;
         giveXP(enemy.xp);
     } else {
         player.hp -= damageTaken;
         addLog(`${enemy.name} attacked you for ${damageTaken} damage.`);
+        addAshHillsLog(`${enemy.name} attacked you for ${damageTaken} damage.`);
 
         if(player.hp <= 0){
             player.hp = 0;
             addLog(`${enemy.name} defeated you.`);
+            addAshHillsLog(`${enemy.name} defeated you.`);
             startRest(true);
         }
     }
