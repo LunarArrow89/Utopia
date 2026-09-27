@@ -1958,6 +1958,10 @@ button:disabled {
 
 
 /* VILLAGE / WALK TABS */
+.village-tabs.hidden {
+    display: none !important;
+}
+
 .village-tabs {
     display: flex;
     gap: 6px;
