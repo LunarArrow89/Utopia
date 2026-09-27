@@ -107,9 +107,10 @@ begin
 
         -- Use the database-owned clock. If this is an older save,
         -- initialize it from the last browser save exactly once.
-        server_last_ms := greatest(
-            coalesce(r.idle_last_processed_at, 0),
-            coalesce((d->>'savedAt')::bigint, 0)
+        server_last_ms := coalesce(
+            r.idle_last_processed_at,
+            (d->>'savedAt')::bigint,
+            now_ms
         );
 
         if server_last_ms <= 0 then
