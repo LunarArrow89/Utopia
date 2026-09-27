@@ -179,7 +179,7 @@ function leaveRest() {
     saveGame();
 }
 
-async function resetGame() {
+async async function resetGame() {
     if (!confirm("Are you sure you want to reset your save? This cannot be undone.")) {
         return;
     }
@@ -278,10 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
         resetButton.addEventListener("click", resetGame);
     }
 
-    const villageResetButton = document.getElementById("villageResetButton");
-    if (villageResetButton) {
-        villageResetButton.addEventListener("click", resetGame);
-    }
+
     
     const restButton = document.getElementById("restButton");
     if (restButton) {
