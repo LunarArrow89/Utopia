@@ -13,6 +13,12 @@ async function initializeGame() {
         catchUpVillageWalk();
     }
 
+    // Push all offline catch-up rewards/progress to the account immediately.
+    if (typeof saveRemoteGame === "function" && typeof getGameSaveData === "function") {
+        await saveRemoteGame(getGameSaveData(Date.now()));
+        lastRemoteSaveAt = Date.now();
+    }
+
     updateHP();
     updateGold();
     updateForest();
