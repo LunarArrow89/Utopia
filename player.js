@@ -80,6 +80,9 @@ function giveXP(amount) {
     if (typeof updateVillageUI === "function") updateVillageUI();
     if (typeof updateVillageWalkUI === "function") updateVillageWalkUI();
     if (typeof updateAshHillsUI === "function") updateAshHillsUI();
+
+    // XP and level changes are saved immediately.
+    saveGame();
 }
 
 function updateRest() {
