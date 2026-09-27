@@ -1,6 +1,7 @@
 async function initializeGame() {
     await loadGame();
 
+    // Recalculate time-based progress that happened while the device was off.
     catchUpPathsWhileAway();
 
     if (typeof catchUpVillageWalk === "function") {
