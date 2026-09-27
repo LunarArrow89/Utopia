@@ -135,13 +135,14 @@ begin
 
                         while current_xp >= xp_needed loop
                             current_xp := current_xp - xp_needed;
+                            xp_needed := xp_needed + 25;
                             new_level := new_level + 1;
                             new_attack := new_attack + 1;
                             new_max_hp := new_max_hp + 3;
                         end loop;
 
                         p := jsonb_set(p, '{xp}', to_jsonb(current_xp));
-                        p := jsonb_set(p, '{xpToNext}', to_jsonb(xp_needed + 25 * (new_level - coalesce((p->>'level')::integer, 1))));
+                        p := jsonb_set(p, '{xpToNext}', to_jsonb(xp_needed));
                         p := jsonb_set(p, '{level}', to_jsonb(new_level));
                         p := jsonb_set(p, '{attack}', to_jsonb(new_attack));
                         p := jsonb_set(p, '{maxHp}', to_jsonb(new_max_hp));
@@ -217,7 +218,7 @@ begin
                         end loop;
 
                         p := jsonb_set(p, '{xp}', to_jsonb(current_xp));
-                        p := jsonb_set(p, '{xpToNext}', to_jsonb(xp_needed + 25 * (new_level - coalesce((p->>'level')::integer, 1))));
+                        p := jsonb_set(p, '{xpToNext}', to_jsonb(xp_needed));
                         p := jsonb_set(p, '{level}', to_jsonb(new_level));
                         p := jsonb_set(p, '{attack}', to_jsonb(new_attack));
                         p := jsonb_set(p, '{maxHp}', to_jsonb(new_max_hp));
@@ -269,12 +270,16 @@ begin
             reward_count := floor(walk_capped / 15);
 
             if reward_count > old_reward_count then
-                village := jsonb_set(village, '{resources,wood}',
-                    to_jsonb(coalesce((village#>>'{resources,wood}')::integer, 0) +
-                    (reward_count - old_reward_count)));
-                village := jsonb_set(village, '{resources,stone}',
-                    to_jsonb(coalesce((village#>>'{resources,stone}')::integer, 0) +
-                    (reward_count - old_reward_count)));
+                for i in 1..(reward_count - old_reward_count) loop
+                    case floor(random() * 3)::integer
+                        when 0 then village := jsonb_set(village, '{resources,wood}',
+                            to_jsonb(coalesce((village#>>'{resources,wood}')::integer, 0) + 1));
+                        when 1 then village := jsonb_set(village, '{resources,stone}',
+                            to_jsonb(coalesce((village#>>'{resources,stone}')::integer, 0) + 1));
+                        else village := jsonb_set(village, '{resources,food}',
+                            to_jsonb(coalesce((village#>>'{resources,food}')::integer, 0) + 1));
+                    end case;
+                end loop;
                 walk := jsonb_set(walk, '{lastRewardCount}', to_jsonb(reward_count));
             end if;
 
@@ -283,11 +288,10 @@ begin
             while walk_encounter <= walk_capped loop
                 -- Current village walk enemies are resolved with the same
                 -- attack comparison as the browser battle system.
-                case floor(random() * 4)::integer
-                    when 0 then enemy_attack := 9; enemy_xp := 8; enemy_gold := 4;
-                    when 1 then enemy_attack := 11; enemy_xp := 12; enemy_gold := 6;
-                    when 2 then enemy_attack := 13; enemy_xp := 15; enemy_gold := 8;
-                    else enemy_attack := 15; enemy_xp := 18; enemy_gold := 10;
+                case floor(random() * 3)::integer
+                    when 0 then enemy_attack := 11; enemy_xp := 12; enemy_gold := 5;
+                    when 1 then enemy_attack := 12; enemy_xp := 16; enemy_gold := 7;
+                    else enemy_attack := 14; enemy_xp := 20; enemy_gold := 9;
                 end case;
 
                 damage := greatest(0, enemy_attack - coalesce((p->>'attack')::integer, 0));
