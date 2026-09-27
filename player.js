@@ -266,6 +266,20 @@ async function resetGame() {
         return;
     }
 
+    // Stop any delayed save from the old game so it cannot overwrite
+    // the freshly reset save after the reset finishes.
+    if (remoteSaveTimer) {
+        clearTimeout(remoteSaveTimer);
+        remoteSaveTimer = null;
+    }
+    pendingRemoteSave = null;
+
+    // Let an already-running cloud save finish first. The reset will
+    // then use the newest save revision and become the authoritative save.
+    while (remoteSaveInProgress) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
+
     clearInterval(restTimer);
     restTimer = null;
     clearInterval(typeof villageWalkTimer !== "undefined" ? villageWalkTimer : null);
@@ -339,13 +353,24 @@ async function resetGame() {
     updateRest();
     updateVillageUI();
 
-    localStorage.setItem(SAVE_KEY, JSON.stringify(getGameSaveData(Date.now())));
+    const resetSave = getGameSaveData(Date.now());
 
+    // Keep the reset on the signed-in account, not just this device.
+    // Do this as the final cloud write before reloading the page.
     if (typeof currentSupabaseUser !== "undefined" && currentSupabaseUser) {
-        await saveRemoteGame(getGameSaveData());
+        const saved = await saveRemoteGame(resetSave);
+
+        if (!saved) {
+            setAccountStatus("Reset could not be saved to your account. Please try again.");
+            return;
+        }
+    } else {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(resetSave));
     }
 
-    saveGame();
+    // Clear any local copy too, so an old device-local save cannot come back.
+    localStorage.removeItem(SAVE_KEY);
+
     location.reload();
 }
 
