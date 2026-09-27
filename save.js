@@ -1,4 +1,5 @@
 const SAVE_KEY = "whisperingWoodsSave";
+const SAVE_VERSION = 3;
 
 const SUPABASE_URL = "https://pfwjljbugjgfbmrtzcid.supabase.co";
 const SUPABASE_KEY = "sb_publishable_YkIw0Q-nJNrXF47tPruRYQ_51mBVWuB";
@@ -10,77 +11,114 @@ const supabaseClient = window.supabase.createClient(
 
 let currentSupabaseUser = null;
 let remoteSaveTimer = null;
+let remoteSaveInProgress = false;
+let pendingRemoteSave = null;
 let lastRemoteSaveAt = 0;
 
-function getGameSaveData() {
+function cloneSaveData(data) {
+    return JSON.parse(JSON.stringify(data));
+}
+
+function getGameSaveData(savedAt = Date.now()) {
     return {
-        player,
-        paths,
+        version: SAVE_VERSION,
+        player: cloneSaveData(player),
+        paths: cloneSaveData(paths),
         currentPath,
         resting,
+        restStartTime: Number(typeof restStartTime !== "undefined" ? restStartTime : 0),
+        restDuration: Number(typeof restDuration !== "undefined" ? restDuration : 0),
+        restForced: Boolean(typeof restForced !== "undefined" ? restForced : false),
         gameEnded,
-        village
+        village: cloneSaveData(village),
+        savedAt
     };
 }
 
-function saveGame() {
-    // Save the exact moment gameplay was last active.
-    // If a cutscene is waiting for the player, do not let offline time
-    // accidentally advance the path behind the cutscene.
-    const now = Date.now();
-
-    if (gameEnded) {
-        if (paths.forest && paths.forest.completed) {
-            paths.forest.lastUpdateTime = now;
-        }
-
-        if (paths.ashHills && paths.ashHills.completed) {
-            paths.ashHills.lastUpdateTime = now;
-        }
-    }
-
-    const saveData = getGameSaveData();
-    saveData.savedAt = now;
-
-    localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-
-    if (!currentSupabaseUser) return;
-
-    // saveGame() runs every second, so a debounce would keep getting
-    // cancelled forever. Throttle cloud saves instead.
-    if (Date.now() - lastRemoteSaveAt >= 5000 && !remoteSaveTimer) {
-        remoteSaveTimer = setTimeout(async () => {
-            remoteSaveTimer = null;
-            lastRemoteSaveAt = Date.now();
-            await saveRemoteGame(saveData);
-        }, 0);
+function writeLocalSave(saveData) {
+    try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+    } catch (error) {
+        console.error("Local save failed:", error);
     }
 }
 
-async function saveRemoteGame(saveData = getGameSaveData()) {
+function queueRemoteSave(saveData) {
     if (!currentSupabaseUser) return;
 
-    // Every cloud save needs a timestamp so another device can calculate
-    // the time that passed while this device was closed.
-    saveData.savedAt = Number(saveData.savedAt || Date.now());
+    pendingRemoteSave = cloneSaveData(saveData);
+
+    if (remoteSaveTimer || remoteSaveInProgress) return;
+
+    const wait = Math.max(0, 2000 - (Date.now() - lastRemoteSaveAt));
+
+    remoteSaveTimer = setTimeout(async () => {
+        remoteSaveTimer = null;
+
+        if (!pendingRemoteSave) return;
+
+        const dataToSave = pendingRemoteSave;
+        pendingRemoteSave = null;
+
+        remoteSaveInProgress = true;
+        lastRemoteSaveAt = Date.now();
+
+        await saveRemoteGame(dataToSave);
+
+        remoteSaveInProgress = false;
+
+        if (pendingRemoteSave) {
+            queueRemoteSave(pendingRemoteSave);
+        }
+    }, wait);
+}
+
+function saveGame() {
+    const now = Date.now();
+
+    // Completed paths must not accumulate offline time after they finish.
+    if (gameEnded) {
+        if (paths.forest?.completed) paths.forest.lastUpdateTime = now;
+        if (paths.ashHills?.completed) paths.ashHills.lastUpdateTime = now;
+    }
+
+    const saveData = getGameSaveData(now);
+    writeLocalSave(saveData);
+    queueRemoteSave(saveData);
+}
+
+async function saveRemoteGame(saveData = getGameSaveData()) {
+    if (!currentSupabaseUser) return false;
+
+    const dataToSave = cloneSaveData(saveData);
+    dataToSave.version = SAVE_VERSION;
+    dataToSave.savedAt = Number(dataToSave.savedAt || Date.now());
 
     try {
         const { data: existing, error: findError } = await supabaseClient
             .from("game_saves")
-            .select("id")
+            .select("id, save_data")
             .eq("user_id", currentSupabaseUser.id)
             .maybeSingle();
 
         if (findError) throw findError;
 
+        const remoteTime = Number(existing?.save_data?.savedAt || 0);
+
+        // Never overwrite a newer cloud save with an older request.
+        if (existing && remoteTime > dataToSave.savedAt) {
+            return false;
+        }
+
         if (existing) {
             const { error } = await supabaseClient
                 .from("game_saves")
                 .update({
-                    save_data: saveData,
+                    save_data: dataToSave,
                     updated_at: new Date().toISOString()
                 })
-                .eq("id", existing.id);
+                .eq("id", existing.id)
+                .eq("user_id", currentSupabaseUser.id);
 
             if (error) throw error;
         } else {
@@ -88,14 +126,18 @@ async function saveRemoteGame(saveData = getGameSaveData()) {
                 .from("game_saves")
                 .insert({
                     user_id: currentSupabaseUser.id,
-                    save_data: saveData
+                    save_data: dataToSave
                 });
 
             if (error) throw error;
         }
+
+        return true;
     } catch (error) {
         console.error("Cloud save failed:", error);
-        setAccountStatus("Cloud save failed. Your local save is still safe.");
+        setAccountStatus("Cloud save failed. Retrying automatically...");
+        pendingRemoteSave = dataToSave;
+        return false;
     }
 }
 
@@ -112,35 +154,40 @@ async function loadRemoteGame() {
         if (error) throw error;
         if (!data || !data.save_data) return false;
 
-        const localRaw = localStorage.getItem(SAVE_KEY);
-        let localSave = null;
+        const remoteSave = data.save_data;
+        const remoteTime = Number(remoteSave.savedAt || 0);
 
+        let localSave = null;
         try {
+            const localRaw = localStorage.getItem(SAVE_KEY);
             localSave = localRaw ? JSON.parse(localRaw) : null;
         } catch {
             localSave = null;
         }
 
         const localTime = Number(localSave?.savedAt || 0);
-        const remoteTime = Number(data.save_data?.savedAt || 0);
 
-        // Never replace a newer local idle save with an older cloud save.
+        // The newest copy belongs to this account. This prevents an older
+        // phone/computer copy from replacing newer progress made elsewhere.
         if (localSave && localTime > remoteTime) {
+            applySaveData(localSave);
+            await saveRemoteGame(localSave);
             return false;
         }
 
-        applySaveData(data.save_data);
-        localStorage.setItem(SAVE_KEY, JSON.stringify(data.save_data));
-
+        applySaveData(remoteSave);
+        writeLocalSave(remoteSave);
         return true;
     } catch (error) {
         console.error("Cloud load failed:", error);
-        setAccountStatus("Cloud load failed. Your local save is still being used.");
+        setAccountStatus("Cloud load failed. Retrying...");
         return false;
     }
 }
 
 function applySaveData(data) {
+    if (!data) return;
+
     Object.assign(player, data.player || {});
 
     Object.keys(paths).forEach(pathName => {
@@ -150,7 +197,21 @@ function applySaveData(data) {
     });
 
     if (typeof data.currentPath === "string") currentPath = data.currentPath;
+
     resting = Boolean(data.resting);
+
+    if (typeof restStartTime !== "undefined") {
+        restStartTime = Number(data.restStartTime || 0);
+    }
+
+    if (typeof restDuration !== "undefined") {
+        restDuration = Number(data.restDuration || 0);
+    }
+
+    if (typeof restForced !== "undefined") {
+        restForced = Boolean(data.restForced);
+    }
+
     gameEnded = Boolean(data.gameEnded);
 
     if (data.village) {
@@ -234,7 +295,7 @@ function updateAccountUI() {
         signInButton?.classList.add("hidden");
         signUpButton?.classList.add("hidden");
         signOutButton?.classList.remove("hidden");
-        setAccountStatus("Your game saves automatically to Supabase.");
+        setAccountStatus("Your game saves automatically to your account.");
     } else {
         document.getElementById("accountCloseButton")?.classList.add("hidden");
         title.textContent = "Sign In";
@@ -276,6 +337,7 @@ async function signIn() {
     }
 
     currentSupabaseUser = data.user;
+
     const hadRemoteSave = await loadRemoteGame();
 
     catchUpPathsWhileAway();
@@ -284,16 +346,21 @@ async function signIn() {
         catchUpVillageWalk();
     }
 
+    if (typeof resumeRest === "function" && resting) {
+        resumeRest();
+    }
+
     updateAccountUI();
     unlockLogin();
     refreshGameUI();
 
-    if (hadRemoteSave) {
-        setAccountStatus("Cloud save loaded!");
-    } else {
-        await saveRemoteGame();
-        setAccountStatus("Account connected. Your current game is now saved online.");
-    }
+    // Save the post-offline catch-up immediately so another device can see it.
+    await saveRemoteGame(getGameSaveData(Date.now()));
+    lastRemoteSaveAt = Date.now();
+
+    setAccountStatus(hadRemoteSave
+        ? "Cloud save loaded and offline progress caught up!"
+        : "Account connected. Your current game is now saved online.");
 }
 
 async function signUp() {
@@ -326,8 +393,16 @@ async function signUp() {
 
     if (data.user && data.session) {
         currentSupabaseUser = data.user;
-        await saveRemoteGame();
+
+        catchUpPathsWhileAway();
+
+        if (typeof catchUpVillageWalk === "function") {
+            catchUpVillageWalk();
+        }
+
+        await saveRemoteGame(getGameSaveData(Date.now()));
         lastRemoteSaveAt = Date.now();
+
         updateAccountUI();
         unlockLogin();
         refreshGameUI();
