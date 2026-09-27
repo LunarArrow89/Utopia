@@ -21,6 +21,7 @@ let currentPath = "forest";
 
 function updatePath() {
     const path = paths[currentPath];
+    path.lastUpdateTime = Date.now();
 
     if (path.completed) return;
 
