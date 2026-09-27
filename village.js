@@ -136,6 +136,56 @@ function claimQuest(type) {
     saveGame();
 }
 
+function updateVillageTabs(activeTab) {
+    const villageButton = document.getElementById("villageTabButton");
+    const walkButton = document.getElementById("walkTabButton");
+
+    if (villageButton) {
+        const active = activeTab === "village";
+        villageButton.classList.toggle("active", active);
+        villageButton.setAttribute("aria-selected", String(active));
+    }
+
+    if (walkButton) {
+        const active = activeTab === "walk";
+        walkButton.classList.toggle("active", active);
+        walkButton.setAttribute("aria-selected", String(active));
+    }
+}
+
+function showVillageTab() {
+    if (!village.unlocked || !paths.forest.completed) return;
+
+    document.getElementById("arrivalScene")?.classList.add("hidden");
+    document.getElementById("forestGame")?.classList.add("hidden");
+    document.getElementById("questScreen")?.classList.add("hidden");
+    document.getElementById("villageWalkScreen")?.classList.add("hidden");
+    document.getElementById("villageScreen")?.classList.remove("hidden");
+    updateVillageTabs("village");
+
+    updateVillageTabs("village");
+    updateVillageUI();
+}
+
+function showVillageWalkTab(startWalk = false) {
+    if (!village.unlocked || !paths.forest.completed) return;
+
+    document.getElementById("arrivalScene")?.classList.add("hidden");
+    document.getElementById("forestGame")?.classList.add("hidden");
+    document.getElementById("questScreen")?.classList.add("hidden");
+    document.getElementById("villageScreen")?.classList.add("hidden");
+    document.getElementById("villageWalkScreen")?.classList.remove("hidden");
+
+    updateVillageTabs("walk");
+
+    if (startWalk && !village.walk.active) {
+        startVillageWalk();
+        return;
+    }
+
+    updateVillageWalkUI();
+}
+
 function showVillage() {
     const hub = document.getElementById("villageScreen");
     if (!hub) return;
@@ -144,6 +194,7 @@ function showVillage() {
     document.getElementById("forestGame")?.classList.add("hidden");
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
     hub.classList.remove("hidden");
+    updateVillageTabs("village");
     updateVillageUI();
     updateQuests();
 }
@@ -283,6 +334,7 @@ function startVillageWalk() {
 
     document.getElementById("villageScreen")?.classList.add("hidden");
     document.getElementById("villageWalkScreen")?.classList.remove("hidden");
+    updateVillageTabs("walk");
 
     updateVillageWalkUI();
     addVillageLog("You set out for a 20 minute walk.");
