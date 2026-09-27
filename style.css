@@ -2047,3 +2047,32 @@ button:disabled {
 .walk-view-only .village-footer button {
     cursor: not-allowed;
 }
+
+
+/* Village footer action buttons */
+#villageScreen .village-footer {
+    display: block;
+}
+
+#villageScreen .village-footer-actions {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+}
+
+#villageScreen .village-footer-actions button {
+    flex: 1;
+    width: auto;
+}
+
+@media (max-width: 500px) {
+    #villageScreen .village-footer-actions {
+        gap: 6px;
+    }
+
+    #villageScreen .village-footer-actions button {
+        min-width: 0;
+        padding: 8px 6px;
+        font-size: 11px;
+    }
+}
