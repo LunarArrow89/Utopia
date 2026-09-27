@@ -7,15 +7,79 @@ async function initializeGame() {
         catchUpVillageWalk();
     }
 
+    catchUpAshHillsWhileAway();
+
     updateHP();
     updateGold();
     updateForest();
 
-    if (village.unlocked && paths.forest.completed) {
+    if (paths.ashHills.active) {
+        showAshHills();
+    } else if (village.unlocked && paths.forest.completed) {
         showVillage();
     } else if (paths.forest.completed) {
         gameEnded = true;
         showArrivalScene();
+    }
+}
+
+function catchUpAshHillsWhileAway() {
+    const path = paths.ashHills;
+
+    if (!path.active || path.completed) return;
+
+    const now = Date.now();
+    if (!path.lastUpdateTime) {
+        path.lastUpdateTime = now;
+        return;
+    }
+
+    const offlineSeconds = Math.floor((now - path.lastUpdateTime) / 1000);
+    if (offlineSeconds <= 0) return;
+
+    const oldProgress = path.progress;
+    const targetProgress = Math.min(path.duration, oldProgress + offlineSeconds);
+
+    let encounterTime = path.encounterTime;
+    let diedOffline = false;
+
+    while (encounterTime <= targetProgress && encounterTime > oldProgress) {
+        const enemy = ashEnemies[Math.floor(Math.random() * ashEnemies.length)];
+        const damageTaken = Math.max(0, enemy.attack - player.attack);
+
+        if (damageTaken <= 0) {
+            player.gold += enemy.gold;
+            giveXP(enemy.xp);
+        } else {
+            player.hp -= damageTaken;
+
+            if (player.hp <= 0) {
+                player.hp = 0;
+                diedOffline = true;
+                break;
+            }
+        }
+
+        encounterTime += randomEncounterTime();
+    }
+
+    path.encounterTime = encounterTime;
+    path.progress = targetProgress;
+    path.lastUpdateTime = now;
+
+    updateHP();
+    updateGold();
+    updateAshHillsUI();
+
+    if (diedOffline) {
+        resting = false;
+        startRest(true);
+        saveGame();
+        return;
+    }
+
+    if (path.progress >= path.duration) {
+        finishAshHills();
     }
 }
 
@@ -94,6 +158,10 @@ function tick() {
 
     if (!resting && !gameEnded && !village.unlocked) {
         updatePath();
+    }
+
+    if (!resting && paths.ashHills.active && !paths.ashHills.completed) {
+        updateAshHills();
     }
 
     if (!village.unlocked) {
