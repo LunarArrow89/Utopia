@@ -1,5 +1,10 @@
 async function initializeGame() {
-    await loadGame();
+    const loggedIn = await loadGame();
+
+    if (!loggedIn) {
+        requireLogin();
+        return;
+    }
 
     // Recalculate time-based progress that happened while the device was off.
     catchUpPathsWhileAway();
