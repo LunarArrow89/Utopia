@@ -9,7 +9,6 @@
 </head>
 <body>
 
-
 <div id="accountScreen" class="account-screen hidden">
 <div class="account-box">
 <button id="accountCloseButton" class="account-close" type="button" onclick="hideAccountScreen()">×</button>
@@ -27,11 +26,8 @@
 </div>
 </div>
 
-
 <div id="forestGame" class="game-screen">
-
 <div class="game">
-
 <header>
 <h1>Whispering Woods</h1>
 <p class="subtitle">Walk through the darkness and find your way out.</p>
@@ -46,14 +42,12 @@
 </div>
 
 <div class="game-box">
-
 <div id="forestScreen">
 
 <div class="section">
 <div class="section-title">🌲 Forest Journey</div>
 <div class="bar"><div class="bar-fill" id="forestBar"></div></div>
 <div class="bar-text" id="forestText">0:00 / 5:00</div>
-
 <iframe src="animation1.html?v=2" class="forest-animation" title="Forest animation" scrolling="no"></iframe>
 </div>
 
@@ -82,7 +76,6 @@
 <button id="leaveButton" disabled>Leave</button>
 </div>
 </div>
-
 </div>
 
 <div class="section">
@@ -93,7 +86,6 @@
 <div class="section">
 <div class="section-title">⚙️ Settings</div>
 <div class="buttons">
-<button id="questButtonForest" type="button" onclick="showQuestScreen()">📜 Quests</button>
 <button id="accountButton" type="button" onclick="showAccountScreen()">Cloud Save / Account</button>
 <button id="resetButton">Reset Save</button>
 </div>
@@ -101,7 +93,6 @@
 
 </div>
 </div>
-
 </div>
 
 <div id="arrivalScene" class="arrival-scene hidden">
@@ -113,7 +104,6 @@
 </div>
 
 <div id="villageScreen" class="village-screen hidden">
-
 <div class="village-header">
 <div>
 <div class="village-kicker">A NEW BEGINNING</div>
@@ -127,7 +117,6 @@
 </div>
 
 <div class="village-content">
-
 <div class="village-message village-intro">
 <strong>The village is yours to restore.</strong>
 <span>Gather resources, repair important buildings, and turn this forgotten place into a home.</span>
@@ -181,10 +170,8 @@
 <button id="villageResetButton" class="danger-button">Reset Game</button>
 </div>
 </div>
-
 </div>
 </div>
-
 
 <div id="villageTabs" class="village-tabs hidden" role="tablist" aria-label="Oakshade Village">
 <button id="villageTabButton" class="village-tab active" type="button" role="tab" aria-selected="true" onclick="showVillageTab()">🏡 Village</button>
@@ -223,20 +210,17 @@
 <div class="village-kicker">DANGEROUS PATH</div>
 <h1>🌋 Ash Hills</h1>
 <p>Push through the burned hills for 45 minutes. Tough enemies guard the path.</p>
-
 <div class="village-walk-stats">
 <div><span>HP</span><strong id="ashHillsHpText">40 / 40</strong></div>
 <div><span>Attack</span><strong id="ashHillsAttackText">8</strong></div>
 <div><span>Level</span><strong id="ashHillsLevelText">1</strong></div>
 <div><span>Gold</span><strong id="ashHillsGoldText">0</strong></div>
 </div>
-
 <div class="village-walk-section">
 <div class="village-walk-title">🌋 Ash Hills Progress</div>
 <div class="bar"><div class="bar-fill" id="ashHillsBar"></div></div>
 <div class="bar-text" id="ashHillsText">45:00 remaining</div>
 </div>
-
 <div class="village-walk-section">
 <div class="village-walk-title">❤️ Health & Experience</div>
 <div class="health-xp">
@@ -251,50 +235,39 @@
 </div>
 </div>
 </div>
-
 <div class="village-walk-section">
 <div class="village-walk-title">💤 Rest</div>
 <div class="bar"><div class="bar-fill" id="ashHillsRestBar"></div></div>
 <div class="bar-text" id="ashHillsRestText">Rest when you need to recover.</div>
-<div class="buttons">
-<button type="button" onclick="startRest(false)">Rest</button>
+<div class="buttons"><button type="button" onclick="startRest(false)">Rest</button></div>
 </div>
-</div>
-
 <div class="village-walk-section">
 <div class="village-walk-title">📖 Adventure Log</div>
 <div class="log" id="ashHillsLog"></div>
 </div>
-
-<div class="buttons">
-<button id="ashHillsReturnButton" type="button" onclick="returnToVillageFromAshHills()">Return to Village</button>
-</div>
+<div class="buttons"><button id="ashHillsReturnButton" type="button" onclick="returnToVillageFromAshHills()">Return to Village</button></div>
 </div>
 </div>
 
 <div id="villageWalkScreen" class="village-walk-screen hidden">
 <div class="village-walk-box">
-
 <div class="village-walk-header">
 <div class="village-kicker">EXPLORING THE WILDS</div>
 <h1>Village Walk</h1>
 <p>Walk for 20 minutes. Find resources and encounter enemies along the way.</p>
 </div>
-
 <div class="village-walk-stats">
 <div><span>HP</span><strong id="villageWalkHpText">40 / 40</strong></div>
 <div><span>Attack</span><strong id="villageWalkAttackText">8</strong></div>
 <div><span>Level</span><strong id="villageWalkLevelText">1</strong></div>
 <div><span>Gold</span><strong id="villageWalkGoldText">0</strong></div>
 </div>
-
 <div class="village-walk-section">
 <div class="village-walk-title">🌲 Walk Progress</div>
 <div class="bar"><div class="bar-fill" id="villageWalkBar"></div></div>
 <div class="bar-text" id="villageWalkText">20:00 remaining</div>
 <div class="village-walk-next" id="nextWalkRewardText">15 seconds until your next resource</div>
 </div>
-
 <div class="village-walk-section">
 <div class="village-walk-title">❤️ Health & Experience</div>
 <div class="health-xp">
@@ -309,25 +282,18 @@
 </div>
 </div>
 </div>
-
 <div class="village-walk-section">
 <div class="village-walk-title">💤 Rest</div>
 <div class="bar"><div class="bar-fill" id="villageWalkRestBar"></div></div>
 <div class="bar-text" id="villageWalkRestText">Rest if you are defeated.</div>
 </div>
-
 <div class="village-walk-section">
 <div class="village-walk-title">📖 Adventure Log</div>
 <div class="log" id="villageWalkLog"></div>
 </div>
-
-<div class="buttons">
-<button id="leaveVillageWalkButton">Leave Walk</button>
-</div>
-
+<div class="buttons"><button id="leaveVillageWalkButton">Leave Walk</button></div>
 </div>
 </div>
-
 
 <script src="player.js"></script>
 <script src="battle.js"></script>
