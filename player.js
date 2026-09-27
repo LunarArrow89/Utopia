@@ -307,9 +307,13 @@ async function resetGame() {
     paths.forest.completed = false;
     paths.forest.lastUpdateTime = Date.now();
 
-    paths.cave.progress = 0;
-    paths.cave.encounterTime = 60;
-    paths.cave.completed = false;
+    // Reset any additional paths that are actually registered.
+    // Older saves may not have every future path loaded yet.
+    if (paths.cave) {
+        paths.cave.progress = 0;
+        paths.cave.encounterTime = 60;
+        paths.cave.completed = false;
+    }
 
     paths.ashHills.progress = 0;
     paths.ashHills.encounterTime = 45;
