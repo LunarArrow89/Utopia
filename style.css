@@ -1963,15 +1963,20 @@ button:disabled {
 }
 
 .village-tabs {
+    position: fixed;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
     display: flex;
     gap: 6px;
     width: min(560px, calc(100% - 20px));
-    margin: 4px auto 8px;
+    margin: 0;
     padding: 4px;
     border: 1px solid #394837;
     border-radius: 11px;
-    background: #182019;
-    z-index: 11000;
+    background: rgba(24, 32, 25, .97);
+    box-shadow: 0 5px 22px rgba(0,0,0,.35);
+    z-index: 11002;
 }
 
 .village-tab {
@@ -2002,10 +2007,8 @@ button:disabled {
 
 @media(max-width:500px) {
     .village-tabs {
-        position: fixed;
         left: 50%;
         bottom: max(8px, env(safe-area-inset-bottom));
-        transform: translateX(-50%);
         width: calc(100% - 14px);
         margin: 0;
         padding: 5px;
