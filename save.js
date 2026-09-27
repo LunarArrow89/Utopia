@@ -35,14 +35,6 @@ function getGameSaveData(savedAt = Date.now()) {
     };
 }
 
-function writeLocalSave(saveData) {
-    try {
-        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-    } catch (error) {
-        console.error("Local save failed:", error);
-    }
-}
-
 function queueRemoteSave(saveData) {
     if (!currentSupabaseUser) return;
 
@@ -83,7 +75,6 @@ function saveGame() {
     }
 
     const saveData = getGameSaveData(now);
-    writeLocalSave(saveData);
     queueRemoteSave(saveData);
 }
 
@@ -135,7 +126,7 @@ async function saveRemoteGame(saveData = getGameSaveData()) {
         return true;
     } catch (error) {
         console.error("Cloud save failed:", error);
-        setAccountStatus("Cloud save failed. Retrying automatically...");
+        setAccountStatus("Account save failed. Retrying automatically...");
         pendingRemoteSave = dataToSave;
         return false;
     }
@@ -156,13 +147,11 @@ async function loadRemoteGame() {
 
         const remoteSave = data.save_data;
 
-        // Supabase is the authoritative save for logged-in accounts.
+        // Supabase is the authoritative save for the signed-in account.
         // The server-side idle engine may have progressed this save while
         // every device was closed, so never let an older browser copy win
         // just because its local savedAt timestamp is newer.
         applySaveData(remoteSave);
-        writeLocalSave(remoteSave);
-
         // Immediately refresh every visible part of the game from the
         // cloud-loaded state. This is especially important after the
         // server-side idle engine progressed the game while the device
@@ -216,23 +205,7 @@ function applySaveData(data) {
     }
 }
 
-function loadLocalGame() {
-    const saved = localStorage.getItem(SAVE_KEY);
-    if (!saved) return false;
-
-    try {
-        applySaveData(JSON.parse(saved));
-        return true;
-    } catch (error) {
-        console.error("Failed to load local save:", error);
-        localStorage.removeItem(SAVE_KEY);
-        return false;
-    }
-}
-
 async function loadGame() {
-    loadLocalGame();
-
     const { data: { user } } = await supabaseClient.auth.getUser();
     currentSupabaseUser = user || null;
 
@@ -306,7 +279,7 @@ function updateAccountUI() {
     } else {
         document.getElementById("accountCloseButton")?.classList.add("hidden");
         title.textContent = "Sign In";
-        message.textContent = "Sign in to save your Utopia progress online and use it on another device.";
+        message.textContent = "Sign in to keep your Utopia save tied to this account and use it on another device.";
         signInButton?.classList.remove("hidden");
         signUpButton?.classList.remove("hidden");
         signOutButton?.classList.add("hidden");
@@ -405,13 +378,8 @@ async function signUp() {
     if (data.user && data.session) {
         currentSupabaseUser = data.user;
 
-        catchUpPathsWhileAway();
-
-        if (typeof catchUpVillageWalk === "function") {
-            catchUpVillageWalk();
-        }
-
-        await saveRemoteGame(getGameSaveData(Date.now()));
+        // A new account starts with a fresh game. Do not copy another
+        // account's device-local state into the new account.
         lastRemoteSaveAt = Date.now();
 
         updateAccountUI();
