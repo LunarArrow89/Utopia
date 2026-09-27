@@ -107,6 +107,8 @@ function applySaveData(data) {
     const now = Date.now();
     const offlineSeconds = Math.max(0, Math.floor((now - savedAt) / 1000));
 
+    // Offline idle time is applied by each path's catchUp() function.
+    // Do not advance while a cutscene/rest is paused.
     if (offlineSeconds > 0 && typeof applyOfflineProgress === "function") {
         applyOfflineProgress(offlineSeconds);
     }
