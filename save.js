@@ -177,9 +177,34 @@ async function loadGame() {
     const { data: { user } } = await supabaseClient.auth.getUser();
     currentSupabaseUser = user || null;
 
-    if (currentSupabaseUser) {
-        await loadRemoteGame();
+    if (!currentSupabaseUser) {
+        return false;
     }
+
+    await loadRemoteGame();
+    return true;
+}
+
+function requireLogin() {
+    document.getElementById("forestGame")?.classList.add("hidden");
+    document.getElementById("arrivalScene")?.classList.add("hidden");
+    document.getElementById("villageScreen")?.classList.add("hidden");
+    document.getElementById("villageWalkScreen")?.classList.add("hidden");
+    document.getElementById("ashHillsScreen")?.classList.add("hidden");
+    document.getElementById("questScreen")?.classList.add("hidden");
+    document.getElementById("villageTabs")?.classList.add("hidden");
+
+    const accountScreen = document.getElementById("accountScreen");
+    accountScreen?.classList.remove("hidden");
+    accountScreen?.classList.add("login-required");
+
+    updateAccountUI();
+    setAccountStatus("You must sign in or create an account to play Utopia.");
+}
+
+function unlockLogin() {
+    document.getElementById("accountScreen")?.classList.remove("login-required");
+    hideAccountScreen();
 }
 
 function setAccountStatus(message) {
@@ -197,6 +222,7 @@ function updateAccountUI() {
     if (!title || !message) return;
 
     if (currentSupabaseUser) {
+        document.getElementById("accountCloseButton")?.classList.remove("hidden");
         title.textContent = "Cloud Save Connected";
         message.textContent = currentSupabaseUser.email || "Your account is connected.";
         signInButton?.classList.add("hidden");
@@ -204,6 +230,7 @@ function updateAccountUI() {
         signOutButton?.classList.remove("hidden");
         setAccountStatus("Your game saves automatically to Supabase.");
     } else {
+        document.getElementById("accountCloseButton")?.classList.add("hidden");
         title.textContent = "Sign In";
         message.textContent = "Sign in to save your Utopia progress online and use it on another device.";
         signInButton?.classList.remove("hidden");
@@ -245,7 +272,14 @@ async function signIn() {
     currentSupabaseUser = data.user;
     const hadRemoteSave = await loadRemoteGame();
 
+    catchUpPathsWhileAway();
+
+    if (typeof catchUpVillageWalk === "function") {
+        catchUpVillageWalk();
+    }
+
     updateAccountUI();
+    unlockLogin();
     refreshGameUI();
 
     if (hadRemoteSave) {
@@ -288,6 +322,8 @@ async function signUp() {
         currentSupabaseUser = data.user;
         await saveRemoteGame();
         updateAccountUI();
+        unlockLogin();
+        refreshGameUI();
         setAccountStatus("Account created and cloud save connected!");
     } else {
         setAccountStatus("Account created. Check your email to confirm your account, then sign in.");
@@ -297,8 +333,7 @@ async function signUp() {
 async function signOut() {
     await supabaseClient.auth.signOut();
     currentSupabaseUser = null;
-    updateAccountUI();
-    setAccountStatus("Signed out. Your local save is still on this device.");
+    requireLogin();
 }
 
 function refreshGameUI() {
