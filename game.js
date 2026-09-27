@@ -160,6 +160,10 @@ function tick() {
         updatePath();
     }
 
+    if (resting && paths.ashHills.active && !paths.ashHills.completed) {
+        paths.ashHills.lastUpdateTime = Date.now();
+    }
+
     if (!resting && paths.ashHills.active && !paths.ashHills.completed) {
         updateAshHills();
     }
