@@ -23,6 +23,7 @@ const buildingNames = {
 };
 
 function showArrivalScene() {
+    setVillageTabsVisible(false);
     const scene = document.getElementById("arrivalScene");
     const forestGame = document.getElementById("forestGame");
     const text = document.getElementById("arrivalText");
@@ -67,6 +68,7 @@ function nextArrivalLine() {
 }
 
 function showQuestScreen() {
+    setVillageTabsVisible(false);
     const screen = document.getElementById("questScreen");
     if (!screen || !village.unlocked || !paths.forest.completed) return;
 
@@ -136,6 +138,11 @@ function claimQuest(type) {
     saveGame();
 }
 
+function setVillageTabsVisible(visible) {
+    const tabs = document.getElementById("villageTabs");
+    if (tabs) tabs.classList.toggle("hidden", !visible);
+}
+
 function updateVillageTabs(activeTab) {
     const villageButton = document.getElementById("villageTabButton");
     const walkButton = document.getElementById("walkTabButton");
@@ -156,6 +163,8 @@ function updateVillageTabs(activeTab) {
 function showVillageTab() {
     if (!village.unlocked || !paths.forest.completed) return;
 
+    setVillageTabsVisible(true);
+
     document.getElementById("arrivalScene")?.classList.add("hidden");
     document.getElementById("forestGame")?.classList.add("hidden");
     document.getElementById("questScreen")?.classList.add("hidden");
@@ -169,6 +178,8 @@ function showVillageTab() {
 
 function showVillageWalkTab(startWalk = false) {
     if (!village.unlocked || !paths.forest.completed) return;
+
+    setVillageTabsVisible(true);
 
     document.getElementById("arrivalScene")?.classList.add("hidden");
     document.getElementById("forestGame")?.classList.add("hidden");
@@ -187,6 +198,7 @@ function showVillageWalkTab(startWalk = false) {
 }
 
 function showVillage() {
+    setVillageTabsVisible(true);
     const hub = document.getElementById("villageScreen");
     if (!hub) return;
 
@@ -518,6 +530,7 @@ function finishVillageWalk() {
 }
 
 function resetVillage() {
+    setVillageTabsVisible(false);
     village.unlocked = false;
     village.housesBuilt = 0;
     village.quests = {
