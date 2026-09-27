@@ -2813,3 +2813,9 @@ body {
         transform: translateX(-50%);
     }
 }
+
+
+/* PATH ANIMATIONS */
+.ash-hills-animation {
+    background: #111216;
+}
