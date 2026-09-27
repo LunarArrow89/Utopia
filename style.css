@@ -1961,12 +1961,13 @@ button:disabled {
 .village-tabs {
     display: flex;
     gap: 6px;
-    width: 100%;
-    margin: 4px 0 8px;
+    width: min(560px, calc(100% - 20px));
+    margin: 4px auto 8px;
     padding: 4px;
     border: 1px solid #394837;
     border-radius: 11px;
     background: #182019;
+    z-index: 11000;
 }
 
 .village-tab {
@@ -1997,14 +1998,28 @@ button:disabled {
 
 @media(max-width:500px) {
     .village-tabs {
-        margin: 3px 0 6px;
-        gap: 4px;
-        padding: 3px;
+        position: fixed;
+        left: 50%;
+        bottom: max(8px, env(safe-area-inset-bottom));
+        transform: translateX(-50%);
+        width: calc(100% - 14px);
+        margin: 0;
+        padding: 5px;
+        gap: 5px;
+        border-radius: 13px;
+        background: rgba(24, 32, 25, .96);
+        box-shadow: 0 -5px 20px rgba(0,0,0,.35);
+        backdrop-filter: blur(8px);
     }
 
     .village-tab {
-        min-height: 32px;
-        padding: 6px 7px;
-        font-size: 10px;
+        min-height: 42px;
+        padding: 8px 7px;
+        font-size: 12px;
+    }
+
+    #villageScreen,
+    .village-walk-screen {
+        padding-bottom: 75px !important;
     }
 }
