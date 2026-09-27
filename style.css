@@ -2839,3 +2839,15 @@ body {
         width: 404px;
     }
 }
+
+
+/* Oakshade Village background */
+#villageScreen {
+    background: #0b160e !important;
+}
+
+@media (min-width: 501px) {
+    #villageScreen {
+        background: radial-gradient(circle at 50% 0%, #203b27 0%, #102017 45%, #08100b 100%) !important;
+    }
+}
