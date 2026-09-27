@@ -23,7 +23,9 @@ function getGameSaveData() {
 }
 
 function saveGame() {
+    // Store the moment this save represents so idle progress can be calculated later.
     const saveData = getGameSaveData();
+    saveData.savedAt = Date.now();
 
     localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
 
@@ -99,6 +101,15 @@ async function loadRemoteGame() {
 
 function applySaveData(data) {
     Object.assign(player, data.player || {});
+
+    // Older saves do not have savedAt, so simply use the current time for them.
+    const savedAt = Number(data.savedAt || Date.now());
+    const now = Date.now();
+    const offlineSeconds = Math.max(0, Math.floor((now - savedAt) / 1000));
+
+    if (offlineSeconds > 0 && typeof applyOfflineProgress === "function") {
+        applyOfflineProgress(offlineSeconds);
+    }
 
     Object.keys(paths).forEach(pathName => {
         if (data.paths && data.paths[pathName]) {
