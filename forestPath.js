@@ -1,8 +1,8 @@
 const forestEnemies = [
-    { name: "Corrupt Druid", hp: 18, attack: 12, xp: 12, gold: 5 },
-    { name: "Goblin", hp: 22, attack: 10, xp: 15, gold: 7 },
-    { name: "Blight", hp: 20, attack: 11, xp: 14, gold: 10 },
-    { name: "Slime", hp: 15, attack: 13, xp: 18, gold: 8 }
+    { name: "Corrupt Druid", hp: 18, attack: 12, xp: 6, gold: 2 },
+    { name: "Goblin", hp: 22, attack: 10, xp: 8, gold: 3 },
+    { name: "Blight", hp: 20, attack: 11, xp: 7, gold: 4 },
+    { name: "Slime", hp: 15, attack: 13, xp: 9, gold: 3 }
 ];
 
 registerPath("forest", {
