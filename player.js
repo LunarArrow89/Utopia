@@ -266,116 +266,155 @@ async function resetGame() {
         return;
     }
 
-    // Stop any delayed save from the old game so it cannot overwrite
-    // the freshly reset save after the reset finishes.
-    if (remoteSaveTimer) {
-        clearTimeout(remoteSaveTimer);
-        remoteSaveTimer = null;
-    }
-    pendingRemoteSave = null;
-
-    // Let an already-running cloud save finish first. The reset will
-    // then use the newest save revision and become the authoritative save.
-    while (remoteSaveInProgress) {
-        await new Promise(resolve => setTimeout(resolve, 50));
-    }
-
-    clearInterval(restTimer);
-    restTimer = null;
-    clearInterval(typeof villageWalkTimer !== "undefined" ? villageWalkTimer : null);
-    villageWalkTimer = null;
-
-    player.hp = 40;
-    player.maxHp = 40;
-    player.attack = 8;
-    player.level = 1;
-    player.xp = 0;
-    player.xpToNext = 50;
-    player.gold = 0;
-
-    resting = false;
-    restForced = false;
-    restStartTime = 0;
-    restDuration = 0;
-    gameEnded = false;
-    currentPath = "forest";
-
-    resetVillage();
-
-    paths.forest.progress = 0;
-    paths.forest.encounterTime = 45;
-    paths.forest.completed = false;
-    paths.forest.lastUpdateTime = Date.now();
-
-    // Reset any additional paths that are actually registered.
-    // Older saves may not have every future path loaded yet.
-    if (paths.cave) {
-        paths.cave.progress = 0;
-        paths.cave.encounterTime = 60;
-        paths.cave.completed = false;
-    }
-
-    paths.ashHills.progress = 0;
-    paths.ashHills.encounterTime = 45;
-    paths.ashHills.completed = false;
-    paths.ashHills.active = false;
-    paths.ashHills.lastUpdateTime = 0;
-
-    const log = document.getElementById("log");
-    const villageLog = document.getElementById("villageLog");
-    if (log) log.innerHTML = "";
-    if (villageLog) villageLog.innerHTML = "";
-
-    document.getElementById("forestGame")?.classList.remove("hidden");
-    document.getElementById("forestScreen")?.classList.remove("hidden");
-    document.getElementById("villageScreen")?.classList.add("hidden");
-    document.getElementById("villageWalkScreen")?.classList.add("hidden");
-    document.getElementById("questScreen")?.classList.add("hidden");
-    document.getElementById("ashHillsScreen")?.classList.add("hidden");
-    document.getElementById("arrivalScene")?.classList.add("hidden");
-
-    updateHP();
-    updateGold();
-
-    document.getElementById("levelText").textContent = player.level;
-    document.getElementById("attackText").textContent = player.attack;
-    document.getElementById("statusText").textContent = "Walking";
-    document.getElementById("forestBar").style.width = "0%";
-    document.getElementById("xpBar").style.width = "0%";
-    document.getElementById("xpBarText").textContent = "0 / 50 XP";
-    document.getElementById("forestText").textContent = "0:00 / 5:00";
-
-    document.getElementById("restBar").style.width = "0%";
-    const ashRestBar = document.getElementById("ashHillsRestBar");
-    if (ashRestBar) ashRestBar.style.width = "0%";
-
-    document.getElementById("restText").textContent = "Rest when you need to recover.";
-    document.getElementById("restButton").disabled = false;
-    document.getElementById("leaveButton").disabled = true;
-
-    updateForest();
-    updateRest();
-    updateVillageUI();
-
-    const resetSave = getGameSaveData(Date.now());
-
-    // Keep the reset on the signed-in account, not just this device.
-    // Do this as the final cloud write before reloading the page.
-    if (typeof currentSupabaseUser !== "undefined" && currentSupabaseUser) {
-        const saved = await saveRemoteGame(resetSave);
-
-        if (!saved) {
-            setAccountStatus("Reset could not be saved to your account. Please try again.");
-            return;
+    try {
+        // Stop every delayed save from the old game first.
+        if (remoteSaveTimer) {
+            clearTimeout(remoteSaveTimer);
+            remoteSaveTimer = null;
         }
-    } else {
-        localStorage.setItem(SAVE_KEY, JSON.stringify(resetSave));
+
+        pendingRemoteSave = null;
+
+        while (remoteSaveInProgress) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
+
+        clearInterval(restTimer);
+        restTimer = null;
+
+        if (typeof villageWalkTimer !== "undefined") {
+            clearInterval(villageWalkTimer);
+            villageWalkTimer = null;
+        }
+
+        // Completely rebuild the player state.
+        player.hp = 40;
+        player.maxHp = 40;
+        player.attack = 8;
+        player.level = 1;
+        player.xp = 0;
+        player.xpToNext = 50;
+        player.gold = 0;
+
+        resting = false;
+        restForced = false;
+        restStartTime = 0;
+        restDuration = 0;
+        gameEnded = false;
+        currentPath = "forest";
+
+        // Reset every registered path without assuming a future path exists.
+        Object.keys(paths).forEach(pathName => {
+            const path = paths[pathName];
+
+            if ("progress" in path) path.progress = 0;
+            if ("completed" in path) path.completed = false;
+            if ("active" in path) path.active = pathName === "forest";
+            if ("lastUpdateTime" in path) path.lastUpdateTime = Date.now();
+
+            if (pathName === "forest") path.encounterTime = 45;
+            if (pathName === "ashHills") path.encounterTime = 45;
+            if (pathName === "cave") path.encounterTime = 60;
+        });
+
+        if (typeof resetVillage === "function") {
+            resetVillage();
+        }
+
+        const log = document.getElementById("log");
+        const villageLog = document.getElementById("villageLog");
+
+        if (log) log.innerHTML = "";
+        if (villageLog) villageLog.innerHTML = "";
+
+        // Put the UI back on the starting forest screen.
+        document.getElementById("forestGame")?.classList.remove("hidden");
+        document.getElementById("forestScreen")?.classList.remove("hidden");
+        document.getElementById("villageScreen")?.classList.add("hidden");
+        document.getElementById("villageWalkScreen")?.classList.add("hidden");
+        document.getElementById("questScreen")?.classList.add("hidden");
+        document.getElementById("ashHillsScreen")?.classList.add("hidden");
+        document.getElementById("arrivalScene")?.classList.add("hidden");
+
+        updateHP();
+        updateGold();
+
+        document.getElementById("levelText").textContent = player.level;
+        document.getElementById("attackText").textContent = player.attack;
+        document.getElementById("statusText").textContent = "Walking";
+        document.getElementById("forestBar").style.width = "0%";
+        document.getElementById("xpBar").style.width = "0%";
+        document.getElementById("xpBarText").textContent = "0 / 50 XP";
+        document.getElementById("forestText").textContent = "0:00 / 5:00";
+        document.getElementById("restBar").style.width = "0%";
+        document.getElementById("restText").textContent = "Rest when you need to recover.";
+
+        const ashRestBar = document.getElementById("ashHillsRestBar");
+        if (ashRestBar) ashRestBar.style.width = "0%";
+
+        document.getElementById("restButton").disabled = false;
+        document.getElementById("leaveButton").disabled = true;
+
+        updateForest();
+        updateRest();
+
+        const resetSave = getGameSaveData(Date.now());
+
+        // The account save is authoritative. If the server revision changed
+        // between the last load and this reset, reload the latest revision
+        // and retry the reset instead of restoring the old 5:00 forest.
+        if (currentSupabaseUser) {
+            let saved = await saveRemoteGame(resetSave);
+
+            if (!saved) {
+                await loadRemoteGame();
+
+                // Re-apply the reset after loading the latest server state.
+                player.hp = 40;
+                player.maxHp = 40;
+                player.attack = 8;
+                player.level = 1;
+                player.xp = 0;
+                player.xpToNext = 50;
+                player.gold = 0;
+                resting = false;
+                restForced = false;
+                restStartTime = 0;
+                restDuration = 0;
+                gameEnded = false;
+                currentPath = "forest";
+
+                Object.keys(paths).forEach(pathName => {
+                    const path = paths[pathName];
+                    if ("progress" in path) path.progress = 0;
+                    if ("completed" in path) path.completed = false;
+                    if ("active" in path) path.active = pathName === "forest";
+                    if ("lastUpdateTime" in path) path.lastUpdateTime = Date.now();
+                    if (pathName === "forest") path.encounterTime = 45;
+                    if (pathName === "ashHills") path.encounterTime = 45;
+                    if (pathName === "cave") path.encounterTime = 60;
+                });
+
+                if (typeof resetVillage === "function") resetVillage();
+
+                saved = await saveRemoteGame(getGameSaveData(Date.now()));
+            }
+
+            if (!saved) {
+                throw new Error("The reset could not be saved to the cloud.");
+            }
+        } else {
+            localStorage.setItem(SAVE_KEY, JSON.stringify(resetSave));
+        }
+
+        // Do not queue another old-state save after the reset.
+        pendingRemoteSave = null;
+
+        location.reload();
+    } catch (error) {
+        console.error("Reset failed:", error);
+        setAccountStatus("Reset failed: " + (error.message || "Please try again."));
     }
-
-    // Clear any local copy too, so an old device-local save cannot come back.
-    localStorage.removeItem(SAVE_KEY);
-
-    location.reload();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
