@@ -218,8 +218,10 @@ async function resetGame() {
     paths.ashHills.active = false;
     paths.ashHills.lastUpdateTime = 0;
 
-    document.getElementById("log").innerHTML = "";
-    document.getElementById("villageLog").innerHTML = "";
+    const log = document.getElementById("log");
+    const villageLog = document.getElementById("villageLog");
+    if (log) log.innerHTML = "";
+    if (villageLog) villageLog.innerHTML = "";
 
     document.getElementById("forestGame")?.classList.remove("hidden");
     document.getElementById("forestScreen")?.classList.remove("hidden");
@@ -260,6 +262,7 @@ async function resetGame() {
         await saveRemoteGame(getGameSaveData());
     }
 
+    saveGame();
     location.reload();
 }
 
