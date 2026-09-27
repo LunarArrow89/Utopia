@@ -10,6 +10,7 @@ const supabaseClient = window.supabase.createClient(
 
 let currentSupabaseUser = null;
 let remoteSaveTimer = null;
+let lastRemoteSaveAt = 0;
 
 function getGameSaveData() {
     return {
@@ -45,10 +46,15 @@ function saveGame() {
 
     if (!currentSupabaseUser) return;
 
-    clearTimeout(remoteSaveTimer);
-    remoteSaveTimer = setTimeout(() => {
-        saveRemoteGame(saveData);
-    }, 1000);
+    // saveGame() runs every second, so a debounce would keep getting
+    // cancelled forever. Throttle cloud saves instead.
+    if (Date.now() - lastRemoteSaveAt >= 5000 && !remoteSaveTimer) {
+        remoteSaveTimer = setTimeout(async () => {
+            remoteSaveTimer = null;
+            lastRemoteSaveAt = Date.now();
+            await saveRemoteGame(saveData);
+        }, 0);
+    }
 }
 
 async function saveRemoteGame(saveData = getGameSaveData()) {
@@ -321,6 +327,7 @@ async function signUp() {
     if (data.user && data.session) {
         currentSupabaseUser = data.user;
         await saveRemoteGame();
+        lastRemoteSaveAt = Date.now();
         updateAccountUI();
         unlockLogin();
         refreshGameUI();
