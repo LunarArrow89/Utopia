@@ -4,7 +4,8 @@ const paths = {
         progress: 0,
         duration: 300,
         encounterTime: 45,
-        completed: false
+        completed: false,
+        lastUpdateTime: 0
     },
 
     cave: {
