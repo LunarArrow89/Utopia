@@ -61,8 +61,10 @@ registerPath("forest", {
             if (damageTaken <= 0) {
                 player.gold += enemy.gold;
                 giveXP(enemy.xp);
+                addLog("You defeated " + enemy.name + ".");
             } else {
                 player.hp -= damageTaken;
+                addLog(enemy.name + " attacked you for " + damageTaken + " damage.");
 
                 if (player.hp <= 0) {
                     player.hp = 0;
