@@ -2716,3 +2716,100 @@ body {
         background: radial-gradient(circle at center, transparent 0, rgba(0,0,0,.2) 100%);
     }
 }
+
+
+/* ==========================================================
+   OAKSHADE VILLAGE: TRUE PHONE SCREEN
+   The whole village screen, not just its contents, is phone-sized.
+   ========================================================== */
+@media (min-width: 501px) {
+    #villageScreen {
+        display: block;
+        width: 390px !important;
+        max-width: calc(100vw - 24px) !important;
+        height: calc(100vh - 24px) !important;
+        min-height: 0 !important;
+        margin: 12px auto !important;
+        padding: 10px 8px 95px !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        border: 1px solid #35463a;
+        border-radius: 24px;
+        background: radial-gradient(circle at 50% 0%, #384936 0%, #202b20 35%, #101610 100%);
+        box-shadow: 0 18px 55px rgba(0,0,0,.55);
+    }
+
+    #villageScreen .village-header,
+    #villageScreen .village-content,
+    #villageScreen .village-player-stats {
+        width: 100% !important;
+        max-width: none !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+    #villageScreen .village-header {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 7px;
+        padding: 5px 3px 9px !important;
+    }
+
+    #villageScreen .village-header h1 {
+        font-size: 23px !important;
+    }
+
+    #villageScreen .village-header p {
+        font-size: 11px !important;
+        line-height: 1.35;
+    }
+
+    #villageScreen .village-header-actions {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    #villageScreen .village-header-actions button {
+        flex: 1;
+    }
+
+    #villageScreen .village-content {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 7px !important;
+        padding: 7px 2px 20px !important;
+    }
+
+    #villageScreen .village-player-stats {
+        order: -1;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 5px !important;
+        padding: 0 !important;
+    }
+
+    #villageScreen .village-panel,
+    #villageScreen .village-message {
+        width: 100%;
+    }
+
+    #villageScreen .village-footer-actions {
+        gap: 6px;
+    }
+
+    #villageScreen .village-footer-actions button {
+        min-width: 0;
+        padding: 8px 5px;
+        font-size: 10px;
+    }
+
+    #villageScreen + #villageTabs {
+        width: 374px;
+        max-width: calc(100vw - 36px);
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
