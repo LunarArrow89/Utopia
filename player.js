@@ -193,6 +193,12 @@ function resetGame() {
         paths.cave.progress = 0;
         paths.cave.encounterTime = 60;
         paths.cave.completed = false;
+
+        paths.ashHills.progress = 0;
+        paths.ashHills.encounterTime = 45;
+        paths.ashHills.completed = false;
+        paths.ashHills.active = false;
+        paths.ashHills.lastUpdateTime = 0;
         
         document.getElementById("log").innerHTML = "";
         document.getElementById("villageLog").innerHTML = "";
@@ -208,6 +214,9 @@ function resetGame() {
         document.getElementById("forestGame").classList.remove("hidden");
         document.getElementById("forestScreen").classList.remove("hidden");
         document.getElementById("villageScreen").classList.add("hidden");
+        document.getElementById("villageWalkScreen")?.classList.add("hidden");
+        document.getElementById("questScreen")?.classList.add("hidden");
+        document.getElementById("ashHillsScreen")?.classList.add("hidden");
         document.getElementById("arrivalScene").classList.add("hidden");
         
         updateHP();
