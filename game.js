@@ -18,7 +18,7 @@ async function initializeGame() {
     if (paths.ashHills.active && currentPath === "ashHills") {
         showAshHills();
     } else if (village.walk.active && currentPath === "villageWalk") {
-        showVillageWalk();
+        showVillageWalkTab();
     } else if (currentPath === "forest" && !paths.forest.completed) {
         document.getElementById("forestGame")?.classList.remove("hidden");
     } else if (currentPath === "village" && village.unlocked) {
