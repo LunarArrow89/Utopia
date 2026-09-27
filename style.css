@@ -2279,3 +2279,62 @@ button:disabled {
         font-size: 13px;
     }
 }
+
+
+/* ==========================================================
+   FULL PAGE SCROLLING
+   Keep every screen scrollable so nothing gets cut off.
+   ========================================================== */
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+body {
+    min-height: 100vh;
+}
+
+#forestGame,
+.game-screen {
+    min-height: 100vh;
+    height: auto;
+    overflow: visible;
+}
+
+.game {
+    padding-bottom: 50px;
+}
+
+/* All full-screen game screens can scroll vertically. */
+#villageScreen,
+.village-walk-screen,
+.ash-hills-screen,
+.quest-screen,
+.account-screen,
+#arrivalScene {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Leave extra room at the bottom when fixed tabs/buttons are present. */
+.village-walk-screen,
+#villageScreen,
+.ash-hills-screen {
+    padding-bottom: 130px !important;
+}
+
+@media (max-width: 500px) {
+    .game {
+        padding-bottom: 70px;
+    }
+
+    .village-walk-screen,
+    #villageScreen,
+    .ash-hills-screen {
+        padding-bottom: 140px !important;
+    }
+}
