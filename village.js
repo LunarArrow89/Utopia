@@ -3,7 +3,9 @@ const village = {
     housesBuilt: 0,
     quests: {
         getToVillage: { completed: false, claimed: false },
-        makeTwoHouses: { completed: false, claimed: false }
+        makeTwoHouses: { completed: false, claimed: false },
+        reachAshLevel: { completed: false, claimed: false },
+        rescueCivilian: { completed: false, claimed: false }
     },
     resources: { wood: 0, stone: 0, food: 0 },
     buildings: { campfire: false, shelter: false, workshop: false },
@@ -97,18 +99,36 @@ function hideQuestScreen() {
 function updateQuests() {
     if (village.unlocked) village.quests.getToVillage.completed = true;
     if (village.housesBuilt >= 2) village.quests.makeTwoHouses.completed = true;
+    if (village.housesBuilt >= 2 && player.level >= 3) village.quests.reachAshLevel.completed = true;
+    if (paths.ashHills.completed) village.quests.rescueCivilian.completed = true;
 
     const villageQuest = document.getElementById("questVillage");
     const houseQuest = document.getElementById("questHouses");
+    const ashLevelQuest = document.getElementById("questAshLevel");
+    const rescueQuest = document.getElementById("questRescue");
     const villageReward = document.getElementById("questVillageReward");
     const houseReward = document.getElementById("questHousesReward");
+    const ashLevelReward = document.getElementById("questAshLevelReward");
+    const rescueReward = document.getElementById("questRescueReward");
     const villageClaimButton = document.querySelector("#questVillage button");
     const houseClaimButton = document.querySelector("#questHouses button");
+    const ashLevelClaimButton = document.querySelector("#questAshLevel button");
+    const rescueClaimButton = document.querySelector("#questRescue button");
 
     if (villageQuest) villageQuest.classList.toggle("completed", village.quests.getToVillage.claimed);
     if (houseQuest) houseQuest.classList.toggle("completed", village.quests.makeTwoHouses.claimed);
+    if (ashLevelQuest) {
+        ashLevelQuest.classList.toggle("hidden", village.housesBuilt < 2);
+        ashLevelQuest.classList.toggle("completed", village.quests.reachAshLevel.claimed);
+    }
+    if (rescueQuest) {
+        rescueQuest.classList.toggle("hidden", village.housesBuilt < 2);
+        rescueQuest.classList.toggle("completed", village.quests.rescueCivilian.claimed);
+    }
     if (villageReward) villageReward.textContent = village.quests.getToVillage.claimed ? "✓ Claimed" : "Reward: 6 Gold";
     if (houseReward) houseReward.textContent = village.quests.makeTwoHouses.claimed ? "✓ Claimed" : "Reward: 15 Gold";
+    if (ashLevelReward) ashLevelReward.textContent = village.quests.reachAshLevel.claimed ? "✓ Claimed" : "Reward: 25 Gold";
+    if (rescueReward) rescueReward.textContent = village.quests.rescueCivilian.claimed ? "✓ Claimed" : "Reward: 50 Gold";
 
     if (villageClaimButton) {
         villageClaimButton.disabled =
@@ -121,13 +141,30 @@ function updateQuests() {
             !village.quests.makeTwoHouses.completed ||
             village.quests.makeTwoHouses.claimed;
     }
+
+    if (ashLevelClaimButton) {
+        ashLevelClaimButton.disabled =
+            !village.quests.reachAshLevel.completed ||
+            village.quests.reachAshLevel.claimed;
+    }
+
+    if (rescueClaimButton) {
+        rescueClaimButton.disabled =
+            !village.quests.rescueCivilian.completed ||
+            village.quests.rescueCivilian.claimed;
+    }
 }
 
 function claimQuest(type) {
     const quest = village.quests[type];
     if (!quest || !quest.completed || quest.claimed) return;
 
-    const rewards = { getToVillage: 6, makeTwoHouses: 15 };
+    const rewards = {
+        getToVillage: 6,
+        makeTwoHouses: 15,
+        reachAshLevel: 25,
+        rescueCivilian: 50
+    };
     player.gold += rewards[type];
     quest.claimed = true;
 
@@ -317,6 +354,26 @@ function updateVillageUI() {
     if (walkButton) {
         walkButton.disabled = village.walk.active;
         walkButton.textContent = village.walk.active ? "Walking..." : "Take a Walk";
+    }
+
+    const ashButton = document.getElementById("ashHillsButton");
+    if (ashButton) {
+        if (village.housesBuilt < 2) {
+            ashButton.disabled = true;
+            ashButton.textContent = "Build 2 Houses First";
+        } else if (paths.ashHills.completed) {
+            ashButton.disabled = false;
+            ashButton.textContent = "Ash Hills Completed";
+        } else if (paths.ashHills.active) {
+            ashButton.disabled = false;
+            ashButton.textContent = "Continue Ash Hills";
+        } else if (player.level < paths.ashHills.levelRequirement) {
+            ashButton.disabled = true;
+            ashButton.textContent = "Requires Level " + paths.ashHills.levelRequirement;
+        } else {
+            ashButton.disabled = false;
+            ashButton.textContent = "Enter Ash Hills";
+        }
     }
 
     const houseCost = getHouseCost();
@@ -601,7 +658,9 @@ function resetVillage() {
     village.housesBuilt = 0;
     village.quests = {
         getToVillage: { completed: false, claimed: false },
-        makeTwoHouses: { completed: false, claimed: false }
+        makeTwoHouses: { completed: false, claimed: false },
+        reachAshLevel: { completed: false, claimed: false },
+        rescueCivilian: { completed: false, claimed: false }
     };
     village.resources = { wood: 0, stone: 0, food: 0 };
     village.buildings = { campfire: false, shelter: false, workshop: false };
