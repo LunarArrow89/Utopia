@@ -9,7 +9,22 @@
 </head>
 <body>
 
-<div id="accountScreen" class="account-screen hidden">
+
+
+<div id="questStoryOverlay" class="quest-story-overlay hidden">
+    <div class="quest-story-box">
+        <div class="quest-story-kicker" id="questStoryKicker">QUEST</div>
+        <h2 id="questStoryTitle">Quest</h2>
+        <p id="questStoryText"></p>
+        <div class="quest-story-objective" id="questStoryObjective"></div>
+        <div class="quest-story-reward" id="questStoryReward"></div>
+        <div class="buttons">
+            <button type="button" onclick="closeQuestStory()">Back</button>
+            <button type="button" id="questStoryAction" onclick="acceptQuestFromStory()">Accept Quest</button>
+        </div>
+    </div>
+</div>
+\n<div id="accountScreen" class="account-screen hidden">
 <div class="account-box">
 <button id="accountCloseButton" class="account-close" type="button" onclick="hideAccountScreen()">×</button>
 <div class="account-kicker">UTOPIA CLOUD SAVE</div>
