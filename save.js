@@ -248,6 +248,21 @@ async function loadGame() {
         return false;
     }
 
+    // Ask the server to process this account before loading it.
+    // This is only a safety/instant-sync call; Supabase Cron also runs
+    // the same server-side idle engine every minute while all devices are off.
+    try {
+        const { error } = await supabaseClient.rpc("process_idle_games", {
+            p_user_id: currentSupabaseUser.id
+        });
+
+        if (error) {
+            console.warn("Server idle processing failed:", error);
+        }
+    } catch (error) {
+        console.warn("Server idle processing unavailable:", error);
+    }
+
     await loadRemoteGame();
     return true;
 }
