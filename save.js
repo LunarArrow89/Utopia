@@ -4,10 +4,7 @@ const SAVE_VERSION = 3;
 const SUPABASE_URL = "https://pfwjljbugjgfbmrtzcid.supabase.co";
 const SUPABASE_KEY = "sb_publishable_YkIw0Q-nJNrXF47tPruRYQ_51mBVWuB";
 
-const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentSupabaseUser = null;
 let remoteSaveTimer = null;
@@ -48,12 +45,10 @@ function queueRemoteSave(saveData) {
 
     remoteSaveTimer = setTimeout(async () => {
         remoteSaveTimer = null;
-
         if (!pendingRemoteSave) return;
 
         const dataToSave = pendingRemoteSave;
         pendingRemoteSave = null;
-
         remoteSaveInProgress = true;
         lastRemoteSaveAt = Date.now();
 
@@ -61,22 +56,29 @@ function queueRemoteSave(saveData) {
 
         remoteSaveInProgress = false;
 
-        if (pendingRemoteSave) {
-            queueRemoteSave(pendingRemoteSave);
-        }
+        if (pendingRemoteSave) queueRemoteSave(pendingRemoteSave);
     }, wait);
 }
 
 function saveGame() {
     const now = Date.now();
 
-    // Completed paths must not accumulate offline time after they finish.
     if (gameEnded) {
         if (paths.forest?.completed) paths.forest.lastUpdateTime = now;
         if (paths.ashHills?.completed) paths.ashHills.lastUpdateTime = now;
     }
 
     const saveData = getGameSaveData(now);
+
+    // Keep a local backup too. The cloud save is authoritative after login,
+    // but this prevents a refresh during a pending network write from
+    // immediately throwing away the newest state.
+    try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+    } catch (error) {
+        console.warn("Local save failed:", error);
+    }
+
     queueRemoteSave(saveData);
 }
 
@@ -88,9 +90,6 @@ async function saveRemoteGame(saveData = getGameSaveData()) {
     dataToSave.savedAt = Date.now();
 
     try {
-        // All writes go through one server-side RPC. The database stamps
-        // the save with server time and advances its revision, so a stale
-        // browser/device cannot silently overwrite a newer cloud save.
         const { data, error } = await supabaseClient.rpc("save_game_state", {
             p_save_data: dataToSave,
             p_expected_revision: remoteSaveRevision
@@ -114,8 +113,11 @@ async function saveRemoteGame(saveData = getGameSaveData()) {
         }
 
         remoteSaveRevision = Number(data.save_revision || remoteSaveRevision);
-        applySaveData(data.save_data);
 
+        // IMPORTANT: do NOT apply the returned server copy here.
+        // It is the exact state we just sent, and applying it during a
+        // delayed save could overwrite newer local XP/HP/level changes that
+        // happened while the request was in flight.
         return true;
     } catch (error) {
         console.error("Cloud save failed:", error);
@@ -138,20 +140,9 @@ async function loadRemoteGame() {
         if (error) throw error;
         if (!data || !data.save_data) return false;
 
-        const remoteSave = data.save_data;
         remoteSaveRevision = Number(data.save_revision || 0);
-
-        // Supabase is the authoritative save for the signed-in account.
-        // The server-side idle engine may have progressed this save while
-        // every device was closed, so never let an older browser copy win
-        // just because its local savedAt timestamp is newer.
-        applySaveData(remoteSave);
-        // Immediately refresh every visible part of the game from the
-        // cloud-loaded state. This is especially important after the
-        // server-side idle engine progressed the game while the device
-        // was closed.
+        applySaveData(data.save_data);
         refreshGameUI();
-
         return true;
     } catch (error) {
         console.error("Cloud load failed:", error);
@@ -172,20 +163,11 @@ function applySaveData(data) {
     });
 
     if (typeof data.currentPath === "string") currentPath = data.currentPath;
-
     resting = Boolean(data.resting);
 
-    if (typeof restStartTime !== "undefined") {
-        restStartTime = Number(data.restStartTime || 0);
-    }
-
-    if (typeof restDuration !== "undefined") {
-        restDuration = Number(data.restDuration || 0);
-    }
-
-    if (typeof restForced !== "undefined") {
-        restForced = Boolean(data.restForced);
-    }
+    if (typeof restStartTime !== "undefined") restStartTime = Number(data.restStartTime || 0);
+    if (typeof restDuration !== "undefined") restDuration = Number(data.restDuration || 0);
+    if (typeof restForced !== "undefined") restForced = Boolean(data.restForced);
 
     gameEnded = Boolean(data.gameEnded);
 
@@ -207,21 +189,13 @@ async function loadGame() {
     const { data: { user } } = await supabaseClient.auth.getUser();
     currentSupabaseUser = user || null;
 
-    if (!currentSupabaseUser) {
-        return false;
-    }
+    if (!currentSupabaseUser) return false;
 
-    // Ask the server to process this account before loading it.
-    // This is only a safety/instant-sync call; Supabase Cron also runs
-    // the same server-side idle engine every minute while all devices are off.
     try {
         const { error } = await supabaseClient.rpc("process_idle_games", {
             p_user_id: currentSupabaseUser.id
         });
-
-        if (error) {
-            console.warn("Server idle processing failed:", error);
-        }
+        if (error) console.warn("Server idle processing failed:", error);
     } catch (error) {
         console.warn("Server idle processing unavailable:", error);
     }
@@ -281,9 +255,7 @@ function updateAccountUI() {
     if (currentSupabaseUser) {
         document.getElementById("accountCloseButton")?.classList.remove("hidden");
         title.textContent = "Cloud Save Connected";
-        message.textContent =
-            currentSupabaseUser.user_metadata?.username ||
-            "Your account is connected.";
+        message.textContent = currentSupabaseUser.user_metadata?.username || "Your account is connected.";
         signInButton?.classList.add("hidden");
         signUpButton?.classList.add("hidden");
         signOutButton?.classList.remove("hidden");
@@ -291,8 +263,7 @@ function updateAccountUI() {
     } else {
         document.getElementById("accountCloseButton")?.classList.add("hidden");
         title.textContent = "Sign In";
-        message.textContent =
-            "Use your username and password to keep your save on every device.";
+        message.textContent = "Use your username and password to keep your save on every device.";
         signInButton?.classList.remove("hidden");
         signUpButton?.classList.remove("hidden");
         signOutButton?.classList.add("hidden");
@@ -335,32 +306,14 @@ async function signIn() {
     }
 
     currentSupabaseUser = data.user;
+    await loadRemoteGame();
 
-    try {
-        const { error: idleError } = await supabaseClient.rpc("process_idle_games", {
-            p_user_id: currentSupabaseUser.id
-        });
-
-        if (idleError) {
-            console.warn("Server idle processing failed during sign-in:", idleError);
-        }
-    } catch (error) {
-        console.warn("Server idle processing unavailable during sign-in:", error);
-    }
-
-    const hadRemoteSave = await loadRemoteGame();
-
-    if (typeof resumeRest === "function" && resting) {
-        resumeRest();
-    }
+    if (typeof resumeRest === "function" && resting) resumeRest();
 
     updateAccountUI();
     unlockLogin();
     refreshGameUI();
-
-    setAccountStatus(hadRemoteSave
-        ? "Cloud save loaded and offline progress caught up!"
-        : "Account connected. Your current game is now saved online.");
+    setAccountStatus("Cloud save loaded!");
 }
 
 async function signUp() {
@@ -371,12 +324,10 @@ async function signUp() {
         setAccountStatus("Username must be 3-20 characters using letters, numbers, or underscores.");
         return;
     }
-
     if (!password) {
-        setAccountStatus("Enter a password.");
+        setAccountStatus("Enter your password.");
         return;
     }
-
     if (password.length < 6) {
         setAccountStatus("Your password must be at least 6 characters.");
         return;
@@ -387,19 +338,11 @@ async function signUp() {
     const { data, error } = await supabaseClient.auth.signUp({
         email: usernameToInternalEmail(username),
         password,
-        options: {
-            data: {
-                username
-            }
-        }
+        options: { data: { username } }
     });
 
     if (error) {
-        setAccountStatus(
-            error.message.toLowerCase().includes("already")
-                ? "That username is already taken."
-                : error.message
-        );
+        setAccountStatus(error.message.toLowerCase().includes("already") ? "That username is already taken." : error.message);
         return;
     }
 
@@ -410,9 +353,9 @@ async function signUp() {
 
     currentSupabaseUser = data.user;
     lastRemoteSaveAt = Date.now();
-
     updateAccountUI();
     unlockLogin();
+    saveGame();
     refreshGameUI();
     setAccountStatus("Account created and cloud save connected!");
 }
@@ -430,17 +373,12 @@ function refreshGameUI() {
 
     document.getElementById("levelText").textContent = player.level;
     document.getElementById("attackText").textContent = player.attack;
-    document.getElementById("xpBarText").textContent =
-        `${player.xp} / ${player.xpToNext} XP`;
-    document.getElementById("xpBar").style.width =
-        `${(player.xp / player.xpToNext) * 100}%`;
+    document.getElementById("xpBarText").textContent = `${player.xp} / ${player.xpToNext} XP`;
+    document.getElementById("xpBar").style.width = `${(player.xp / player.xpToNext) * 100}%`;
 
     if (typeof updateVillageUI === "function") updateVillageUI();
     if (typeof updateVillageWalkUI === "function") updateVillageWalkUI();
 
-    // Finishing the forest always stops on the arrival cutscene first.
-    // This check comes before the village screen so the server's offline
-    // processing cannot skip the story scene.
     if (paths.forest.completed && !arrivalCutsceneSeen) {
         showArrivalScene();
     } else if (village.unlocked && paths.forest.completed) {
