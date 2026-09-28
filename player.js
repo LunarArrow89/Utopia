@@ -38,20 +38,30 @@ function updateGold() {
 }
 
 function updateForest() {
-    const path = paths[currentPath];
+    // Whispering Woods always uses the forest path.
+    // currentPath changes after leaving the forest, so using
+    // paths[currentPath] here can break the forest progress bar.
+    const path = paths?.forest;
+    const bar = document.getElementById("forestBar");
+    const text = document.getElementById("forestText");
 
-    document.getElementById("forestBar").style.width =
-        `${(path.progress / path.duration) * 100}%`;
+    if (!path || !bar || !text) return;
 
-    const minutes = Math.floor(path.progress / 60);
-    const seconds = path.progress % 60;
-    const totalMinutes = Math.floor(path.duration / 60);
-    const totalSeconds = path.duration % 60;
+    const duration = Math.max(1, Number(path.duration) || 300);
+    const progress = Math.max(0, Math.min(duration, Number(path.progress) || 0));
+    const percent = (progress / duration) * 100;
 
-    document.getElementById("forestText").textContent =
-        `${minutes}:${String(seconds).padStart(2, '0')} / ${totalMinutes}:${String(totalSeconds).padStart(2, '0')}`;
+    bar.style.width = percent + "%";
+
+    const minutes = Math.floor(progress / 60);
+    const seconds = Math.floor(progress % 60);
+    const totalMinutes = Math.floor(duration / 60);
+    const totalSeconds = Math.floor(duration % 60);
+
+    text.textContent =
+        minutes + ":" + String(seconds).padStart(2, "0") +
+        " / " + totalMinutes + ":" + String(totalSeconds).padStart(2, "0");
 }
-
 function giveXP(amount) {
     player.xp += amount;
 
