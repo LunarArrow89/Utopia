@@ -12,6 +12,7 @@ let remoteSaveInProgress = false;
 let pendingRemoteSave = null;
 let lastRemoteSaveAt = 0;
 let remoteSaveRevision = 0;
+let remoteSavePromise = null;
 
 function cloneSaveData(data) {
     return JSON.parse(JSON.stringify(data));
@@ -130,8 +131,44 @@ async function saveRemoteGame(saveData = getGameSaveData()) {
         remoteSaveRevision = Number(data.save_revision || remoteSaveRevision);
         return true;
     } catch (error) {
-        console.error("Cloud save failed:", error);
-        setAccountStatus("Account save failed. Retrying automatically...");
+        console.error("RPC cloud save failed:", error);
+
+        // If the server-side RPC has not been installed yet, fall back to
+        // the game_saves table so account progress can still be stored.
+        // The server idle engine still needs the SQL file installed for
+        // progress while the device is completely offline.
+        const message = String(error?.message || "").toLowerCase();
+        const rpcMissing =
+            message.includes("save_game_state") ||
+            message.includes("function") && message.includes("does not exist");
+
+        if (rpcMissing) {
+            try {
+                const { data, error: fallbackError } = await supabaseClient
+                    .from("game_saves")
+                    .upsert(
+                        {
+                            user_id: currentSupabaseUser.id,
+                            save_data: dataToSave,
+                            updated_at: new Date().toISOString()
+                        },
+                        { onConflict: "user_id" }
+                    )
+                    .select("save_data, save_revision")
+                    .single();
+
+                if (fallbackError) throw fallbackError;
+
+                remoteSaveRevision = Number(data?.save_revision || remoteSaveRevision);
+                return true;
+            } catch (fallbackError) {
+                console.error("Direct account save failed:", fallbackError);
+                setAccountStatus("Account save failed. Check the Supabase setup.");
+            }
+        } else {
+            setAccountStatus("Account save failed. Retrying automatically...");
+        }
+
         pendingRemoteSave = dataToSave;
         return false;
     }
@@ -235,8 +272,8 @@ async function loadGame() {
     return await loadRemoteGame();
 }
 
-function flushSaveNow() {
-    if (!currentSupabaseUser) return;
+async function flushSaveNow() {
+    if (!currentSupabaseUser) return true;
 
     if (remoteSaveTimer) {
         clearTimeout(remoteSaveTimer);
@@ -247,20 +284,28 @@ function flushSaveNow() {
     saveLocalBackup(newest);
     pendingRemoteSave = newest;
 
-    if (!remoteSaveInProgress) {
+    if (remoteSaveInProgress && remoteSavePromise) {
+        await remoteSavePromise;
+    }
+
+    if (pendingRemoteSave && !remoteSaveInProgress) {
+        const next = pendingRemoteSave;
+        pendingRemoteSave = null;
+
         remoteSaveInProgress = true;
         lastRemoteSaveAt = Date.now();
 
-        saveRemoteGame(newest).finally(() => {
-            remoteSaveInProgress = false;
+        remoteSavePromise = saveRemoteGame(next);
 
-            if (pendingRemoteSave) {
-                const next = pendingRemoteSave;
-                pendingRemoteSave = null;
-                queueRemoteSave(next);
-            }
-        });
+        try {
+            await remoteSavePromise;
+        } finally {
+            remoteSavePromise = null;
+            remoteSaveInProgress = false;
+        }
     }
+
+    return !pendingRemoteSave;
 }
 
 function requireLogin() {
@@ -452,7 +497,7 @@ async function signUp() {
 }
 
 async function signOut() {
-    flushSaveNow();
+    await flushSaveNow();
     await supabaseClient.auth.signOut();
     currentSupabaseUser = null;
     requireLogin();
@@ -482,9 +527,9 @@ function refreshGameUI() {
     }
 }
 
-document.addEventListener("visibilitychange", () => {
+document.addEventListener("visibilitychange", async () => {
     if (document.visibilityState === "hidden") {
-        flushSaveNow();
+        await flushSaveNow();
     } else {
         // Reconcile elapsed idle time first, then redraw. Do not overwrite
         // the local state just because the tab became visible.
