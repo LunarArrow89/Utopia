@@ -438,7 +438,9 @@ async function resetGame() {
     }
 }
 
-// Keep Reset Save callable from HTML buttons even if another script changes the event listeners.\nwindow.resetGame = resetGame;\n\ndocument.addEventListener("DOMContentLoaded", () => {
+// Keep Reset Save callable from HTML buttons even if another script changes the event listeners.\nwindow.resetGame = resetGame;
+
+document.addEventListener("DOMContentLoaded", () => {
     updateHP();
     updateGold();
 
