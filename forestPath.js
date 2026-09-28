@@ -15,11 +15,35 @@ registerPath("forest", {
 }, {
     update() {
         const path = paths.forest;
-        path.lastUpdateTime = Date.now();
+        const now = Date.now();
 
         if (path.completed) return;
 
-        path.progress++;
+        // Use real elapsed time instead of assuming every browser timer
+        // fires exactly once per second. Phones can throttle setInterval,
+        // especially when the page is backgrounded or the device is
+        // saving power. The forest should still catch up when the page
+        // becomes active again.
+        if (!path.lastUpdateTime) {
+            path.lastUpdateTime = now;
+            updateForest();
+            return;
+        }
+
+        const elapsedSeconds = Math.floor(
+            (now - path.lastUpdateTime) / 1000
+        );
+
+        if (elapsedSeconds <= 0) {
+            updateForest();
+            return;
+        }
+
+        path.lastUpdateTime = now;
+        path.progress = Math.min(
+            path.duration,
+            path.progress + elapsedSeconds
+        );
 
         if (path.progress >= path.duration) {
             finishPath("forest");
