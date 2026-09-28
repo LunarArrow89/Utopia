@@ -38,7 +38,7 @@ function updateGold() {
 }
 
 function updateForest() {
-    // Whispering Woods always uses the forest path.
+    // The Forest always uses the forest path.
     // currentPath changes after leaving the forest, so using
     // paths[currentPath] here can break the forest progress bar.
     const path = paths?.forest;
