@@ -1,4 +1,4 @@
-const SAVE_KEY = "whisperingWoodsSave";
+const SAVE_KEY = "utopiaSave";
 const SAVE_VERSION = 4;
 
 const SUPABASE_URL = "https://pfwjljbugjgfbmrtzcid.supabase.co";
@@ -31,6 +31,7 @@ function getGameSaveData(savedAt = Date.now()) {
         gameEnded,
         village: cloneSaveData(village),
         arrivalCutsceneSeen: Boolean(arrivalCutsceneSeen),
+        awakeningSeen: Boolean(typeof awakeningSeen !== "undefined" ? awakeningSeen : false),
         savedAt
     };
 }
@@ -239,6 +240,10 @@ function applySaveData(data) {
         arrivalCutsceneSeen = data.arrivalCutsceneSeen;
     }
 
+    if (typeof data.awakeningSeen === "boolean") {
+        awakeningSeen = data.awakeningSeen;
+    }
+
     if (data.village) {
         village.unlocked = Boolean(data.village.unlocked);
         village.housesBuilt = Number(data.village.housesBuilt || 0);
@@ -310,7 +315,11 @@ async function flushSaveNow() {
 
 function requireLogin() {
     document.getElementById("forestGame")?.classList.add("hidden");
+    document.getElementById("awakeningScene")?.classList.add("hidden");
+    document.getElementById("storyScreen")?.classList.add("hidden");
     document.getElementById("arrivalScene")?.classList.add("hidden");
+        document.getElementById("awakeningScene")?.classList.add("hidden");
+        document.getElementById("storyScreen")?.classList.add("hidden");
     document.getElementById("villageScreen")?.classList.add("hidden");
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
     document.getElementById("ashHillsScreen")?.classList.add("hidden");
