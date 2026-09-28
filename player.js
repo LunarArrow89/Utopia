@@ -322,6 +322,7 @@ async function resetGame() {
         restStartTime = 0;
         restDuration = 0;
         gameEnded = false;
+        arrivalCutsceneSeen = false;
         currentPath = "forest";
 
         // Reset every registered path without assuming a future path exists.
