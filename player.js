@@ -275,9 +275,15 @@ async function resetGame() {
 
         pendingRemoteSave = null;
 
-        while (remoteSaveInProgress) {
+        // Never let a stuck background save make Reset appear frozen.
+        // Give an in-progress save a short chance to finish, then the
+        // revision check below will safely replace it with the reset.
+        const waitUntil = Date.now() + 2000;
+        while (remoteSaveInProgress && Date.now() < waitUntil) {
             await new Promise(resolve => setTimeout(resolve, 50));
         }
+
+        remoteSaveInProgress = false;
 
         clearInterval(restTimer);
         restTimer = null;
