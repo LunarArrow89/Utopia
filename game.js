@@ -36,15 +36,23 @@ function tick() {
     // server-side idle engine during startup.
     if (!gameInitialized) return;
 
-    if (!paths.forest.lastUpdateTime) {
-        paths.forest.lastUpdateTime = Date.now();
+    const now = Date.now();
+
+    // Always keep the forest clock anchored to real time. This prevents
+    // the progress bar from getting stuck at 0 on phones or after a
+    // browser has throttled a timer.
+    if (paths.forest && !paths.forest.lastUpdateTime) {
+        paths.forest.lastUpdateTime = now;
     }
 
-    // Cutscenes/rest are deliberate pauses. Time spent away during them
-    // must not advance the path.
+    // Cutscenes and resting deliberately pause path progression.
     if (!gameEnded && !resting) {
         updatePaths();
     }
+
+    // Update the visible bars every tick even if the path itself did not
+    // advance this exact second.
+    updateForest();
 
     if (!village.unlocked) {
         updateRest();
@@ -54,3 +62,12 @@ function tick() {
 }
 
 setInterval(tick, 1000);
+
+// Repaint the progress bar when the tab becomes visible again. Mobile
+// browsers commonly throttle timers while a page is hidden.
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && gameInitialized) {
+        updateForest();
+        updatePaths();
+    }
+});
