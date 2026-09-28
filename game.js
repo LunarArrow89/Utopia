@@ -5,7 +5,7 @@ function showAwakening() {
     if(!scene||!text||!button)return;
     gameEnded=true;
     document.getElementById("forestGame")?.classList.add("hidden");
-    text.textContent="You wake up beneath a canopy of unfamiliar trees.";
+    text.textContent="You wake up in a quiet, unfamiliar village.";
     button.dataset.step="1";
     button.textContent="Continue";
     scene.classList.remove("hidden");
@@ -14,10 +14,10 @@ function nextAwakeningLine() {
     const scene=document.getElementById("awakeningScene"), text=document.getElementById("awakeningText"), button=document.getElementById("awakeningContinue");
     if(!scene||!text||!button)return;
     if(button.dataset.step==="1"){text.textContent="The air is cold. You cannot remember how you got here.";button.dataset.step="2";return;}
-    if(button.dataset.step==="2"){text.textContent="There is no road behind you. Only trees, darkness, and a path ahead.";button.dataset.step="3";return;}
-    if(button.dataset.step==="3"){text.textContent="You take a breath and step forward.";button.dataset.step="4";button.textContent="Enter the Forest";return;}
-    awakeningSeen=true; gameEnded=false; scene.classList.add("hidden"); document.getElementById("forestGame")?.classList.remove("hidden");
-    addLog("You wake in the forest."); saveGame(); refreshGameUI(); updateForest();
+    if(button.dataset.step==="2"){text.textContent="Around you are worn buildings, empty streets, and signs that this village was abandoned long ago.";button.dataset.step="3";return;}
+    if(button.dataset.step==="3"){text.textContent="You step outside and look around. Something tells you that this place needs you.";button.dataset.step="4";button.textContent="Enter the Village";return;}
+    awakeningSeen=true; gameEnded=false; scene.classList.add("hidden"); document.getElementById("villageScreen")?.classList.remove("hidden");
+    addLog("You wake in the village."); saveGame(); refreshGameUI(); updateForest();
 }
 function showStoryScreen(){if(!gameInitialized)return;document.getElementById("forestGame")?.classList.add("hidden");document.getElementById("storyScreen")?.classList.remove("hidden");document.querySelectorAll(".top-tab").forEach(b=>b.classList.remove("active"));document.querySelector(".top-tab:nth-child(2)")?.classList.add("active");}
 function hideStoryScreen(){document.getElementById("storyScreen")?.classList.add("hidden");showForestTab();}
