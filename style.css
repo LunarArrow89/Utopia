@@ -2857,3 +2857,54 @@ body {
 .awakening-scene,.story-screen{position:fixed;inset:0;z-index:20000;min-height:100vh;overflow-y:auto;background:radial-gradient(circle at 50% 0%,#263a2c 0%,#101710 55%,#060906 100%)}
 .awakening-scene{display:flex;align-items:center;justify-content:center;padding:20px}.awakening-box{width:min(600px,100%);text-align:center;padding:30px 20px}.awakening-kicker,.story-kicker{color:#8fa594;font-size:10px;letter-spacing:3px;font-weight:bold}.awakening-box h1,.story-header h1{margin:8px 0;color:#e8eee9}.awakening-box p{min-height:120px;display:flex;align-items:center;justify-content:center;margin:0 auto;max-width:560px;color:#dce9df;font-size:clamp(20px,4vw,30px);line-height:1.5}.awakening-box button{max-width:240px;margin-top:24px}
 .story-screen{padding:18px}.story-box{width:min(560px,100%);margin:0 auto}.story-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0 18px}.story-header p{margin:4px 0 0;color:#8fa594;font-size:12px}.story-close{flex:0 0 auto;width:42px;height:42px;padding:0;font-size:24px}.story-act,.story-locked{padding:18px;margin-bottom:10px;border:1px solid #43513f;border-radius:14px;background:#18221b}.story-act h2{margin:5px 0 12px;color:#e8eee9}.story-act p{color:#aebcaf;line-height:1.6;font-size:13px}.story-act-number{color:#a9bc91;font-size:10px;letter-spacing:2px;font-weight:bold}.story-status{display:inline-block;margin-top:8px;padding:5px 8px;border:1px solid #526856;border-radius:999px;color:#cbd8bf;font-size:10px}.story-locked{opacity:.55}.story-locked strong,.story-locked span{display:block;margin-top:5px}.story-locked span{color:#8fa594;font-size:12px}
+
+/* FOREST / STORY TABS */
+.top-tabs {
+    display: flex;
+    gap: 5px;
+    width: min(360px, 100%);
+    margin: 14px auto 0;
+    padding: 5px;
+    border: 1px solid #394837;
+    border-radius: 13px;
+    background: rgba(24, 32, 25, .96);
+    box-shadow: 0 5px 20px rgba(0,0,0,.28);
+}
+
+.top-tab {
+    flex: 1;
+    min-height: 42px;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: #9eaa9a;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease, border-color .15s ease, transform .15s ease;
+}
+
+.top-tab:hover {
+    background: #263126;
+    color: #dce7d9;
+}
+
+.top-tab.active {
+    border-color: #667e58;
+    background: #34452f;
+    color: #eef5e9;
+    box-shadow: 0 2px 7px rgba(0,0,0,.18);
+}
+
+@media (max-width: 600px) {
+    .top-tabs {
+        width: calc(100% - 14px);
+    }
+
+    .top-tab {
+        min-height: 42px;
+        padding: 8px 7px;
+        font-size: 12px;
+    }
+}
