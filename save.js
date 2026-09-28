@@ -384,9 +384,10 @@ async function signUp() {
 
     const { data, error } = await supabaseClient.auth.signUp({
         email,
-        password
-    }, {
-        emailRedirectTo: "https://lunararrow89.github.io/Utopia/"
+        password,
+        options: {
+            emailRedirectTo: "https://lunararrow89.github.io/Utopia/"
+        }
     });
 
     if (error) {
