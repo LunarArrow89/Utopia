@@ -54,7 +54,7 @@ function finishPath(pathName = currentPath) {
 }
 
 function updatePaths() {
-    // Whispering Woods is independent of the village screen.
+    // The Forest is independent of the village screen.
     if (!resting && !gameEnded && paths.forest && !paths.forest.completed) {
         updatePath("forest");
     }
