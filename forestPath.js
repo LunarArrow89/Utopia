@@ -102,6 +102,12 @@ registerPath("forest", {
         path.completed = true;
         gameEnded = true;
 
+        // Stop the game immediately and show the arrival story before
+        // Oakshade Village becomes available.
+        if (typeof arrivalCutsceneSeen !== "undefined" && !arrivalCutsceneSeen) {
+            showArrivalScene();
+        }
+
         addLog(path.name + " completed!");
         saveGame();
     }
