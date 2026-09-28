@@ -54,12 +54,12 @@ function finishPath(pathName = currentPath) {
 }
 
 function updatePaths() {
-    // Normal on-screen progression.
-    if (!resting && !gameEnded && !village.unlocked && !paths.forest.completed) {
+    // Whispering Woods is independent of the village screen.
+    if (!resting && !gameEnded && paths.forest && !paths.forest.completed) {
         updatePath("forest");
     }
 
-    if (!resting && paths.ashHills.active && !paths.ashHills.completed) {
+    if (!resting && paths.ashHills?.active && !paths.ashHills.completed) {
         updatePath("ashHills");
     }
 }
