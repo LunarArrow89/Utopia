@@ -25,8 +25,10 @@ async function initializeGame() {
     gameInitialized = true;
     lastProgressSave = Date.now();
 
-    // Advance once immediately using the real elapsed time from the save.
+    // Catch up using the saved timestamp first. This makes progress survive
+    // refreshes even if the server idle RPC is not installed yet.
     if (!gameEnded && !resting && path && !path.completed) {
+        catchUpPathWhileAway("forest");
         updatePath("forest");
     }
 
@@ -64,7 +66,7 @@ function tick() {
     }
 
     const now = Date.now();
-    if (now - lastProgressSave >= 10000) {
+    if (now - lastProgressSave >= 2000) {
         lastProgressSave = now;
         saveGame();
     }
@@ -77,6 +79,7 @@ document.addEventListener("visibilitychange", () => {
     if (document.visibilityState !== "visible" || !gameInitialized) return;
 
     if (!gameEnded && !resting && paths.forest && !paths.forest.completed) {
+        catchUpPathWhileAway("forest");
         updatePath("forest");
     }
 
