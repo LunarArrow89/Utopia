@@ -46,7 +46,7 @@ function showArrivalScene() {
 
     if (forestGame) forestGame.classList.add("hidden");
 
-    text.textContent = "You leave the Whispering Woods behind...";
+    text.textContent = "You leave the the forest behind...";
     button.textContent = "Continue";
     button.dataset.step = "1";
 
@@ -662,7 +662,7 @@ document.addEventListener("DOMContentLoaded", () => {
 const questStories = {
     getToVillage: {
         title: "A Place to Call Home",
-        story: "After surviving the Whispering Woods, you discover Oakshade Village. Its homes are broken and its streets are quiet, but the village could become a safe place again.",
+        story: "After surviving the the forest, you discover Oakshade Village. Its homes are broken and its streets are quiet, but the village could become a safe place again.",
         objective: "Objective: Reach and enter Oakshade Village.",
         reward: "Reward: 6 Gold"
     },
