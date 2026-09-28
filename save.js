@@ -252,6 +252,18 @@ function setAccountStatus(message) {
     if (status) status.textContent = message;
 }
 
+function getUsername() {
+    return document.getElementById("accountUsername")?.value.trim() || "";
+}
+
+function usernameToInternalEmail(username) {
+    return username.toLowerCase() + "@utopia.invalid";
+}
+
+function validUsername(username) {
+    return /^[a-zA-Z0-9_]{3,20}$/.test(username);
+}
+
 function updateAccountUI() {
     const title = document.getElementById("accountTitle");
     const message = document.getElementById("accountMessage");
@@ -264,7 +276,9 @@ function updateAccountUI() {
     if (currentSupabaseUser) {
         document.getElementById("accountCloseButton")?.classList.remove("hidden");
         title.textContent = "Cloud Save Connected";
-        message.textContent = currentSupabaseUser.email || "Your account is connected.";
+        message.textContent =
+            currentSupabaseUser.user_metadata?.username ||
+            "Your account is connected.";
         signInButton?.classList.add("hidden");
         signUpButton?.classList.add("hidden");
         signOutButton?.classList.remove("hidden");
@@ -272,7 +286,8 @@ function updateAccountUI() {
     } else {
         document.getElementById("accountCloseButton")?.classList.add("hidden");
         title.textContent = "Sign In";
-        message.textContent = "Sign in to keep your Utopia save tied to this account and use it on another device.";
+        message.textContent =
+            "Use your username and password to keep your save on every device.";
         signInButton?.classList.remove("hidden");
         signUpButton?.classList.remove("hidden");
         signOutButton?.classList.add("hidden");
@@ -288,57 +303,34 @@ function hideAccountScreen() {
     document.getElementById("accountScreen")?.classList.add("hidden");
 }
 
-async function resendConfirmationEmail() {
-    const email = document.getElementById("accountEmail")?.value.trim();
-
-    if (!email) {
-        setAccountStatus("Enter your email first.");
-        return;
-    }
-
-    setAccountStatus("Sending confirmation email...");
-
-    const { error } = await supabaseClient.auth.resend({
-        type: "signup",
-        email,
-        options: {
-            emailRedirectTo: "https://lunararrow89.github.io/Utopia/"
-        }
-    });
-
-    if (error) {
-        setAccountStatus(error.message);
-        return;
-    }
-
-    setAccountStatus("Confirmation email sent! Check your inbox.");
-}
-
 async function signIn() {
-    const email = document.getElementById("accountEmail")?.value.trim();
+    const username = getUsername();
     const password = document.getElementById("accountPassword")?.value;
 
-    if (!email || !password) {
-        setAccountStatus("Enter your email and password.");
+    if (!validUsername(username)) {
+        setAccountStatus("Username must be 3-20 characters using letters, numbers, or underscores.");
+        return;
+    }
+
+    if (!password) {
+        setAccountStatus("Enter your password.");
         return;
     }
 
     setAccountStatus("Signing in...");
 
     const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email,
+        email: usernameToInternalEmail(username),
         password
     });
 
     if (error) {
-        setAccountStatus(error.message);
+        setAccountStatus("Username or password is incorrect.");
         return;
     }
 
     currentSupabaseUser = data.user;
 
-    // Process offline time on the server before loading the save.
-    // This keeps sign-in consistent with normal game startup.
     try {
         const { error: idleError } = await supabaseClient.rpc("process_idle_games", {
             p_user_id: currentSupabaseUser.id
@@ -367,11 +359,16 @@ async function signIn() {
 }
 
 async function signUp() {
-    const email = document.getElementById("accountEmail")?.value.trim();
+    const username = getUsername();
     const password = document.getElementById("accountPassword")?.value;
 
-    if (!email || !password) {
-        setAccountStatus("Enter an email and password.");
+    if (!validUsername(username)) {
+        setAccountStatus("Username must be 3-20 characters using letters, numbers, or underscores.");
+        return;
+    }
+
+    if (!password) {
+        setAccountStatus("Enter a password.");
         return;
     }
 
@@ -383,32 +380,36 @@ async function signUp() {
     setAccountStatus("Creating account...");
 
     const { data, error } = await supabaseClient.auth.signUp({
-        email,
+        email: usernameToInternalEmail(username),
         password,
         options: {
-            emailRedirectTo: "https://lunararrow89.github.io/Utopia/"
+            data: {
+                username
+            }
         }
     });
 
     if (error) {
-        setAccountStatus(error.message);
+        setAccountStatus(
+            error.message.toLowerCase().includes("already")
+                ? "That username is already taken."
+                : error.message
+        );
         return;
     }
 
-    if (data.user && data.session) {
-        currentSupabaseUser = data.user;
-
-        // A new account starts with a fresh game. Do not copy another
-        // account's device-local state into the new account.
-        lastRemoteSaveAt = Date.now();
-
-        updateAccountUI();
-        unlockLogin();
-        refreshGameUI();
-        setAccountStatus("Account created and cloud save connected!");
-    } else {
-        setAccountStatus("Account created. Check your email to confirm your account, then sign in.");
+    if (!data.user || !data.session) {
+        setAccountStatus("Account created, but automatic sign-in is disabled. In Supabase, turn OFF Confirm email, then try again.");
+        return;
     }
+
+    currentSupabaseUser = data.user;
+    lastRemoteSaveAt = Date.now();
+
+    updateAccountUI();
+    unlockLogin();
+    refreshGameUI();
+    setAccountStatus("Account created and cloud save connected!");
 }
 
 async function signOut() {
