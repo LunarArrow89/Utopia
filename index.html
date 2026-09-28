@@ -31,12 +31,12 @@
 <div class="account-kicker">UTOPIA CLOUD SAVE</div>
 <h2 id="accountTitle">Sign In</h2>
 <p id="accountMessage">Sign in to save your Utopia progress online and use it on another device.</p>
-<input id="accountEmail" type="email" placeholder="Email" autocomplete="email">
-<input id="accountPassword" type="password" placeholder="Password" autocomplete="current-password">
+<input id="accountUsername" type="text" placeholder="Username" autocomplete="username" maxlength="20">
+<input id="accountPassword" type="password" placeholder="Password" autocomplete="current-password" minlength="6">
 <div class="buttons">
 <button id="signInButton">Sign In</button>
 <button id="signUpButton">Create Account</button>
-<button id="resendConfirmationButton" type="button" onclick="resendConfirmationEmail()">Resend Confirmation Email</button>
+
 </div>
 <button id="signOutButton" class="hidden">Sign Out</button>
 <div id="accountStatus" class="account-status"></div>
