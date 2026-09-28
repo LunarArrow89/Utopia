@@ -443,6 +443,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("accountButtonVillage")?.addEventListener("click", showAccountScreen);
     document.getElementById("signInButton")?.addEventListener("click", signIn);
     document.getElementById("signUpButton")?.addEventListener("click", signUp);
+    document.getElementById("resendConfirmationButton")?.addEventListener("click", resendConfirmationEmail);
     document.getElementById("signOutButton")?.addEventListener("click", signOut);
 
     supabaseClient.auth.onAuthStateChange(async (_event, session) => {
