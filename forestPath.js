@@ -6,7 +6,7 @@ const forestEnemies = [
 ];
 
 registerPath("forest", {
-    name: "Whispering Woods",
+    name: "The Forest",
     progress: 0,
     duration: 300,
     encounterTime: 45,
