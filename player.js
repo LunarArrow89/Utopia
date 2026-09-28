@@ -266,6 +266,11 @@ async function resetGame() {
         return;
     }
 
+    // Make the reset function available to the HTML onclick handler too.
+    // This also gives us an immediate visible status if the cloud reset
+    // takes a moment.
+    setAccountStatus("Resetting your profile...");
+
     try {
         // Stop every delayed save from the old game first.
         if (remoteSaveTimer) {
@@ -423,7 +428,7 @@ async function resetGame() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+// Keep Reset Save callable from HTML buttons even if another script changes the event listeners.\nwindow.resetGame = resetGame;\n\ndocument.addEventListener("DOMContentLoaded", () => {
     updateHP();
     updateGold();
 
