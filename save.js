@@ -1,5 +1,5 @@
 const SAVE_KEY = "whisperingWoodsSave";
-const SAVE_VERSION = 3;
+const SAVE_VERSION = 4;
 
 const SUPABASE_URL = "https://pfwjljbugjgfbmrtzcid.supabase.co";
 const SUPABASE_KEY = "sb_publishable_YkIw0Q-nJNrXF47tPruRYQ_51mBVWuB";
@@ -34,6 +34,14 @@ function getGameSaveData(savedAt = Date.now()) {
     };
 }
 
+function saveLocalBackup(saveData) {
+    try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+    } catch (error) {
+        console.warn("Local save failed:", error);
+    }
+}
+
 function queueRemoteSave(saveData) {
     if (!currentSupabaseUser) return;
 
@@ -41,14 +49,16 @@ function queueRemoteSave(saveData) {
 
     if (remoteSaveTimer || remoteSaveInProgress) return;
 
-    const wait = Math.max(0, 2000 - (Date.now() - lastRemoteSaveAt));
+    const wait = Math.max(0, 1000 - (Date.now() - lastRemoteSaveAt));
 
     remoteSaveTimer = setTimeout(async () => {
         remoteSaveTimer = null;
+
         if (!pendingRemoteSave) return;
 
         const dataToSave = pendingRemoteSave;
         pendingRemoteSave = null;
+
         remoteSaveInProgress = true;
         lastRemoteSaveAt = Date.now();
 
@@ -56,29 +66,20 @@ function queueRemoteSave(saveData) {
 
         remoteSaveInProgress = false;
 
-        if (pendingRemoteSave) queueRemoteSave(pendingRemoteSave);
+        if (pendingRemoteSave) {
+            queueRemoteSave(pendingRemoteSave);
+        }
     }, wait);
 }
 
 function saveGame() {
     const now = Date.now();
-
-    if (gameEnded) {
-        if (paths.forest?.completed) paths.forest.lastUpdateTime = now;
-        if (paths.ashHills?.completed) paths.ashHills.lastUpdateTime = now;
-    }
-
     const saveData = getGameSaveData(now);
 
-    // Keep a local backup too. The cloud save is authoritative after login,
-    // but this prevents a refresh during a pending network write from
-    // immediately throwing away the newest state.
-    try {
-        localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-    } catch (error) {
-        console.warn("Local save failed:", error);
-    }
+    // Always keep the newest complete state locally.
+    saveLocalBackup(saveData);
 
+    // Then synchronize that exact state to the signed-in account.
     queueRemoteSave(saveData);
 }
 
@@ -98,14 +99,28 @@ async function saveRemoteGame(saveData = getGameSaveData()) {
         if (error) throw error;
 
         if (data?.conflict) {
+            // The server-side idle engine can update save_revision while the
+            // browser is open. Do not throw away the player's newest HP/XP/
+            // path progress in that case. Refresh the revision, then retry
+            // the exact newest browser state once.
             remoteSaveRevision = Number(data.save_revision || 0);
 
-            if (data.save_data) {
-                applySaveData(data.save_data);
-                refreshGameUI();
+            const retry = await supabaseClient.rpc("save_game_state", {
+                p_save_data: dataToSave,
+                p_expected_revision: remoteSaveRevision
+            });
+
+            if (retry.error) throw retry.error;
+            if (retry.data?.conflict) {
+                remoteSaveRevision = Number(retry.data.save_revision || remoteSaveRevision);
+                throw new Error("Cloud save conflict could not be resolved.");
             }
 
-            return false;
+            remoteSaveRevision = Number(
+                retry.data?.save_revision || remoteSaveRevision
+            );
+
+            return true;
         }
 
         if (!data || !data.save_data) {
@@ -113,11 +128,6 @@ async function saveRemoteGame(saveData = getGameSaveData()) {
         }
 
         remoteSaveRevision = Number(data.save_revision || remoteSaveRevision);
-
-        // IMPORTANT: do NOT apply the returned server copy here.
-        // It is the exact state we just sent, and applying it during a
-        // delayed save could overwrite newer local XP/HP/level changes that
-        // happened while the request was in flight.
         return true;
     } catch (error) {
         console.error("Cloud save failed:", error);
@@ -138,11 +148,17 @@ async function loadRemoteGame() {
             .maybeSingle();
 
         if (error) throw error;
-        if (!data || !data.save_data) return false;
+
+        if (!data || !data.save_data) {
+            return false;
+        }
 
         remoteSaveRevision = Number(data.save_revision || 0);
+
         applySaveData(data.save_data);
+        saveLocalBackup(data.save_data);
         refreshGameUI();
+
         return true;
     } catch (error) {
         console.error("Cloud load failed:", error);
@@ -162,12 +178,23 @@ function applySaveData(data) {
         }
     });
 
-    if (typeof data.currentPath === "string") currentPath = data.currentPath;
+    if (typeof data.currentPath === "string") {
+        currentPath = data.currentPath;
+    }
+
     resting = Boolean(data.resting);
 
-    if (typeof restStartTime !== "undefined") restStartTime = Number(data.restStartTime || 0);
-    if (typeof restDuration !== "undefined") restDuration = Number(data.restDuration || 0);
-    if (typeof restForced !== "undefined") restForced = Boolean(data.restForced);
+    if (typeof restStartTime !== "undefined") {
+        restStartTime = Number(data.restStartTime || 0);
+    }
+
+    if (typeof restDuration !== "undefined") {
+        restDuration = Number(data.restDuration || 0);
+    }
+
+    if (typeof restForced !== "undefined") {
+        restForced = Boolean(data.restForced);
+    }
 
     gameEnded = Boolean(data.gameEnded);
 
@@ -189,19 +216,51 @@ async function loadGame() {
     const { data: { user } } = await supabaseClient.auth.getUser();
     currentSupabaseUser = user || null;
 
-    if (!currentSupabaseUser) return false;
+    if (!currentSupabaseUser) {
+        return false;
+    }
 
     try {
         const { error } = await supabaseClient.rpc("process_idle_games", {
             p_user_id: currentSupabaseUser.id
         });
-        if (error) console.warn("Server idle processing failed:", error);
+
+        if (error) {
+            console.warn("Server idle processing failed:", error);
+        }
     } catch (error) {
         console.warn("Server idle processing unavailable:", error);
     }
 
-    await loadRemoteGame();
-    return true;
+    return await loadRemoteGame();
+}
+
+function flushSaveNow() {
+    if (!currentSupabaseUser) return;
+
+    if (remoteSaveTimer) {
+        clearTimeout(remoteSaveTimer);
+        remoteSaveTimer = null;
+    }
+
+    const newest = getGameSaveData(Date.now());
+    saveLocalBackup(newest);
+    pendingRemoteSave = newest;
+
+    if (!remoteSaveInProgress) {
+        remoteSaveInProgress = true;
+        lastRemoteSaveAt = Date.now();
+
+        saveRemoteGame(newest).finally(() => {
+            remoteSaveInProgress = false;
+
+            if (pendingRemoteSave) {
+                const next = pendingRemoteSave;
+                pendingRemoteSave = null;
+                queueRemoteSave(next);
+            }
+        });
+    }
 }
 
 function requireLogin() {
@@ -255,7 +314,9 @@ function updateAccountUI() {
     if (currentSupabaseUser) {
         document.getElementById("accountCloseButton")?.classList.remove("hidden");
         title.textContent = "Cloud Save Connected";
-        message.textContent = currentSupabaseUser.user_metadata?.username || "Your account is connected.";
+        message.textContent =
+            currentSupabaseUser.user_metadata?.username ||
+            "Your account is connected.";
         signInButton?.classList.add("hidden");
         signUpButton?.classList.add("hidden");
         signOutButton?.classList.remove("hidden");
@@ -306,13 +367,25 @@ async function signIn() {
     }
 
     currentSupabaseUser = data.user;
+
+    try {
+        await supabaseClient.rpc("process_idle_games", {
+            p_user_id: currentSupabaseUser.id
+        });
+    } catch (error) {
+        console.warn("Server idle processing unavailable during sign-in:", error);
+    }
+
     await loadRemoteGame();
 
-    if (typeof resumeRest === "function" && resting) resumeRest();
+    if (typeof resumeRest === "function" && resting) {
+        resumeRest();
+    }
 
     updateAccountUI();
     unlockLogin();
     refreshGameUI();
+
     setAccountStatus("Cloud save loaded!");
 }
 
@@ -324,10 +397,12 @@ async function signUp() {
         setAccountStatus("Username must be 3-20 characters using letters, numbers, or underscores.");
         return;
     }
+
     if (!password) {
         setAccountStatus("Enter your password.");
         return;
     }
+
     if (password.length < 6) {
         setAccountStatus("Your password must be at least 6 characters.");
         return;
@@ -338,11 +413,17 @@ async function signUp() {
     const { data, error } = await supabaseClient.auth.signUp({
         email: usernameToInternalEmail(username),
         password,
-        options: { data: { username } }
+        options: {
+            data: { username }
+        }
     });
 
     if (error) {
-        setAccountStatus(error.message.toLowerCase().includes("already") ? "That username is already taken." : error.message);
+        setAccountStatus(
+            error.message.toLowerCase().includes("already")
+                ? "That username is already taken."
+                : error.message
+        );
         return;
     }
 
@@ -352,15 +433,26 @@ async function signUp() {
     }
 
     currentSupabaseUser = data.user;
-    lastRemoteSaveAt = Date.now();
+
+    // New accounts get an immediate complete save, including every path
+    // and every player stat.
+    const initialSave = getGameSaveData(Date.now());
+    saveLocalBackup(initialSave);
+
+    const saved = await saveRemoteGame(initialSave);
+
+    if (!saved) {
+        setAccountStatus("Account created, but the first cloud save failed. It will retry automatically.");
+    }
+
     updateAccountUI();
     unlockLogin();
-    saveGame();
     refreshGameUI();
     setAccountStatus("Account created and cloud save connected!");
 }
 
 async function signOut() {
+    flushSaveNow();
     await supabaseClient.auth.signOut();
     currentSupabaseUser = null;
     requireLogin();
@@ -373,8 +465,10 @@ function refreshGameUI() {
 
     document.getElementById("levelText").textContent = player.level;
     document.getElementById("attackText").textContent = player.attack;
-    document.getElementById("xpBarText").textContent = `${player.xp} / ${player.xpToNext} XP`;
-    document.getElementById("xpBar").style.width = `${(player.xp / player.xpToNext) * 100}%`;
+    document.getElementById("xpBarText").textContent =
+        `${player.xp} / ${player.xpToNext} XP`;
+    document.getElementById("xpBar").style.width =
+        `${(player.xp / player.xpToNext) * 100}%`;
 
     if (typeof updateVillageUI === "function") updateVillageUI();
     if (typeof updateVillageWalkUI === "function") updateVillageWalkUI();
@@ -387,6 +481,28 @@ function refreshGameUI() {
         showArrivalScene();
     }
 }
+
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+        flushSaveNow();
+    } else {
+        // Reconcile elapsed idle time first, then redraw. Do not overwrite
+        // the local state just because the tab became visible.
+        if (currentSupabaseUser) {
+            loadGame().then(() => {
+                if (typeof resumeRest === "function" && resting) {
+                    resumeRest();
+                }
+                refreshGameUI();
+            });
+        }
+    }
+});
+
+window.addEventListener("pagehide", () => {
+    const newest = getGameSaveData(Date.now());
+    saveLocalBackup(newest);
+});
 
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("accountButton")?.addEventListener("click", showAccountScreen);
