@@ -4,6 +4,8 @@ const villageWalkEnemies = [
     { name: "Wild Boar", hp: 28, attack: 14, xp: 20, gold: 9 }
 ];
 
+let arrivalCutsceneSeen = false;
+
 const village = {
     unlocked: false,
     housesBuilt: 0,
@@ -31,6 +33,9 @@ const buildingNames = {
 };
 
 function showArrivalScene() {
+    // The arrival scene is a real pause screen. Nothing should progress
+    // while the player is reading it.
+    gameEnded = true;
     setVillageTabsVisible(false);
     const scene = document.getElementById("arrivalScene");
     const forestGame = document.getElementById("forestGame");
@@ -66,6 +71,7 @@ function nextArrivalLine() {
         return;
     }
 
+    arrivalCutsceneSeen = true;
     village.unlocked = true;
     gameEnded = true;
     document.getElementById("arrivalScene").classList.add("hidden");
