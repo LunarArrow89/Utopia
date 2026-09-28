@@ -255,8 +255,20 @@ function applySaveData(data) {
 }
 
 async function loadGame() {
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    currentSupabaseUser = user || null;
+    // Supabase can take a moment to restore the saved browser session.
+    // Wait briefly before deciding that the player is logged out.
+    let user = null;
+
+    for (let attempt = 0; attempt < 10; attempt++) {
+        const { data } = await supabaseClient.auth.getSession();
+        user = data?.session?.user || null;
+
+        if (user) break;
+
+        await new Promise(resolve => setTimeout(resolve, 150));
+    }
+
+    currentSupabaseUser = user;
 
     if (!currentSupabaseUser) {
         return false;
@@ -568,5 +580,37 @@ document.addEventListener("DOMContentLoaded", () => {
     supabaseClient.auth.onAuthStateChange(async (_event, session) => {
         currentSupabaseUser = session?.user || null;
         updateAccountUI();
+
+        // If the session was restored after initializeGame checked it,
+        // immediately finish loading the game instead of leaving the login screen up.
+        if (currentSupabaseUser && !gameInitialized) {
+            const loaded = await loadRemoteGame();
+
+            if (loaded || currentSupabaseUser) {
+                gameInitialized = true;
+                document.getElementById("accountScreen")?.classList.remove("login-required");
+                hideAccountScreen();
+
+                const path = paths.forest;
+                if (path && !Number(path.lastUpdateTime)) {
+                    path.lastUpdateTime = Date.now();
+                }
+
+                if (!awakeningSeen) {
+                    showAwakening();
+                } else {
+                    refreshGameUI();
+                    if (currentPath === "village" && village.unlocked) {
+                        showVillage();
+                    } else if (currentPath === "villageWalk" && village.walk.active) {
+                        showVillageWalkTab();
+                    } else if (currentPath === "ashHills" && paths.ashHills?.active) {
+                        showAshHills();
+                    } else {
+                        document.getElementById("forestGame")?.classList.remove("hidden");
+                    }
+                }
+            }
+        }
     });
 });
