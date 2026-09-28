@@ -1,5 +1,4 @@
 let gameInitialized = false;
-let lastGameTick = 0;
 let lastProgressSave = 0;
 
 async function initializeGame() {
@@ -10,35 +9,30 @@ async function initializeGame() {
         return;
     }
 
-    // Make sure every active path has a usable timestamp after loading.
-    // Older saves may have 0 here, which otherwise makes the first tick
-    // only initialize the clock instead of advancing the path.
-    const now = Date.now();
+    // Do NOT replace an existing forest timestamp with Date.now().
+    // That timestamp is what lets the forest calculate elapsed time.
+    const path = paths.forest;
 
-    if (paths.forest && !paths.forest.completed) {
-        if (!Number.isFinite(Number(paths.forest.progress))) {
-            paths.forest.progress = 0;
-        }
+    if (path) {
+        path.duration = Number(path.duration) || 300;
+        path.progress = Math.max(0, Math.min(path.duration, Number(path.progress) || 0));
 
-        paths.forest.progress = Math.max(
-            0,
-            Math.min(Number(paths.forest.duration) || 300, Number(paths.forest.progress) || 0)
-        );
-
-        if (!Number(paths.forest.lastUpdateTime)) {
-            paths.forest.lastUpdateTime = now;
+        if (!Number(path.lastUpdateTime)) {
+            path.lastUpdateTime = Date.now();
         }
     }
 
-    if (paths.ashHills && paths.ashHills.active && !paths.ashHills.completed) {
-        if (!Number(paths.ashHills.lastUpdateTime)) {
-            paths.ashHills.lastUpdateTime = now;
-        }
+    gameInitialized = true;
+    lastProgressSave = Date.now();
+
+    // Advance once immediately using the real elapsed time from the save.
+    if (!gameEnded && !resting && path && !path.completed) {
+        updatePath("forest");
     }
 
     refreshGameUI();
 
-    if (paths.ashHills.active && currentPath === "ashHills") {
+    if (paths.ashHills?.active && currentPath === "ashHills") {
         showAshHills();
     } else if (village.walk.active && currentPath === "villageWalk") {
         showVillageWalkTab();
@@ -48,11 +42,6 @@ async function initializeGame() {
         showVillage();
     }
 
-    gameInitialized = true;
-    lastGameTick = Date.now();
-    lastProgressSave = Date.now();
-
-    // Paint the real loaded state immediately.
     updateForest();
 }
 
@@ -61,54 +50,45 @@ document.addEventListener("DOMContentLoaded", initializeGame);
 function tick() {
     if (!gameInitialized) return;
 
-    const now = Date.now();
-
-    // Never allow a bad clock value to make the path freeze.
-    if (!lastGameTick) lastGameTick = now;
-
-    // Cutscenes and resting deliberately pause path progression.
-    if (!gameEnded && !resting) {
-        updatePaths();
+    // Whispering Woods owns its own elapsed-time clock. Do not gate it on
+    // village.unlocked or currentPath; those flags can change screens while
+    // the forest save still needs to display its real progress.
+    if (!gameEnded && !resting && paths.forest && !paths.forest.completed) {
+        updatePath("forest");
     }
 
-    // Always repaint the visible forest bar.
     updateForest();
 
     if (!village.unlocked) {
         updateRest();
     }
 
-    // Saving every second caused cloud writes to race with the idle-save
-    // system. The game state still updates every second, but cloud saves
-    // are sent periodically instead of constantly overwriting the server.
+    const now = Date.now();
     if (now - lastProgressSave >= 10000) {
         lastProgressSave = now;
         saveGame();
     }
-
-    lastGameTick = now;
 }
 
 setInterval(tick, 1000);
 
-// When a phone or computer wakes the page, immediately calculate elapsed
-// path time before repainting. This avoids waiting for another timer tick.
+// Catch up immediately when a phone/browser wakes the page.
 document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible" && gameInitialized) {
-        if (!gameEnded && !resting) {
-            updatePaths();
-        }
+    if (document.visibilityState !== "visible" || !gameInitialized) return;
 
-        updateForest();
-        refreshGameUI();
+    if (!gameEnded && !resting && paths.forest && !paths.forest.completed) {
+        updatePath("forest");
     }
+
+    updateForest();
+    refreshGameUI();
 });
 
 window.addEventListener("pageshow", () => {
     if (!gameInitialized) return;
 
-    if (!gameEnded && !resting) {
-        updatePaths();
+    if (!gameEnded && !resting && paths.forest && !paths.forest.completed) {
+        updatePath("forest");
     }
 
     updateForest();
