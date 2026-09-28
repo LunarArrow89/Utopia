@@ -288,6 +288,32 @@ function hideAccountScreen() {
     document.getElementById("accountScreen")?.classList.add("hidden");
 }
 
+async function resendConfirmationEmail() {
+    const email = document.getElementById("accountEmail")?.value.trim();
+
+    if (!email) {
+        setAccountStatus("Enter your email first.");
+        return;
+    }
+
+    setAccountStatus("Sending confirmation email...");
+
+    const { error } = await supabaseClient.auth.resend({
+        type: "signup",
+        email,
+        options: {
+            emailRedirectTo: "https://lunararrow89.github.io/Utopia/"
+        }
+    });
+
+    if (error) {
+        setAccountStatus(error.message);
+        return;
+    }
+
+    setAccountStatus("Confirmation email sent! Check your inbox.");
+}
+
 async function signIn() {
     const email = document.getElementById("accountEmail")?.value.trim();
     const password = document.getElementById("accountPassword")?.value;
