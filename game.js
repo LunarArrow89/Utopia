@@ -1,4 +1,6 @@
 let gameInitialized = false;
+let lastGameTick = 0;
+let lastProgressSave = 0;
 
 async function initializeGame() {
     const loggedIn = await loadGame();
@@ -8,10 +10,31 @@ async function initializeGame() {
         return;
     }
 
-    // The server has already processed all offline idle time and
-    // loadGame() has loaded the authoritative cloud save.
-    // Do not run browser catch-up here or save the old browser state back
-    // over the server's offline progress.
+    // Make sure every active path has a usable timestamp after loading.
+    // Older saves may have 0 here, which otherwise makes the first tick
+    // only initialize the clock instead of advancing the path.
+    const now = Date.now();
+
+    if (paths.forest && !paths.forest.completed) {
+        if (!Number.isFinite(Number(paths.forest.progress))) {
+            paths.forest.progress = 0;
+        }
+
+        paths.forest.progress = Math.max(
+            0,
+            Math.min(Number(paths.forest.duration) || 300, Number(paths.forest.progress) || 0)
+        );
+
+        if (!Number(paths.forest.lastUpdateTime)) {
+            paths.forest.lastUpdateTime = now;
+        }
+    }
+
+    if (paths.ashHills && paths.ashHills.active && !paths.ashHills.completed) {
+        if (!Number(paths.ashHills.lastUpdateTime)) {
+            paths.ashHills.lastUpdateTime = now;
+        }
+    }
 
     refreshGameUI();
 
@@ -26,48 +49,67 @@ async function initializeGame() {
     }
 
     gameInitialized = true;
+    lastGameTick = Date.now();
+    lastProgressSave = Date.now();
+
+    // Paint the real loaded state immediately.
+    updateForest();
 }
 
 document.addEventListener("DOMContentLoaded", initializeGame);
 
 function tick() {
-    // Do not save or advance anything while the initial cloud save is
-    // still loading. This prevents an old local save from racing the
-    // server-side idle engine during startup.
     if (!gameInitialized) return;
 
     const now = Date.now();
 
-    // Always keep the forest clock anchored to real time. This prevents
-    // the progress bar from getting stuck at 0 on phones or after a
-    // browser has throttled a timer.
-    if (paths.forest && !paths.forest.lastUpdateTime) {
-        paths.forest.lastUpdateTime = now;
-    }
+    // Never allow a bad clock value to make the path freeze.
+    if (!lastGameTick) lastGameTick = now;
 
     // Cutscenes and resting deliberately pause path progression.
     if (!gameEnded && !resting) {
         updatePaths();
     }
 
-    // Update the visible bars every tick even if the path itself did not
-    // advance this exact second.
+    // Always repaint the visible forest bar.
     updateForest();
 
     if (!village.unlocked) {
         updateRest();
     }
 
-    saveGame();
+    // Saving every second caused cloud writes to race with the idle-save
+    // system. The game state still updates every second, but cloud saves
+    // are sent periodically instead of constantly overwriting the server.
+    if (now - lastProgressSave >= 10000) {
+        lastProgressSave = now;
+        saveGame();
+    }
+
+    lastGameTick = now;
 }
 
 setInterval(tick, 1000);
 
-// Repaint the progress bar when the tab becomes visible again. Mobile
-// browsers commonly throttle timers while a page is hidden.
+// When a phone or computer wakes the page, immediately calculate elapsed
+// path time before repainting. This avoids waiting for another timer tick.
 document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible" && gameInitialized) {
+        if (!gameEnded && !resting) {
+            updatePaths();
+        }
+
         updateForest();
+        refreshGameUI();
+    }
+});
+
+window.addEventListener("pageshow", () => {
+    if (!gameInitialized) return;
+
+    if (!gameEnded && !resting) {
         updatePaths();
     }
+
+    updateForest();
 });
