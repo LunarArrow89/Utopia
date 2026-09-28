@@ -32,6 +32,7 @@ function getGameSaveData(savedAt = Date.now()) {
         restForced: Boolean(typeof restForced !== "undefined" ? restForced : false),
         gameEnded,
         village: cloneSaveData(village),
+        arrivalCutsceneSeen: Boolean(arrivalCutsceneSeen),
         savedAt
     };
 }
@@ -187,6 +188,10 @@ function applySaveData(data) {
     }
 
     gameEnded = Boolean(data.gameEnded);
+
+    if (typeof data.arrivalCutsceneSeen === "boolean") {
+        arrivalCutsceneSeen = data.arrivalCutsceneSeen;
+    }
 
     if (data.village) {
         village.unlocked = Boolean(data.village.unlocked);
@@ -433,7 +438,12 @@ function refreshGameUI() {
     if (typeof updateVillageUI === "function") updateVillageUI();
     if (typeof updateVillageWalkUI === "function") updateVillageWalkUI();
 
-    if (village.unlocked && paths.forest.completed) {
+    // Finishing the forest always stops on the arrival cutscene first.
+    // This check comes before the village screen so the server's offline
+    // processing cannot skip the story scene.
+    if (paths.forest.completed && !arrivalCutsceneSeen) {
+        showArrivalScene();
+    } else if (village.unlocked && paths.forest.completed) {
         showVillage();
     } else if (paths.forest.completed) {
         showArrivalScene();
