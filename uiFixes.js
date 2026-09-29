@@ -88,6 +88,8 @@
         const saved = localStorage.getItem(TAB_KEY);
         if (saved === "story") {
             showStory();
+        } else if (saved === "walk" && typeof village !== "undefined" && village.walk.active) {
+            showVillageWalkTab(false);
         } else {
             showVillageMain();
         }
