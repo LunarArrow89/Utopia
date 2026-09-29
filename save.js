@@ -193,10 +193,32 @@ async function loadRemoteGame() {
 
         remoteSaveRevision = Number(data.save_revision || 0);
 
-        applySaveData(data.save_data);
-        saveLocalBackup(data.save_data);
-        refreshGameUI();
+        const remoteSave = data.save_data;
+        let localSave = null;
 
+        try {
+            const rawLocal = localStorage.getItem(SAVE_KEY);
+            if (rawLocal) localSave = JSON.parse(rawLocal);
+        } catch (error) {
+            console.warn("Could not read local save for cloud reconciliation:", error);
+        }
+
+        const remoteTime = Number(remoteSave?.savedAt || 0);
+        const localTime = Number(localSave?.savedAt || 0);
+
+        // Never let an older cloud copy overwrite a newer local copy.
+        // This was the main reason progress could appear to vanish after
+        // refreshing or switching devices.
+        if (localSave && localTime > remoteTime) {
+            applySaveData(localSave);
+            pendingRemoteSave = cloneSaveData(localSave);
+            queueRemoteSave(localSave);
+        } else {
+            applySaveData(remoteSave);
+            saveLocalBackup(remoteSave);
+        }
+
+        refreshGameUI();
         return true;
     } catch (error) {
         console.error("Cloud load failed:", error);
@@ -609,40 +631,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("signUpButton")?.addEventListener("click", signUp);
     document.getElementById("signOutButton")?.addEventListener("click", signOut);
 
-    supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+    // Auth events update account state only. initializeGame() is the single
+    // owner of initial save restoration and screen selection.
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
         currentSupabaseUser = session?.user || null;
         updateAccountUI();
 
-        // If the session was restored after initializeGame checked it,
-        // immediately finish loading the game instead of leaving the login screen up.
-        if (currentSupabaseUser && !gameInitialized) {
-            const loaded = await loadRemoteGame();
-
-            if (loaded || currentSupabaseUser) {
-                gameInitialized = true;
-                document.getElementById("accountScreen")?.classList.remove("login-required");
-                hideAccountScreen();
-
-                const path = paths.forest;
-                if (path && !Number(path.lastUpdateTime)) {
-                    path.lastUpdateTime = Date.now();
-                }
-
-                if (!awakeningSeen) {
-                    showAwakening();
-                } else {
-                    refreshGameUI();
-                    if (currentPath === "village" && village.unlocked) {
-                        showVillage();
-                    } else if (currentPath === "villageWalk" && village.walk.active) {
-                        showVillageWalkTab();
-                    } else if (currentPath === "ashHills" && paths.ashHills?.active) {
-                        showAshHills();
-                    } else {
-                        document.getElementById("forestGame")?.classList.remove("hidden");
-                    }
-                }
-            }
+        if (!currentSupabaseUser && gameInitialized) {
+            requireLogin();
         }
     });
 });
