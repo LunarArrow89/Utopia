@@ -23,8 +23,8 @@
         walk?.classList.toggle("hidden", active !== "walk");
         walk?.setAttribute("aria-selected", active === "walk" ? "true" : "false");
         if (village) {
-            village.disabled = active === "walk";
-            village.setAttribute("aria-disabled", active === "walk" ? "true" : "false");
+            village.disabled = false;
+            village.setAttribute("aria-disabled", "false");
         }
     }
 
@@ -55,6 +55,9 @@
 
         updateMainTabs("story");
         localStorage.setItem(TAB_KEY, "story");
+        if (typeof village !== "undefined" && village.walk.active) {
+            story.querySelectorAll("button").forEach(button => button.disabled = true);
+        }
     }
 
     function showVillageMain() {
@@ -75,6 +78,9 @@
 
         updateMainTabs("village");
         localStorage.setItem(TAB_KEY, "village");
+        if (typeof village !== "undefined" && village.walk.active) {
+            document.getElementById("villageScreen")?.classList.add("walk-view-only");
+        }
 
         if (typeof updateVillageUI === "function") updateVillageUI();
         if (typeof updateQuests === "function") updateQuests();
