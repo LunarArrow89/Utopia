@@ -24,6 +24,7 @@
         document.getElementById("villageScreen")?.classList.add("hidden");
         document.getElementById("villageWalkScreen")?.classList.add("hidden");
         document.getElementById("questScreen")?.classList.add("hidden");
+        document.getElementById("villageTabs")?.classList.add("hidden");
         document.getElementById("arrivalScene")?.classList.add("hidden");
         document.getElementById("ashHillsScreen")?.classList.add("hidden");
     }
@@ -40,6 +41,7 @@
         if (typeof gameInitialized !== "undefined" && !gameInitialized) return;
         hideAllMainScreens();
         document.getElementById("storyScreen")?.classList.remove("hidden");
+        document.getElementById("villageTabs")?.classList.add("hidden");
         updateMainTabs("story");
     }
 
@@ -65,39 +67,10 @@
             if (typeof nextArrivalLine === "function") nextArrivalLine();
         });
 
-        document.getElementById("takeWalkButton")?.addEventListener("click", () => {
-            if (typeof showVillageWalkTab === "function") showVillageWalkTab(true);
-        });
-
         document.getElementById("leaveVillageWalkButton")?.addEventListener("click", () => {
             if (typeof leaveVillageWalk === "function") leaveVillageWalk();
         });
 
-        document.getElementById("villageTabButton")?.addEventListener("click", () => {
-            if (typeof showVillageTab === "function") showVillageTab();
-            updateMainTabs("village");
-        });
-
-        document.getElementById("walkTabButton")?.addEventListener("click", () => {
-            if (typeof showVillageWalkTab === "function") showVillageWalkTab();
-            updateMainTabs("village");
-        });
-
-        document.getElementById("accountButton")?.addEventListener("click", () => {
-            if (typeof showAccountScreen === "function") showAccountScreen();
-        });
-
-        document.getElementById("accountButtonVillage")?.addEventListener("click", () => {
-            if (typeof showAccountScreen === "function") showAccountScreen();
-        });
-
-        document.getElementById("resetButton")?.addEventListener("click", () => {
-            if (typeof resetGame === "function") resetGame();
-        });
-
-        document.getElementById("villageResetButton")?.addEventListener("click", () => {
-            if (typeof resetGame === "function") resetGame();
-        });
     }
 
     function finishLoginBootstrap() {
@@ -108,7 +81,11 @@
 
         document.getElementById("accountScreen")?.classList.add("hidden");
         document.getElementById("accountScreen")?.classList.remove("login-required");
-        document.getElementById("mainTabs")?.classList.remove("hidden");
+        if (awakeningSeen) {
+            document.getElementById("mainTabs")?.classList.remove("hidden");
+        } else {
+            document.getElementById("mainTabs")?.classList.add("hidden");
+        }
 
         return true;
     }
