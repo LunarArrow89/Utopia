@@ -205,7 +205,7 @@ function showVillageTab() {
     if (!village.unlocked) return;
 
     setVillageTabsVisible(false);
-    if (typeof updateMainTabs === "function") updateMainTabs("village");
+    if (typeof updateMainTabs === "function") updateMainTabs("walk");
 
     document.getElementById("arrivalScene")?.classList.add("hidden");
     document.getElementById("forestGame")?.classList.add("hidden");
@@ -359,6 +359,13 @@ function updateVillageUI() {
     setVillageTabsVisible(village.unlocked);
     const screen = document.getElementById("villageScreen");
     if (!screen) return;
+
+    // While walking, Village and Story are view-only. Their action buttons are disabled.
+    const walking = village.walk.active;
+    screen.classList.toggle("walk-view-only", walking);
+    screen.querySelectorAll("button").forEach(button => {
+        button.disabled = walking;
+    });
 
     document.getElementById("woodText").textContent = village.resources.wood;
     document.getElementById("stoneText").textContent = village.resources.stone;
@@ -612,6 +619,7 @@ function leaveVillageWalk() {
     document.getElementById("villageScreen")?.classList.remove("hidden");
     document.getElementById("villageScreen")?.classList.remove("walk-view-only");
     updateVillageTabs("village");
+    if (typeof updateMainTabs === "function") updateMainTabs("village");
 
     addVillageLog("You returned to Oakshade Village.");
     updateVillageUI();
