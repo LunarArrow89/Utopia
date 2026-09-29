@@ -133,6 +133,9 @@
         return true;
     }
 
+    window.__utopiaStoryTab = showStory;
+    window.__utopiaVillageTab = showVillageMain;
+
     document.addEventListener("DOMContentLoaded", () => {
         wireButtons();
 
