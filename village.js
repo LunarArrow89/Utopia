@@ -46,7 +46,7 @@ function showArrivalScene() {
 
     if (forestGame) forestGame.classList.add("hidden");
 
-    text.textContent = "You leave the the forest behind...";
+    text.textContent = "You leave the forest behind...";
     button.textContent = "Continue";
     button.dataset.step = "1";
 
