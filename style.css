@@ -3050,3 +3050,19 @@ body {
 .ash-hills-option {
     display: none !important;
 }
+
+
+/* VILLAGE-ONLY PROTOTYPE: walking/path gameplay is completely hidden for now. */
+#forestGame,
+#forestScreen,
+#villageWalkScreen,
+#ashHillsScreen,
+.walk-screen,
+.village-walk-screen,
+.walk-section,
+.village-walk-option,
+.ash-hills-option {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
