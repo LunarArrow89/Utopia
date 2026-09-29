@@ -1,8 +1,13 @@
-const villageWalkEnemies = [
-    { name: "Wandering Wolf", hp: 20, attack: 11, xp: 12, gold: 5 },
-    { name: "Moss Goblin", hp: 24, attack: 12, xp: 16, gold: 7 },
-    { name: "Wild Boar", hp: 28, attack: 14, xp: 20, gold: 9 }
+const whisperingWoodsEnemies = [
+    { name: "Lost Wolf", attack: 7, xp: 12, gold: 5 },
+    { name: "Forest Goblin", attack: 9, xp: 15, gold: 7 },
+    { name: "Shadow Spider", attack: 11, xp: 18, gold: 8 },
+    { name: "Angry Boar", attack: 10, xp: 20, gold: 10 },
+    { name: "Dark Slime", attack: 6, xp: 10, gold: 4 }
 ];
+
+const WHISPERING_WOODS_RESOURCE_TIME = 15000;
+const WHISPERING_WOODS_ENCOUNTER_TIME = 45000;
 
 let arrivalCutsceneSeen = false;
 
@@ -17,7 +22,7 @@ const village = {
     },
     resources: { wood: 0, stone: 0, food: 0 },
     buildings: { campfire: false, shelter: false, workshop: false },
-    walk: { active: false, startTime: 0, lastUpdateTime: 0, lastRewardCount: 0, nextEncounterTime: 30, duration: 0 }
+    walk: { active: false, startTime: 0, lastUpdateTime: 0, lastRewardCount: 0, nextEncounterTime: 45, duration: 0 }
 };
 
 const buildingCosts = {
@@ -220,7 +225,6 @@ function showVillageTab() {
 }
 
 function showVillageWalkTab(startWalk = false) {
-    return; // Walking is disabled for now.
     if (!village.walk.active && !startWalk) return;
 
     setVillageTabsVisible(true);
@@ -231,8 +235,10 @@ function showVillageWalkTab(startWalk = false) {
     document.getElementById("questScreen")?.classList.add("hidden");
     document.getElementById("villageScreen")?.classList.add("hidden");
     document.getElementById("villageWalkScreen")?.classList.remove("hidden");
+    document.getElementById("villageWalkScreen")?.classList.add("walk-active");
 
     updateVillageTabs("walk");
+    if (typeof updateMainTabs === "function") updateMainTabs("walk");
 
     if (startWalk && !village.walk.active) {
         startVillageWalk();
@@ -424,7 +430,7 @@ function startVillageWalk() {
     village.walk.startTime = Date.now();
     village.walk.lastUpdateTime = village.walk.startTime;
     village.walk.lastRewardCount = 0;
-    village.walk.nextEncounterTime = 30 + Math.floor(Math.random() * 31);
+    village.walk.nextEncounterTime = 45;
     currentPath = "villageWalk";
     gameEnded = false;
 
@@ -461,7 +467,7 @@ function updateVillageWalk() {
         text.textContent = "Endless walk — return whenever you want";
     }
 
-    const rewardCount = Math.floor(elapsed / 15000);
+    const rewardCount = Math.floor(elapsed / WHISPERING_WOODS_RESOURCE_TIME);
 
     while (village.walk.lastRewardCount < rewardCount) {
         village.walk.lastRewardCount++;
@@ -475,13 +481,13 @@ function updateVillageWalk() {
 
     if (elapsed >= village.walk.nextEncounterTime * 1000) {
         villageWalkBattle();
-        village.walk.nextEncounterTime =
-            Math.floor(elapsed / 1000) + 30 + Math.floor(Math.random() * 31);
+        village.walk.nextEncounterTime += 45;
     }
 
     if (next) {
-        const secondsUntilReward = 15 - Math.floor((elapsed % 15000) / 1000);
-        next.textContent = secondsUntilReward + " seconds until your next resource";
+        const secondsUntilResource = 15 - Math.floor((elapsed % WHISPERING_WOODS_RESOURCE_TIME) / 1000);
+        const secondsUntilEnemy = Math.max(0, village.walk.nextEncounterTime - Math.floor(elapsed / 1000));
+        next.textContent = secondsUntilResource + "s until resource • " + secondsUntilEnemy + "s until enemy";
     }
 
     updateVillageWalkUI();
@@ -498,7 +504,7 @@ function catchUpVillageWalk() {
 }
 
 function villageWalkBattle() {
-    const enemy = villageWalkEnemies[Math.floor(Math.random() * villageWalkEnemies.length)];
+    const enemy = whisperingWoodsEnemies[Math.floor(Math.random() * whisperingWoodsEnemies.length)];
     const damageTaken = Math.max(0, enemy.attack - player.attack);
 
     if (damageTaken <= 0) {
@@ -600,6 +606,7 @@ function leaveVillageWalk() {
     villageWalkTimer = null;
 
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
+    document.getElementById("villageWalkScreen")?.classList.remove("walk-active");
     document.getElementById("villageScreen")?.classList.remove("hidden");
     document.getElementById("villageScreen")?.classList.remove("walk-view-only");
     updateVillageTabs("village");
@@ -628,7 +635,7 @@ function resetVillage() {
     };
     village.resources = { wood: 0, stone: 0, food: 0 };
     village.buildings = { campfire: false, shelter: false, workshop: false };
-    village.walk = { active: false, startTime: 0, lastUpdateTime: 0, lastRewardCount: 0, nextEncounterTime: 30, duration: 0 };
+    village.walk = { active: false, startTime: 0, lastUpdateTime: 0, lastRewardCount: 0, nextEncounterTime: 45, duration: 0 };
     clearInterval(villageWalkTimer);
     villageWalkTimer = null;
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
@@ -654,7 +661,9 @@ document.addEventListener("DOMContentLoaded", () => {
         setVillageTabsVisible(true);
         document.getElementById("villageScreen")?.classList.add("hidden");
         document.getElementById("villageWalkScreen")?.classList.remove("hidden");
+        document.getElementById("villageWalkScreen")?.classList.add("walk-active");
         updateVillageTabs("walk");
+        if (typeof updateMainTabs === "function") updateMainTabs("walk");
         clearInterval(villageWalkTimer);
         villageWalkTimer = setInterval(updateVillageWalk, 1000);
         updateVillageWalk();
