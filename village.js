@@ -239,6 +239,7 @@ function showVillageWalkTab(startWalk = false) {
 
     updateVillageTabs("walk");
     if (typeof updateMainTabs === "function") updateMainTabs("walk");
+    try { localStorage.setItem("utopiaActiveTab", "walk"); } catch (error) {}
 
     if (startWalk && !village.walk.active) {
         startVillageWalk();
@@ -602,6 +603,7 @@ function leaveVillageWalk() {
 
     village.walk.active = false;
     currentPath = "village";
+    try { localStorage.setItem("utopiaActiveTab", "village"); } catch (error) {}
     clearInterval(villageWalkTimer);
     villageWalkTimer = null;
 
