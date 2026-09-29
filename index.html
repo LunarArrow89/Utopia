@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Utopia</title>
-<link rel="stylesheet" href="./style.css?v=9">
+<link rel="stylesheet" href="./style.css?v=10">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
@@ -200,10 +200,7 @@
 </div>
 </div>
 
-<div id="villageTabs" class="village-tabs hidden" role="tablist" aria-label="Oakshade Village">
-<button id="villageTabButton" class="village-tab active" type="button" role="tab" aria-selected="true" onclick="showVillageTab()">🏡 Village</button>
-<button id="walkTabButton" class="village-tab" type="button" role="tab" aria-selected="false" onclick="showVillageWalkTab()">🌲 Walk</button>
-</div>
+<div id="villageTabs" class="village-tabs hidden" aria-hidden="true"></div>
 
 <div id="questScreen" class="quest-screen hidden">
 <div class="quest-screen-box">
@@ -337,7 +334,7 @@
 <script src="village.js?v=3"></script>
 <script src="save.js?v=8"></script>
 <script src="game.js?v=7"></script>
-<script src="uiFixes.js?v=4"></script>
+<script src="uiFixes.js?v=5"></script>
 
 <script>
 if ("serviceWorker" in navigator) {
