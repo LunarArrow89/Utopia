@@ -1,5 +1,5 @@
 const SAVE_KEY = "utopiaSave";
-const SAVE_VERSION = 4;
+const SAVE_VERSION = 5;
 
 const SUPABASE_URL = "https://pfwjljbugjgfbmrtzcid.supabase.co";
 const SUPABASE_KEY = "sb_publishable_YkIw0Q-nJNrXF47tPruRYQ_51mBVWuB";
