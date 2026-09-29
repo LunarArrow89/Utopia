@@ -46,9 +46,25 @@
     }
 
     function showVillageMain() {
-        if (typeof village === "undefined" || !village.unlocked) return;
-        if (typeof showVillage === "function") showVillage();
+        // Main Village tab must always be able to return from Story.
+        if (typeof village !== "undefined" && !village.unlocked) return;
+
+        hideAllMainScreens();
+
+        const villageScreen = document.getElementById("villageScreen");
+        if (!villageScreen) return;
+
+        villageScreen.classList.remove("hidden");
+        villageScreen.style.removeProperty("display");
+        villageScreen.style.removeProperty("z-index");
+
+        document.getElementById("storyScreen")?.classList.add("hidden");
+        document.getElementById("mainTabs")?.classList.remove("hidden");
+
         updateMainTabs("village");
+
+        if (typeof updateVillageUI === "function") updateVillageUI();
+        if (typeof updateQuests === "function") updateQuests();
     }
 
     function wireButtons() {
@@ -137,6 +153,19 @@
     window.__utopiaVillageTab = showVillageMain;
 
     document.addEventListener("DOMContentLoaded", () => {
+        const storyTab = document.getElementById("storyMainTab");
+        const villageTab = document.getElementById("villageMainTab");
+
+        if (storyTab) storyTab.onclick = (event) => {
+            event.preventDefault();
+            showStory();
+        };
+
+        if (villageTab) villageTab.onclick = (event) => {
+            event.preventDefault();
+            showVillageMain();
+        };
+
         wireButtons();
 
         // Do not show navigation until initializeGame() has restored the
