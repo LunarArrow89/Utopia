@@ -340,6 +340,11 @@ async function loadGame() {
     currentSupabaseUser = user;
     updateAccountUI();
 
+    // Restore an active Whispering Woods walk after loading the save.
+    if (typeof village !== "undefined" && village.walk?.active && typeof resumeVillageWalk === "function") {
+        resumeVillageWalk();
+    }
+
     return true;
 }
 
