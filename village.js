@@ -450,6 +450,13 @@ function resumeVillageWalk() {
     currentPath = "villageWalk";
     gameEnded = false;
 
+    // This is the authoritative local marker for an active endless walk.
+    // It is separate from the currently visible tab.
+    try {
+        localStorage.setItem("utopiaWalkActive", "true");
+        localStorage.setItem("utopiaActiveTab", "walk");
+    } catch (error) {}
+
     clearInterval(villageWalkTimer);
 
     document.getElementById("villageWalkScreen")?.classList.add("walk-active");
