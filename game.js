@@ -34,6 +34,10 @@ async function initializeGame() {
         return;
     }
 
+    // loadGame() has now finished applying the cloud/local save.
+    // Only after that point may we decide whether the first-time
+    // awakening should be shown.
+
     // Do NOT replace an existing forest timestamp with Date.now().
     // That timestamp is what lets the forest calculate elapsed time.
     const path = paths.forest;
@@ -108,6 +112,9 @@ setInterval(tick, 1000);
 document.addEventListener("visibilitychange", () => {
     if (document.visibilityState !== "visible" || !gameInitialized) return;
 
+    // Save immediately when the player leaves the page/tab.
+    if (typeof saveGame === "function") saveGame();
+
     if (!gameEnded && !resting && paths.forest && !paths.forest.completed) {
         catchUpPathWhileAway("forest");
         updatePath("forest");
@@ -125,4 +132,13 @@ window.addEventListener("pageshow", () => {
     }
 
     updateForest();
+});
+
+
+window.addEventListener("pagehide", () => {
+    if (typeof saveGame === "function") saveGame();
+});
+
+window.addEventListener("beforeunload", () => {
+    if (typeof saveGame === "function") saveGame();
 });
