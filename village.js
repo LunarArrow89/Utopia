@@ -172,6 +172,8 @@ function claimQuest(type) {
 function setVillageTabsVisible(visible) {
     const tabs = document.getElementById("villageTabs");
     if (tabs) tabs.classList.toggle("hidden", !visible);
+    const mainTabs = document.getElementById("mainTabs");
+    if (mainTabs) mainTabs.classList.remove("hidden");
 }
 
 function updateVillageTabs(activeTab) {
@@ -201,6 +203,7 @@ function showVillageTab() {
     document.getElementById("questScreen")?.classList.add("hidden");
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
     document.getElementById("villageScreen")?.classList.remove("hidden");
+    document.getElementById("villageScreen")?.style.removeProperty("z-index");
     updateVillageTabs("village");
     updateVillageUI();
 
