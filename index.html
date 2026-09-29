@@ -319,6 +319,24 @@
 </div>
 </div>
 
+<script>
+/* Restore the last main tab immediately on refresh so the screen never opens empty. */
+(function () {
+    try {
+        const savedTab = localStorage.getItem("utopiaActiveTab");
+        if (savedTab === "story") {
+            document.getElementById("storyScreen")?.classList.remove("hidden");
+            document.getElementById("villageScreen")?.classList.add("hidden");
+        } else if (savedTab === "village") {
+            document.getElementById("villageScreen")?.classList.remove("hidden");
+            document.getElementById("storyScreen")?.classList.add("hidden");
+        }
+    } catch (error) {
+        console.log("Could not restore the last tab.", error);
+    }
+})();
+</script>
+
 <script src="player.js?v=6"></script>
 <script src="battle.js"></script>
 <script src="paths.js?v=3"></script>
@@ -328,7 +346,7 @@
 <script src="village.js?v=3"></script>
 <script src="save.js?v=8"></script>
 <script src="game.js?v=7"></script>
-<script src="uiFixes.js?v=7"></script>
+<script src="uiFixes.js?v=8"></script>
 
 <script>
 if ("serviceWorker" in navigator) {
