@@ -171,7 +171,10 @@ function claimQuest(type) {
 
 function setVillageTabsVisible(visible) {
     const tabs = document.getElementById("villageTabs");
-    if (tabs) tabs.classList.toggle("hidden", !visible);
+    if (tabs) {
+        tabs.classList.add("hidden");
+        tabs.setAttribute("aria-hidden", "true");
+    }
     const mainTabs = document.getElementById("mainTabs");
     if (mainTabs) mainTabs.classList.remove("hidden");
 }
@@ -196,13 +199,14 @@ function updateVillageTabs(activeTab) {
 function showVillageTab() {
     if (!village.unlocked) return;
 
-    setVillageTabsVisible(true);
+    setVillageTabsVisible(false);
     if (typeof updateMainTabs === "function") updateMainTabs("village");
 
     document.getElementById("arrivalScene")?.classList.add("hidden");
     document.getElementById("forestGame")?.classList.add("hidden");
     document.getElementById("questScreen")?.classList.add("hidden");
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
+    document.getElementById("ashHillsScreen")?.classList.add("hidden");
     document.getElementById("villageScreen")?.classList.remove("hidden");
     document.getElementById("villageScreen")?.style.removeProperty("z-index");
     updateVillageTabs("village");
@@ -216,7 +220,7 @@ function showVillageTab() {
 }
 
 function showVillageWalkTab(startWalk = false) {
-    if (!village.unlocked) return;
+    return; // Walking is disabled for now.
     if (!village.walk.active && !startWalk) return;
 
     setVillageTabsVisible(true);
@@ -249,6 +253,9 @@ function healAtVillage() {
 function showVillage() {
     setVillageTabsVisible(true);
     if (typeof updateMainTabs === "function") updateMainTabs("village");
+    document.getElementById("forestGame")?.classList.add("hidden");
+    document.getElementById("villageWalkScreen")?.classList.add("hidden");
+    document.getElementById("ashHillsScreen")?.classList.add("hidden");
     const hub = document.getElementById("villageScreen");
     if (!hub) return;
 
