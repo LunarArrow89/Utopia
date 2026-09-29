@@ -303,7 +303,7 @@ function addVillageLog(message) {
 }
 
 function gatherResource(type) {
-    if (!village.unlocked || !village.walk.active) return;
+    if (!village.unlocked || village.walk.active) return;
 
     const amounts = { wood: 2, stone: 2, food: 1 };
     const amount = amounts[type] || 1;
@@ -322,7 +322,7 @@ function canBuild(type) {
 }
 
 function buildBuilding(type) {
-    if (!village.unlocked || village.buildings[type]) return;
+    if (!village.unlocked || village.walk.active || village.buildings[type]) return;
 
     if (!canBuild(type)) {
         addVillageLog(`You don't have enough resources for the ${buildingNames[type]}.`);
@@ -347,7 +347,7 @@ function getHouseCost() {
 }
 
 function buildHouse() {
-    if (!village.unlocked) return;
+    if (!village.unlocked || village.walk.active) return;
 
     const cost = getHouseCost();
 
@@ -377,7 +377,7 @@ function updateVillageUI() {
     const screen = document.getElementById("villageScreen");
     if (!screen) return;
 
-    // While walking, Village and Story are view-only. Their action buttons are disabled.
+    // While walking, the Village can be viewed but nothing in it can be used.
     const walking = village.walk.active;
     screen.classList.toggle("walk-view-only", walking);
     screen.querySelectorAll("button").forEach(button => {
