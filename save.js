@@ -593,13 +593,9 @@ function refreshGameUI() {
     if (typeof updateVillageUI === "function") updateVillageUI();
     if (typeof updateVillageWalkUI === "function") updateVillageWalkUI();
 
-    if (paths.forest.completed && !arrivalCutsceneSeen) {
-        showArrivalScene();
-    } else if (village.unlocked && paths.forest.completed) {
-        showVillage();
-    } else if (paths.forest.completed) {
-        showArrivalScene();
-    }
+    // refreshGameUI only redraws data. Screen navigation belongs to the
+    // tab/cutscene functions so a timer tick can never kick the player
+    // out of Story, Village, or Walk.
 }
 
 document.addEventListener("visibilitychange", async () => {
