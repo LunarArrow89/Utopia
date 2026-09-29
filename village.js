@@ -355,6 +355,10 @@ function buildHouse() {
 
 let villageWalkTimer = null;
 
+window.villageWalkIsActive = function () {
+    return !!village.walk?.active;
+};
+
 function updateVillageUI() {
     setVillageTabsVisible(village.unlocked);
     const screen = document.getElementById("villageScreen");
