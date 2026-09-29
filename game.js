@@ -16,12 +16,51 @@ function nextAwakeningLine() {
     if(button.dataset.step==="1"){text.textContent="The air is cold. You cannot remember how you got here.";button.dataset.step="2";return;}
     if(button.dataset.step==="2"){text.textContent="Around you are worn buildings, empty streets, and signs that this village was abandoned long ago.";button.dataset.step="3";return;}
     if(button.dataset.step==="3"){text.textContent="You step outside and look around. Something tells you that this place needs you.";button.dataset.step="4";button.textContent="Enter the Village";return;}
-    awakeningSeen=true; gameEnded=false; scene.classList.add("hidden"); document.getElementById("villageScreen")?.classList.remove("hidden");
-    addLog("You wake in the village."); saveGame(); refreshGameUI(); updateForest();
+    // Act I ends here: the village is now the permanent home screen.
+    awakeningSeen = true;
+    village.unlocked = true;
+    currentPath = "village";
+    gameEnded = true;
+
+    if (paths.forest) {
+        paths.forest.active = false;
+        paths.forest.completed = true;
+        paths.forest.progress = paths.forest.duration;
+    }
+
+    scene.classList.add("hidden");
+    document.getElementById("mainTabs")?.classList.remove("hidden");
+    document.getElementById("villageTabs")?.classList.remove("hidden");
+    document.getElementById("villageScreen")?.classList.remove("hidden");
+
+    if (typeof updateMainTabs === "function") updateMainTabs("village");
+    if (typeof showVillageTab === "function") showVillageTab();
+    addVillageLog("You wake in Oakshade Village.");
+    saveGame();
+    refreshGameUI();
 }
-function showStoryScreen(){if(!gameInitialized)return;document.getElementById("forestGame")?.classList.add("hidden");document.getElementById("storyScreen")?.classList.remove("hidden");document.querySelectorAll(".top-tab").forEach(b=>b.classList.remove("active"));document.querySelector(".top-tab:nth-child(2)")?.classList.add("active");}
-function hideStoryScreen(){document.getElementById("storyScreen")?.classList.add("hidden");showForestTab();}
-function showForestTab(){document.getElementById("storyScreen")?.classList.add("hidden");document.getElementById("forestGame")?.classList.remove("hidden");document.querySelectorAll(".top-tab").forEach(b=>b.classList.remove("active"));document.querySelector(".top-tab:nth-child(1)")?.classList.add("active");refreshGameUI();updateForest();}
+function showStoryScreen(){
+    if (!gameInitialized) return;
+    document.getElementById("forestGame")?.classList.add("hidden");
+    document.getElementById("villageScreen")?.classList.add("hidden");
+    document.getElementById("villageWalkScreen")?.classList.add("hidden");
+    document.getElementById("questScreen")?.classList.add("hidden");
+    document.getElementById("ashHillsScreen")?.classList.add("hidden");
+    document.getElementById("storyScreen")?.classList.remove("hidden");
+    document.getElementById("villageTabs")?.classList.add("hidden");
+}
+function hideStoryScreen(){
+    document.getElementById("storyScreen")?.classList.add("hidden");
+    if (typeof showVillageTab === "function") showVillageTab();
+}
+function showForestTab(){
+    if (typeof showVillageTab === "function" && village?.unlocked) {
+        showVillageTab();
+        return;
+    }
+    document.getElementById("storyScreen")?.classList.add("hidden");
+    document.getElementById("forestGame")?.classList.add("hidden");
+}
 
 let gameInitialized = false;
 let lastProgressSave = 0;
@@ -53,6 +92,20 @@ async function initializeGame() {
 
     gameInitialized = true;
     lastProgressSave = Date.now();
+
+    // Older saves may have the old forest-era state. Migrate them into
+    // the village-first version of Utopia instead of reopening the forest.
+    if (awakeningSeen && !village.unlocked) {
+        village.unlocked = true;
+        currentPath = "village";
+        gameEnded = true;
+        if (paths.forest) {
+            paths.forest.active = false;
+            paths.forest.completed = true;
+            paths.forest.progress = paths.forest.duration;
+        }
+        saveGame();
+    }
 
     if (!awakeningSeen) {
         showAwakening();
