@@ -47,7 +47,7 @@
 
     function showVillageMain() {
         if (typeof village === "undefined" || !village.unlocked) return;
-        if (typeof showVillageTab === "function") showVillageTab();
+        if (typeof showVillage === "function") showVillage();
         updateMainTabs("village");
     }
 
