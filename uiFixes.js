@@ -12,12 +12,20 @@
 
         const story = document.getElementById("storyMainTab");
         const village = document.getElementById("villageMainTab");
+        const walk = document.getElementById("walkMainTab");
 
         story?.classList.toggle("active", active === "story");
         village?.classList.toggle("active", active === "village");
 
         story?.setAttribute("aria-selected", active === "story" ? "true" : "false");
         village?.setAttribute("aria-selected", active === "village" ? "true" : "false");
+        walk?.classList.toggle("active", active === "walk");
+        walk?.classList.toggle("hidden", active !== "walk");
+        walk?.setAttribute("aria-selected", active === "walk" ? "true" : "false");
+        if (village) {
+            village.disabled = active === "walk";
+            village.setAttribute("aria-disabled", active === "walk" ? "true" : "false");
+        }
     }
 
     function hideScreens() {
@@ -103,7 +111,17 @@
             if (target.id === "villageMainTab") {
                 event.preventDefault();
                 event.stopImmediatePropagation();
+                if (target.disabled) return;
                 showVillageMain();
+                return;
+            }
+
+            if (target.id === "walkMainTab") {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                if (typeof village !== "undefined" && village.walk.active && typeof showVillageWalkTab === "function") {
+                    showVillageWalkTab(false);
+                }
                 return;
             }
 
