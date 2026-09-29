@@ -12,8 +12,9 @@
 
 
 <div id="mainTabs" class="main-tabs hidden" role="tablist" aria-label="Main navigation">
-<button id="storyMainTab" class="main-tab" type="button" role="tab" aria-selected="false" >📖 Story</button>
-<button id="villageMainTab" class="main-tab" type="button" role="tab" aria-selected="true" >🏡 Village</button>
+<button id="storyMainTab" class="main-tab" type="button" role="tab" aria-selected="false">📖 Story</button>
+<button id="villageMainTab" class="main-tab" type="button" role="tab" aria-selected="true">🏡 Village</button>
+<button id="walkMainTab" class="main-tab hidden" type="button" role="tab" aria-selected="false">🌲 Walk</button>
 </div>
 
 <div id="questStoryOverlay" class="quest-story-overlay hidden">
@@ -165,6 +166,12 @@
 </div>
 </div>
 
+<div class="village-panel">
+<div class="village-panel-title">🌲 Whispering Woods</div>
+<div class="village-walk-description">Walk endlessly through the Whispering Woods. Find a random resource every 15 seconds and face an enemy every 45 seconds.</div>
+<button id="takeWalkButton" type="button">Enter Whispering Woods</button>
+</div>
+
 <div class="village-panel ash-hills-option">
 <div class="village-panel-title">⚠️ Dangerous Path</div>
 <div class="village-walk-description">Ash Hills is a dangerous 45 minute path filled with tougher enemies. Reach level 3 before entering. Rescue the civilian waiting beyond the hills.</div>
@@ -277,8 +284,8 @@
 <div class="walk-box">
 <div class="walk-header">
 <div class="village-kicker">EXPLORING THE WILDS</div>
-<h1>Village Walk</h1>
-<p>Walk for 20 minutes. Find resources and encounter enemies along the way.</p>
+<h1>Whispering Woods</h1>
+<p>An endless walk through the woods. Find resources every 15 seconds and fight an enemy every 45 seconds.</p>
 </div>
 <div class="walk-stats">
 <div><span>HP</span><strong id="villageWalkHpText">40 / 40</strong></div>
@@ -287,9 +294,9 @@
 <div><span>Gold</span><strong id="villageWalkGoldText">0</strong></div>
 </div>
 <div class="walk-section">
-<div class="walk-title">🌲 Walk Progress</div>
-<div class="bar"><div class="bar-fill" id="villageWalkBar"></div></div>
-<div class="bar-text" id="villageWalkText">20:00 remaining</div>
+<div class="walk-title">🌲 Journey</div>
+<div class="bar-text" id="villageWalkText">Endless — keep walking as long as you want.</div>
+<div class="walk-next-event" id="nextWalkRewardText">15 seconds until your next resource</div>
 </div>
 <div class="walk-section">
 <div class="walk-title">❤️ Health & Experience</div>
@@ -346,7 +353,7 @@
 <script src="village.js?v=3"></script>
 <script src="save.js?v=8"></script>
 <script src="game.js?v=7"></script>
-<script src="uiFixes.js?v=8"></script>
+<script src="uiFixes.js?v=9"></script>
 
 <script>
 if ("serviceWorker" in navigator) {
