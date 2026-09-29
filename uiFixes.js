@@ -45,63 +45,45 @@
     function showStory() {
         const story = document.getElementById("storyScreen");
         if (!story || (typeof gameInitialized !== "undefined" && !gameInitialized)) return;
-
         hideScreens();
         story.classList.remove("hidden");
         story.style.display = "block";
         updateMainTabs("story");
         localStorage.setItem(TAB_KEY, "story");
-
-        if (window.village?.walk?.active) {
-            story.querySelectorAll("button").forEach(button => button.disabled = true);
-        }
+        if (window.village?.walk?.active) story.querySelectorAll("button").forEach(button => button.disabled = true);
     }
 
     function showVillageMain() {
         if (typeof village !== "undefined" && !village.unlocked) return;
-
         const screen = document.getElementById("villageScreen");
         if (!screen) return;
-
         hideScreens();
         screen.classList.remove("hidden");
         screen.style.display = "block";
-
         if (window.village?.walk?.active) screen.classList.add("walk-view-only");
         else screen.classList.remove("walk-view-only");
-
         updateMainTabs("village");
         localStorage.setItem(TAB_KEY, "village");
-
         if (typeof updateVillageUI === "function") updateVillageUI();
         if (typeof updateQuests === "function") updateQuests();
     }
 
-    // This deliberately does NOT call the old showVillageWalkTab().
-    // The old function also changes the nested village-tab state, which could
-    // make the main Walk/Village/Story tabs disappear or switch twice.
     function showWalkMain() {
         if (!window.village?.walk?.active) return;
-
         hideScreens();
-
         const walk = document.getElementById("villageWalkScreen");
         if (!walk) return;
-
         walk.classList.remove("hidden");
         walk.classList.add("walk-active");
         walk.style.display = "block";
-
         const walkTab = document.getElementById("walkMainTab");
         if (walkTab) {
             walkTab.classList.remove("hidden");
             walkTab.style.display = "";
             walkTab.setAttribute("aria-hidden", "false");
         }
-
         updateMainTabs("walk");
         localStorage.setItem(TAB_KEY, "walk");
-
         if (typeof updateVillageWalkUI === "function") updateVillageWalkUI();
     }
 
@@ -109,7 +91,6 @@
         if (typeof gameInitialized !== "undefined" && !gameInitialized) return;
         if (typeof awakeningSeen !== "undefined" && !awakeningSeen) return;
         if (typeof village !== "undefined" && !village.unlocked) return;
-
         const saved = localStorage.getItem(TAB_KEY);
         if (saved === "story") showStory();
         else if (saved === "walk" && window.village?.walk?.active) showWalkMain();
@@ -134,23 +115,17 @@
             if (!target) return;
 
             if (target.id === "storyMainTab") {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-                showStory();
-                return;
+                event.preventDefault(); event.stopImmediatePropagation(); showStory(); return;
             }
-
             if (target.id === "villageMainTab") {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-                showVillageMain();
-                return;
+                event.preventDefault(); event.stopImmediatePropagation(); showVillageMain(); return;
             }
-
             if (target.id === "walkMainTab") {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-                showWalkMain();
+                event.preventDefault(); event.stopImmediatePropagation(); showWalkMain(); return;
+            }
+            if (target.id === "leaveVillageWalkButton") {
+                event.preventDefault(); event.stopImmediatePropagation();
+                if (typeof window.leaveVillageWalk === "function") window.leaveVillageWalk();
                 return;
             }
         }, true);
@@ -158,10 +133,8 @@
 
     function finishLoginBootstrap() {
         if (typeof gameInitialized === "undefined" || !gameInitialized) return false;
-
         document.getElementById("accountScreen")?.classList.add("hidden");
         document.getElementById("accountScreen")?.classList.remove("login-required");
-
         if (awakeningSeen) {
             document.getElementById("mainTabs")?.classList.remove("hidden");
             restoreMainTab();
@@ -178,32 +151,7 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         wireButtons();
-
-        // Keep the Walk tab present while a walk is running. This prevents
-        // village UI refreshes from accidentally hiding it.
         setInterval(keepWalkTabVisible, 500);
-
-        // Make leaving a walk always land cleanly in Village with the tabs
-        // still present.
-        const originalLeave = window.leaveVillageWalk;
-        if (typeof originalLeave === "function" && !window.__utopiaLeaveWrapped) {
-            window.__utopiaLeaveWrapped = true;
-            window.leaveVillageWalk = function () {
-                originalLeave();
-                const mainTabs = document.getElementById("mainTabs");
-                mainTabs?.classList.remove("hidden");
-                updateMainTabs("village");
-
-                const walk = document.getElementById("villageWalkScreen");
-                walk?.classList.add("hidden");
-                if (walk) walk.style.display = "none";
-
-                const village = document.getElementById("villageScreen");
-                village?.classList.remove("hidden");
-                if (village) village.style.display = "block";
-            };
-        }
-
         let attempts = 0;
         const authTimer = setInterval(() => {
             attempts++;
