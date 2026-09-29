@@ -576,7 +576,7 @@ function catchUpVillageWalk() {
     const now = Date.now();
     const lastUpdate = Number(village.walk.lastUpdateTime) || Number(village.walk.startTime) || now;
     const elapsed = Math.max(0, now - lastUpdate);
-    const totalAway = Math.max(0, now - (Number(village.walk.startTime) || now));
+    const totalAway = Math.max(0, now - lastUpdate);
     const showSummary = totalAway >= 15 * 60 * 1000;
 
     if (elapsed < 1000) {
@@ -858,6 +858,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("takeWalkButton")?.addEventListener("click", startVillageWalk);
     document.getElementById("leaveVillageWalkButton")?.addEventListener("click", leaveVillageWalk);
+
+    document.getElementById("awaySummaryClose")?.addEventListener("click", () => {
+        document.getElementById("awaySummaryOverlay")?.classList.add("hidden");
+    });
 
     updateVillageUI();
 
