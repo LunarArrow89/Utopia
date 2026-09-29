@@ -3043,3 +3043,10 @@ body {
 .walk-screen {
     padding-bottom: 90px !important;
 }
+
+
+/* Walking content is disabled for the current village-only prototype. */
+.village-walk-option,
+.ash-hills-option {
+    display: none !important;
+}
