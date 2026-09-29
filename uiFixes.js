@@ -93,8 +93,8 @@
     document.addEventListener("DOMContentLoaded", () => {
         wireButtons();
 
-        const mainTabs = document.getElementById("mainTabs");
-        if (mainTabs) mainTabs.classList.remove("hidden");
+        // Do not show navigation until initializeGame() has restored the
+        // account save and decided whether the Awakening should be shown.
 
         // Wait for initializeGame() to finish restoring the save before
         // touching any game screen.
