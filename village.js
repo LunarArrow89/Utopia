@@ -492,6 +492,11 @@ function startVillageWalk() {
     currentPath = "villageWalk";
     gameEnded = false;
 
+    try {
+        localStorage.setItem("utopiaWalkActive", "true");
+        localStorage.setItem("utopiaActiveTab", "walk");
+    } catch (error) {}
+
     document.getElementById("villageScreen")?.classList.add("hidden");
     document.getElementById("villageWalkScreen")?.classList.remove("hidden");
     document.getElementById("villageWalkScreen")?.classList.add("walk-active");
