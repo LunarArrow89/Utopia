@@ -101,24 +101,15 @@
     }
 
     function finishLoginBootstrap() {
-        if (typeof currentSupabaseUser === "undefined" || !currentSupabaseUser) return false;
-        if (typeof gameInitialized !== "undefined" && gameInitialized) return true;
+        // initializeGame() is the ONLY place allowed to restore the game.
+        // This prevents the auth watcher from showing the first-time
+        // awakening before the cloud/local save has finished loading.
+        if (typeof gameInitialized === "undefined" || !gameInitialized) return false;
 
-        if (typeof gameInitialized !== "undefined") gameInitialized = true;
-
-        document.getElementById("accountScreen")?.classList.remove("login-required");
         document.getElementById("accountScreen")?.classList.add("hidden");
+        document.getElementById("accountScreen")?.classList.remove("login-required");
         document.getElementById("mainTabs")?.classList.remove("hidden");
 
-        if (typeof awakeningSeen !== "undefined" && !awakeningSeen) {
-            if (typeof showAwakening === "function") showAwakening();
-        } else if (typeof village !== "undefined" && village.unlocked && paths?.forest?.completed) {
-            if (typeof showVillage === "function") showVillage();
-        } else {
-            showMainForest();
-        }
-
-        if (typeof refreshGameUI === "function") refreshGameUI();
         return true;
     }
 
@@ -128,9 +119,8 @@
         const mainTabs = document.getElementById("mainTabs");
         if (mainTabs) mainTabs.classList.remove("hidden");
 
-        // Auth restoration can finish after the initial game bootstrap.
-        // Keep checking briefly so a valid session never leaves the login
-        // overlay permanently stuck on screen.
+        // Wait for initializeGame() to finish restoring the save before
+        // touching any game screen.
         let attempts = 0;
         const authTimer = setInterval(() => {
             attempts++;
