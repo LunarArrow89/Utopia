@@ -134,6 +134,11 @@ async function initializeGame() {
         village.walk.active = true;
         currentPath = "villageWalk";
         gameEnded = false;
+
+        if (typeof catchUpVillageWalk === "function") {
+            catchUpVillageWalk();
+        }
+
         if (typeof resumeVillageWalk === "function") {
             resumeVillageWalk();
             return;
