@@ -52,26 +52,69 @@
     }
 
     function wireButtons() {
-        document.getElementById("storyMainTab")?.addEventListener("click", showStory);
-        document.getElementById("villageMainTab")?.addEventListener("click", showVillageMain);
+        // Use one delegated click handler for navigation. This survives
+        // screen redraws and prevents duplicate listeners from breaking tabs.
+        if (window.__utopiaNavigationWired) return;
+        window.__utopiaNavigationWired = true;
 
-        document.getElementById("restButton")?.addEventListener("click", () => {
-            if (typeof startRest === "function") startRest(false);
-        });
+        document.addEventListener("click", (event) => {
+            const target = event.target.closest?.("button");
+            if (!target) return;
 
-        document.getElementById("leaveButton")?.addEventListener("click", () => {
-            if (typeof leaveRest === "function") leaveRest();
-        });
+            if (target.id === "storyMainTab") {
+                event.preventDefault();
+                event.stopPropagation();
+                showStory();
+                return;
+            }
 
-        document.getElementById("arrivalContinue")?.addEventListener("click", () => {
-            if (typeof nextArrivalLine === "function") nextArrivalLine();
-        });
+            if (target.id === "villageMainTab") {
+                event.preventDefault();
+                event.stopPropagation();
+                showVillageMain();
+                return;
+            }
 
-        document.getElementById("leaveVillageWalkButton")?.addEventListener("click", () => {
-            if (typeof leaveVillageWalk === "function") leaveVillageWalk();
-        });
+            if (target.id === "villageTabButton") {
+                event.preventDefault();
+                event.stopPropagation();
+                if (typeof showVillageTab === "function") showVillageTab();
+                return;
+            }
 
+            if (target.id === "walkTabButton") {
+                event.preventDefault();
+                event.stopPropagation();
+                if (typeof showVillageWalkTab === "function") showVillageWalkTab();
+                return;
+            }
+
+            if (target.id === "leaveVillageWalkButton") {
+                event.preventDefault();
+                event.stopPropagation();
+                if (typeof leaveVillageWalk === "function") leaveVillageWalk();
+                return;
+            }
+
+            if (target.id === "restButton") {
+                event.preventDefault();
+                if (typeof startRest === "function") startRest(false);
+                return;
+            }
+
+            if (target.id === "leaveButton") {
+                event.preventDefault();
+                if (typeof leaveRest === "function") leaveRest();
+                return;
+            }
+
+            if (target.id === "arrivalContinue") {
+                event.preventDefault();
+                if (typeof nextArrivalLine === "function") nextArrivalLine();
+            }
+        }, true);
     }
+
 
     function finishLoginBootstrap() {
         // initializeGame() is the ONLY place allowed to restore the game.
