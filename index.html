@@ -4,12 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Utopia</title>
-<link rel="stylesheet" href="./style.css?v=6">
+<link rel="stylesheet" href="./style.css?v=7">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
 
+
+<div id="mainTabs" class="main-tabs hidden" role="tablist" aria-label="Main navigation">
+<button id="storyMainTab" class="main-tab" type="button" role="tab" aria-selected="false">📖 Story</button>
+<button id="villageMainTab" class="main-tab" type="button" role="tab" aria-selected="true">🏡 Village</button>
+</div>
 
 <div id="questStoryOverlay" class="quest-story-overlay hidden">
     <div class="quest-story-box">
@@ -52,7 +57,7 @@
 <header>
 <h1>Utopia</h1>
 <p class="subtitle">A forgotten village. A story waiting to be uncovered.</p>
-<div class="top-tabs" role="tablist" aria-label="Forest navigation"><button type="button" class="top-tab active" role="tab" aria-selected="true" onclick="showForestTab()">🌲 Forest</button><button type="button" class="top-tab" role="tab" aria-selected="false" onclick="showStoryScreen()">📖 Story</button></div>
+
 </header>
 
 <div class="stats">
@@ -332,7 +337,7 @@
 <script src="village.js?v=2"></script>
 <script src="save.js?v=6"></script>
 <script src="game.js?v=5"></script>
-<script src="uiFixes.js?v=1"></script>
+<script src="uiFixes.js?v=2"></script>
 
 <script>
 if ("serviceWorker" in navigator) {
