@@ -573,9 +573,101 @@ function updateVillageWalk() {
 function catchUpVillageWalk() {
     if (!village.walk.active) return;
 
-    // The server is authoritative for offline village-walk progress.
-    // Refresh the UI when the game returns to the page.
-    updateVillageWalkUI();
+    const now = Date.now();
+    const lastUpdate = Number(village.walk.lastUpdateTime) || Number(village.walk.startTime) || now;
+    const elapsed = Math.max(0, now - lastUpdate);
+
+    if (elapsed < 1000) {
+        updateVillageWalkUI();
+        return;
+    }
+
+    // Process everything that happened while the game was closed in one quick batch.
+    const resourceCount = Math.floor(elapsed / WHISPERING_WOODS_RESOURCE_TIME);
+    let wood = 0;
+    let stone = 0;
+    let food = 0;
+
+    for (let i = 0; i < resourceCount; i++) {
+        const resource = ["wood", "stone", "food"][Math.floor(Math.random() * 3)];
+        if (resource === "wood") wood++;
+        if (resource === "stone") stone++;
+        if (resource === "food") food++;
+    }
+
+    village.resources.wood += wood;
+    village.resources.stone += stone;
+    village.resources.food += food;
+
+    const encounterCount = Math.floor(elapsed / WHISPERING_WOODS_ENCOUNTER_TIME);
+    let totalXp = 0;
+    let totalGold = 0;
+    let totalDamage = 0;
+    let defeated = false;
+
+    for (let i = 0; i < encounterCount; i++) {
+        const enemy = whisperingWoodsEnemies[Math.floor(Math.random() * whisperingWoodsEnemies.length)];
+        const damage = Math.max(0, enemy.attack - player.attack);
+
+        if (damage <= 0) {
+            totalXp += enemy.xp;
+            totalGold += enemy.gold;
+        } else {
+            totalDamage += damage;
+
+            if (player.hp - totalDamage <= 0) {
+                defeated = true;
+                break;
+            }
+        }
+    }
+
+    if (totalXp > 0) giveXP(totalXp);
+    if (totalGold > 0) player.gold += totalGold;
+
+    if (totalDamage > 0 && !defeated) {
+        player.hp = Math.max(0, player.hp - totalDamage);
+    }
+
+    // One short summary instead of hundreds of individual log entries.
+    const summary = [];
+    if (wood) summary.push(wood + " wood");
+    if (stone) summary.push(stone + " stone");
+    if (food) summary.push(food + " food");
+
+    if (summary.length) {
+        addVillageWalkLog("While you were away, you found " + summary.join(", ") + ".");
+    }
+
+    if (encounterCount > 0) {
+        if (defeated) {
+            player.hp = 0;
+            addVillageWalkLog("While you were away, you were defeated and must rest for 25 minutes.");
+            villageWalkRest();
+        } else if (totalXp > 0 || totalGold > 0 || totalDamage > 0) {
+            addVillageWalkLog(
+                "While you were away, you fought " + encounterCount +
+                " encounter" + (encounterCount === 1 ? "" : "s") +
+                (totalXp ? ", gained " + totalXp + " XP" : "") +
+                (totalGold ? ", gained " + totalGold + " gold" : "") +
+                (totalDamage ? ", and lost " + totalDamage + " HP" : "") +
+                "."
+            );
+        }
+    }
+
+    village.walk.lastUpdateTime = now;
+    village.walk.startTime = Number(village.walk.startTime) || now;
+    village.walk.lastRewardCount += resourceCount;
+    village.walk.nextEncounterTime = Math.max(
+        village.walk.nextEncounterTime,
+        Math.floor((now - village.walk.startTime) / 1000) + 45
+    );
+
+    updateHP();
+    updateGold();
+    updateVillageUI();
+    saveGame();
 }
 
 function villageWalkBattle() {
