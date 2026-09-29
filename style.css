@@ -3147,3 +3147,30 @@ body {
 #villageScreen:not(.hidden) {
     display: block !important;
 }
+
+
+/* WHISPERING WOODS WALK */
+#walkMainTab.hidden { display: none !important; }
+#walkMainTab:disabled { opacity: .55; cursor: not-allowed; }
+#villageWalkScreen.walk-active {
+    display: block !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 10002 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    overflow-y: auto !important;
+    padding: 68px 10px 90px !important;
+    box-sizing: border-box !important;
+    background: radial-gradient(circle at 50% 0%, #203b27 0%, #102017 45%, #08100b 100%) !important;
+}
+#villageWalkScreen.walk-active .walk-box { margin: 0 auto; }
+#villageWalkScreen.walk-active #villageWalkBar { display: none !important; }
+#villageWalkScreen.walk-active .walk-next-event {
+    margin-top: 8px;
+    color: #aebcaf;
+    font-size: 12px;
+    text-align: center;
+}
