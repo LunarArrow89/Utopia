@@ -3055,12 +3055,7 @@ body {
 /* VILLAGE-ONLY PROTOTYPE: walking/path gameplay is completely hidden for now. */
 #forestGame,
 #forestScreen,
-#villageWalkScreen,
 #ashHillsScreen,
-.walk-screen,
-.village-walk-screen,
-.walk-section,
-.village-walk-option,
 .ash-hills-option {
     display: none !important;
     visibility: hidden !important;
@@ -3174,3 +3169,22 @@ body {
     font-size: 12px;
     text-align: center;
 }
+
+
+/* WHISPERING WOODS: the walk is a real screen; Village and Story remain viewable. */
+#villageWalkScreen.walk-active {
+    display: block !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 10002 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+    padding: 68px 10px 90px !important;
+    background: radial-gradient(circle at 50% 0%, #203b27 0%, #102017 45%, #08100b 100%) !important;
+}
+#villageWalkScreen.walk-active .walk-next-event { margin-top:8px; color:#aebcaf; font-size:12px; text-align:center; }
+#villageWalkScreen.walk-active #villageWalkBar { display:none !important; }
