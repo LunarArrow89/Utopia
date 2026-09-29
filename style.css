@@ -2908,3 +2908,87 @@ body {
         font-size: 12px;
     }
 }
+
+
+/* MAIN NAVIGATION: always visible once the game is open */
+.main-tabs {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 25000;
+    display: flex;
+    gap: 6px;
+    width: min(390px, calc(100% - 14px));
+    padding: 5px;
+    border: 1px solid #394837;
+    border-radius: 13px;
+    background: rgba(24, 32, 25, .98);
+    box-shadow: 0 6px 22px rgba(0,0,0,.4);
+    backdrop-filter: blur(8px);
+}
+
+.main-tabs.hidden {
+    display: none !important;
+}
+
+.main-tab {
+    flex: 1;
+    min-height: 42px;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: #9eaa9a;
+    font: inherit;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.main-tab.active {
+    border-color: #667e58;
+    background: #34452f;
+    color: #eef5e9;
+}
+
+#forestGame,
+#villageScreen,
+.village-walk-screen {
+    padding-top: 68px !important;
+}
+
+@media (max-width: 500px) {
+    .main-tabs {
+        top: max(7px, env(safe-area-inset-top));
+        width: calc(100% - 12px);
+    }
+
+    #forestGame,
+    #villageScreen,
+    .village-walk-screen {
+        padding-top: 64px !important;
+    }
+}
+
+/* Never allow the village hub and village walk to occupy the same layer. */
+#villageScreen.hidden,
+#villageWalkScreen.hidden,
+#forestGame.hidden,
+#storyScreen.hidden,
+#arrivalScene.hidden,
+#questScreen.hidden,
+#ashHillsScreen.hidden {
+    display: none !important;
+}
+
+#villageWalkScreen {
+    position: relative;
+    z-index: 100;
+    background: #080c09;
+}
+
+#villageScreen {
+    position: relative;
+    z-index: 101;
+}
