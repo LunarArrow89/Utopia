@@ -238,7 +238,17 @@ function showVillageWalkTab(startWalk = false) {
     document.getElementById("villageWalkScreen")?.classList.add("walk-active");
 
     updateVillageTabs("walk");
+    const walkMainTab = document.getElementById("walkMainTab");
+    if (walkMainTab) {
+        walkMainTab.classList.remove("hidden");
+        walkMainTab.style.display = "block";
+        walkMainTab.setAttribute("aria-hidden", "false");
+    }
     if (typeof updateMainTabs === "function") updateMainTabs("walk");
+    if (walkMainTab) {
+        walkMainTab.classList.remove("hidden");
+        walkMainTab.style.display = "";
+    }
     try { localStorage.setItem("utopiaActiveTab", "walk"); } catch (error) {}
 
     if (startWalk && !village.walk.active) {
