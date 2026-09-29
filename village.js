@@ -101,9 +101,9 @@ function hideQuestScreen() {
 
     screen.classList.add("hidden");
 
-    if (village.unlocked && paths.forest.completed) {
+    if (village.unlocked) {
         showVillage();
-    } else if (!paths.forest.completed) {
+    } else {
         document.getElementById("forestGame")?.classList.remove("hidden");
     }
 }
@@ -194,9 +194,10 @@ function updateVillageTabs(activeTab) {
 }
 
 function showVillageTab() {
-    if (!village.unlocked || !paths.forest.completed) return;
+    if (!village.unlocked) return;
 
     setVillageTabsVisible(true);
+    if (typeof updateMainTabs === "function") updateMainTabs("village");
 
     document.getElementById("arrivalScene")?.classList.add("hidden");
     document.getElementById("forestGame")?.classList.add("hidden");
@@ -219,6 +220,7 @@ function showVillageWalkTab(startWalk = false) {
     if (!village.walk.active && !startWalk) return;
 
     setVillageTabsVisible(true);
+    if (typeof updateMainTabs === "function") updateMainTabs("village");
 
     document.getElementById("arrivalScene")?.classList.add("hidden");
     document.getElementById("forestGame")?.classList.add("hidden");
@@ -246,6 +248,7 @@ function healAtVillage() {
 
 function showVillage() {
     setVillageTabsVisible(true);
+    if (typeof updateMainTabs === "function") updateMainTabs("village");
     const hub = document.getElementById("villageScreen");
     if (!hub) return;
 
@@ -339,10 +342,7 @@ function buildHouse() {
 let villageWalkTimer = null;
 
 function updateVillageUI() {
-    setVillageTabsVisible(
-        village.unlocked &&
-        paths.forest.completed
-    );
+    setVillageTabsVisible(village.unlocked);
     const screen = document.getElementById("villageScreen");
     if (!screen) return;
 
