@@ -125,8 +125,12 @@ async function initializeGame() {
 
     // Restore an active Whispering Woods walk even if the saved tab/path
     // value was overwritten by another screen before the save finished.
-    const savedWalkActive = localStorage.getItem("utopiaWalkActive") === "true";
-    if (savedWalkActive && village.unlocked) {
+    let savedWalkActive = false;
+    try {
+        savedWalkActive = localStorage.getItem("utopiaWalkActive") === "true";
+    } catch (error) {}
+
+    if (village.unlocked && (village.walk.active || savedWalkActive)) {
         village.walk.active = true;
         currentPath = "villageWalk";
         gameEnded = false;
