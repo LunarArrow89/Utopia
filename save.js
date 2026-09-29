@@ -289,7 +289,18 @@ async function loadGame() {
     // A missing cloud save does NOT mean the user is logged out.
     // The account session is the login state; a save row may simply not
     // exist yet for a new account.
-    const loadedRemote = await loadRemoteGame();
+    // Do not let a slow/broken cloud-save request make a logged-in
+    // player look like they are stuck on the account screen.
+    let loadedRemote = false;
+
+    try {
+        loadedRemote = await Promise.race([
+            loadRemoteGame(),
+            new Promise(resolve => setTimeout(() => resolve(false), 5000))
+        ]);
+    } catch (error) {
+        console.warn("Cloud save load timed out:", error);
+    }
 
     if (!loadedRemote) {
         try {
@@ -301,6 +312,11 @@ async function loadGame() {
             console.warn("Local save restore failed:", error);
         }
     }
+
+    // The Supabase session is the login state. A cloud-save problem must
+    // never send an authenticated player back through requireLogin().
+    currentSupabaseUser = user;
+    updateAccountUI();
 
     return true;
 }
