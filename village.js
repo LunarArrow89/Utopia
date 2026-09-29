@@ -249,7 +249,10 @@ function showVillageWalkTab(startWalk = false) {
         walkMainTab.classList.remove("hidden");
         walkMainTab.style.display = "";
     }
-    try { localStorage.setItem("utopiaActiveTab", "walk"); } catch (error) {}
+    try {
+        localStorage.setItem("utopiaActiveTab", "walk");
+        localStorage.setItem("utopiaWalkActive", "true");
+    } catch (error) {}
 
     if (startWalk && !village.walk.active) {
         startVillageWalk();
@@ -654,7 +657,10 @@ function leaveVillageWalk() {
 
     village.walk.active = false;
     currentPath = "village";
-    try { localStorage.setItem("utopiaActiveTab", "village"); } catch (error) {}
+    try {
+        localStorage.setItem("utopiaActiveTab", "village");
+        localStorage.removeItem("utopiaWalkActive");
+    } catch (error) {}
     clearInterval(villageWalkTimer);
     villageWalkTimer = null;
 
