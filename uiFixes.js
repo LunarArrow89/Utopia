@@ -19,9 +19,11 @@
 
         story?.setAttribute("aria-selected", active === "story" ? "true" : "false");
         village?.setAttribute("aria-selected", active === "village" ? "true" : "false");
-        walk?.classList.toggle("active", active === "walk");
-        walk?.classList.toggle("hidden", active !== "walk");
-        walk?.setAttribute("aria-selected", active === "walk" ? "true" : "false");
+        const walkActive = active === "walk";
+        const walkRunning = typeof window.village !== "undefined" && window.village?.walk?.active;
+        walk?.classList.toggle("active", walkActive);
+        walk?.classList.toggle("hidden", !walkRunning && !walkActive);
+        walk?.setAttribute("aria-selected", walkActive ? "true" : "false");
         if (village) {
             village.disabled = false;
             village.setAttribute("aria-disabled", "false");
@@ -172,6 +174,7 @@
 
     window.__utopiaStoryTab = showStory;
     window.__utopiaVillageTab = showVillageMain;
+    window.updateMainTabs = updateMainTabs;
 
     document.addEventListener("DOMContentLoaded", () => {
         wireButtons();
