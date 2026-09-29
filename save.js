@@ -337,13 +337,16 @@ async function loadGame() {
 
     // The Supabase session is the login state. A cloud-save problem must
     // never send an authenticated player back through requireLogin().
+    try {
+        if (localStorage.getItem("utopiaWalkActive") === "true" && typeof village !== "undefined") {
+            village.walk.active = true;
+            currentPath = "villageWalk";
+            gameEnded = false;
+        }
+    } catch (error) {}
+
     currentSupabaseUser = user;
     updateAccountUI();
-
-    // Restore an active Whispering Woods walk after loading the save.
-    if (typeof village !== "undefined" && village.walk?.active && typeof resumeVillageWalk === "function") {
-        resumeVillageWalk();
-    }
 
     return true;
 }
