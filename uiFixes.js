@@ -38,9 +38,18 @@
     }
 
     function showStory() {
-        if (typeof gameInitialized !== "undefined" && !gameInitialized) return;
+        const story = document.getElementById("storyScreen");
+        const villageScreen = document.getElementById("villageScreen");
+        if (!story) return;
+
         hideAllMainScreens();
-        document.getElementById("storyScreen")?.classList.remove("hidden");
+        villageScreen?.classList.add("hidden");
+        story.classList.remove("hidden");
+
+        // Story and Village are two screens in the exact same spot.
+        story.style.display = "block";
+        if (villageScreen) villageScreen.style.display = "none";
+
         document.getElementById("villageTabs")?.classList.add("hidden");
         updateMainTabs("story");
     }
@@ -54,11 +63,12 @@
         const villageScreen = document.getElementById("villageScreen");
         if (!villageScreen) return;
 
-        villageScreen.classList.remove("hidden");
-        villageScreen.style.removeProperty("display");
-        villageScreen.style.removeProperty("z-index");
+        const storyScreen = document.getElementById("storyScreen");
 
-        document.getElementById("storyScreen")?.classList.add("hidden");
+        villageScreen.classList.remove("hidden");
+        villageScreen.style.display = "block";
+        storyScreen?.classList.add("hidden");
+        if (storyScreen) storyScreen.style.display = "none";
         document.getElementById("mainTabs")?.classList.remove("hidden");
 
         updateMainTabs("village");
