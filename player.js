@@ -367,7 +367,7 @@ async function resetGame() {
         document.getElementById("statusText").textContent = "Walking";
         document.getElementById("forestBar").style.width = "0%";
         document.getElementById("xpBar").style.width = "0%";
-        document.getElementById("xpBarText").textContent = "0 / 50 XP";
+        document.getElementById("xpBarText").textContent = "0 / 150 XP";
         document.getElementById("forestText").textContent = "0:00 / 5:00";
         document.getElementById("restBar").style.width = "0%";
         document.getElementById("restText").textContent = "Rest when you need to recover.";
