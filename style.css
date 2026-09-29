@@ -2992,3 +2992,31 @@ body {
     position: relative;
     z-index: 101;
 }
+
+
+/* FINAL TAB RELIABILITY */
+#mainTabs {
+    pointer-events: auto !important;
+    touch-action: manipulation;
+}
+
+#mainTabs .main-tab {
+    position: relative;
+    z-index: 25001;
+    pointer-events: auto !important;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#villageTabs {
+    pointer-events: auto !important;
+    touch-action: manipulation;
+}
+
+#villageTabs .village-tab {
+    position: relative;
+    z-index: 25001;
+    pointer-events: auto !important;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
