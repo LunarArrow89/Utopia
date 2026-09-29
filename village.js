@@ -523,7 +523,6 @@ function updateVillageWalk() {
     // The village walk is infinite. There is no path timer or completion.
     const bar = document.getElementById("villageWalkBar");
     const text = document.getElementById("villageWalkText");
-    const next = document.getElementById("nextWalkRewardText");
 
     if (bar) {
         bar.style.width = "0%";
@@ -531,7 +530,16 @@ function updateVillageWalk() {
     }
 
     if (text) {
-        text.textContent = "Endless walk — return whenever you want";
+        const totalSeconds = Math.floor(elapsed / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+
+        if (hours > 0) {
+            text.textContent = hours + "h " + minutes + "m " + seconds + "s";
+        } else {
+            text.textContent = minutes + "m " + seconds + "s";
+        }
     }
 
     const rewardCount = Math.floor(elapsed / WHISPERING_WOODS_RESOURCE_TIME);
