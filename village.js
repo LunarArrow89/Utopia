@@ -441,6 +441,32 @@ function updateVillageUI() {
     });
 }
 
+function resumeVillageWalk() {
+    if (!village.walk.active) return;
+
+    currentPath = "villageWalk";
+    gameEnded = false;
+
+    clearInterval(villageWalkTimer);
+
+    document.getElementById("villageWalkScreen")?.classList.add("walk-active");
+    document.getElementById("villageWalkScreen")?.classList.remove("hidden");
+
+    const walkMainTab = document.getElementById("walkMainTab");
+    if (walkMainTab) {
+        walkMainTab.classList.remove("hidden");
+        walkMainTab.style.display = "";
+        walkMainTab.setAttribute("aria-hidden", "false");
+    }
+
+    updateVillageTabs("walk");
+    if (typeof updateMainTabs === "function") updateMainTabs("walk");
+
+    updateVillageWalkUI();
+    villageWalkTimer = setInterval(updateVillageWalk, 1000);
+    updateVillageWalk();
+}
+
 function startVillageWalk() {
     if (!village.unlocked || village.walk.active) return;
 
