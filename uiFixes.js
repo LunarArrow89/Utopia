@@ -2,33 +2,56 @@
 (function () {
     "use strict";
 
-    function showMainForest() {
+    function updateMainTabs(active) {
+        const tabs = document.getElementById("mainTabs");
+        if (!tabs) return;
+        tabs.classList.remove("hidden");
+        const story = document.getElementById("storyMainTab");
+        const village = document.getElementById("villageMainTab");
+        if (story) {
+            story.classList.toggle("active", active === "story");
+            story.setAttribute("aria-selected", active === "story" ? "true" : "false");
+        }
+        if (village) {
+            village.classList.toggle("active", active === "village");
+            village.setAttribute("aria-selected", active === "village" ? "true" : "false");
+        }
+    }
+
+    function hideAllMainScreens() {
+        document.getElementById("forestGame")?.classList.add("hidden");
         document.getElementById("storyScreen")?.classList.add("hidden");
+        document.getElementById("villageScreen")?.classList.add("hidden");
+        document.getElementById("villageWalkScreen")?.classList.add("hidden");
+        document.getElementById("questScreen")?.classList.add("hidden");
+        document.getElementById("arrivalScene")?.classList.add("hidden");
+        document.getElementById("ashHillsScreen")?.classList.add("hidden");
+    }
+
+    function showMainForest() {
+        hideAllMainScreens();
         document.getElementById("forestGame")?.classList.remove("hidden");
-        document.querySelectorAll(".top-tab").forEach((button, index) => {
-            button.classList.toggle("active", index === 0);
-            button.setAttribute("aria-selected", index === 0 ? "true" : "false");
-        });
+        updateMainTabs("village");
         if (typeof refreshGameUI === "function") refreshGameUI();
         if (typeof updateForest === "function") updateForest();
     }
 
     function showStory() {
         if (typeof gameInitialized !== "undefined" && !gameInitialized) return;
-        document.getElementById("forestGame")?.classList.add("hidden");
+        hideAllMainScreens();
         document.getElementById("storyScreen")?.classList.remove("hidden");
-        document.querySelectorAll(".top-tab").forEach((button, index) => {
-            button.classList.toggle("active", index === 1);
-            button.setAttribute("aria-selected", index === 1 ? "true" : "false");
-        });
+        updateMainTabs("story");
+    }
+
+    function showVillageMain() {
+        if (typeof village === "undefined" || !village.unlocked) return;
+        if (typeof showVillageTab === "function") showVillageTab();
+        updateMainTabs("village");
     }
 
     function wireButtons() {
-        const forestTab = document.querySelector(".top-tab:nth-child(1)");
-        const storyTab = document.querySelector(".top-tab:nth-child(2)");
-
-        forestTab?.addEventListener("click", showMainForest);
-        storyTab?.addEventListener("click", showStory);
+        document.getElementById("storyMainTab")?.addEventListener("click", showStory);
+        document.getElementById("villageMainTab")?.addEventListener("click", showVillageMain);
 
         document.getElementById("restButton")?.addEventListener("click", () => {
             if (typeof startRest === "function") startRest(false);
@@ -52,10 +75,12 @@
 
         document.getElementById("villageTabButton")?.addEventListener("click", () => {
             if (typeof showVillageTab === "function") showVillageTab();
+            updateMainTabs("village");
         });
 
         document.getElementById("walkTabButton")?.addEventListener("click", () => {
             if (typeof showVillageWalkTab === "function") showVillageWalkTab();
+            updateMainTabs("village");
         });
 
         document.getElementById("accountButton")?.addEventListener("click", () => {
@@ -83,6 +108,7 @@
 
         document.getElementById("accountScreen")?.classList.remove("login-required");
         document.getElementById("accountScreen")?.classList.add("hidden");
+        document.getElementById("mainTabs")?.classList.remove("hidden");
 
         if (typeof awakeningSeen !== "undefined" && !awakeningSeen) {
             if (typeof showAwakening === "function") showAwakening();
@@ -98,6 +124,9 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         wireButtons();
+
+        const mainTabs = document.getElementById("mainTabs");
+        if (mainTabs) mainTabs.classList.remove("hidden");
 
         // Auth restoration can finish after the initial game bootstrap.
         // Keep checking briefly so a valid session never leaves the login
