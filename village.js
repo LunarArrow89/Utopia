@@ -607,7 +607,8 @@ function villageWalkRest() {
 
     if (missingHp <= 0) return;
 
-    const restDuration = missingHp * 0.5 * 60 * 1000;
+    // Being defeated always forces a full 25-minute rest.
+    const restDuration = 25 * 60 * 1000;
     const startTime = Date.now();
 
     clearInterval(villageWalkTimer);
