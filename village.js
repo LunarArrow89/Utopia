@@ -444,7 +444,11 @@ function startVillageWalk() {
 
     document.getElementById("villageScreen")?.classList.add("hidden");
     document.getElementById("villageWalkScreen")?.classList.remove("hidden");
+    document.getElementById("villageWalkScreen")?.classList.add("walk-active");
+
     updateVillageTabs("walk");
+    if (typeof updateMainTabs === "function") updateMainTabs("walk");
+    try { localStorage.setItem("utopiaActiveTab", "walk"); } catch (error) {}
 
     updateVillageWalkUI();
     addVillageLog("You set out on an endless village walk. Return whenever you want.");
