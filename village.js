@@ -194,7 +194,7 @@ function updateVillageTabs(activeTab) {
 function showVillageTab() {
     if (!village.unlocked || !paths.forest.completed) return;
 
-    setVillageTabsVisible(village.walk.active);
+    setVillageTabsVisible(true);
 
     document.getElementById("arrivalScene")?.classList.add("hidden");
     document.getElementById("forestGame")?.classList.add("hidden");
@@ -215,7 +215,7 @@ function showVillageWalkTab(startWalk = false) {
     if (!village.unlocked || !paths.forest.completed) return;
     if (!village.walk.active && !startWalk) return;
 
-    setVillageTabsVisible(village.walk.active || startWalk);
+    setVillageTabsVisible(true);
 
     document.getElementById("arrivalScene")?.classList.add("hidden");
     document.getElementById("forestGame")?.classList.add("hidden");
@@ -242,7 +242,7 @@ function healAtVillage() {
 }
 
 function showVillage() {
-    setVillageTabsVisible(village.walk.active);
+    setVillageTabsVisible(true);
     const hub = document.getElementById("villageScreen");
     if (!hub) return;
 
@@ -338,8 +338,7 @@ let villageWalkTimer = null;
 function updateVillageUI() {
     setVillageTabsVisible(
         village.unlocked &&
-        paths.forest.completed &&
-        village.walk.active
+        paths.forest.completed
     );
     const screen = document.getElementById("villageScreen");
     if (!screen) return;
