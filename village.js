@@ -483,13 +483,8 @@ function updateVillageWalk() {
 function catchUpVillageWalk() {
     if (!village.walk.active) return;
 
-    const now = Date.now();
-    const elapsed = Math.max(0, now - village.walk.startTime);
-    const cappedElapsed = Math.min(elapsed, villagefunction catchUpVillageWalk() {
-    if (!village.walk.active) return;
-
-    // The server is now authoritative for offline village-walk progress.
-    // This function is kept only for compatibility with older code.
+    // The server is authoritative for offline village-walk progress.
+    // Refresh the UI when the game returns to the page.
     updateVillageWalkUI();
 }
 
