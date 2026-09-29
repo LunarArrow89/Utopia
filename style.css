@@ -3066,3 +3066,47 @@ body {
     visibility: hidden !important;
     pointer-events: none !important;
 }
+
+
+/* STORY IS A SEPARATE MAIN TAB, NOT AN OVERLAY */
+#storyScreen {
+    position: relative !important;
+    inset: auto !important;
+    z-index: 1 !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    padding: 80px 12px 110px !important;
+    overflow-y: auto !important;
+    background: #080c09 !important;
+}
+
+#storyScreen.hidden {
+    display: none !important;
+}
+
+#storyScreen .story-box {
+    width: min(420px, 100%) !important;
+    min-height: calc(100vh - 190px);
+    margin: 0 auto !important;
+    padding: 12px 0 30px;
+}
+
+#storyScreen .story-header {
+    padding-top: 8px;
+}
+
+#villageScreen.hidden,
+#storyScreen.hidden {
+    display: none !important;
+}
+
+@media (max-width: 500px) {
+    #storyScreen {
+        padding: 72px 10px 105px !important;
+    }
+
+    #storyScreen .story-box {
+        width: 100% !important;
+        min-height: calc(100vh - 177px);
+    }
+}
