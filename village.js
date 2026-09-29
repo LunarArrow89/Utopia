@@ -576,6 +576,8 @@ function catchUpVillageWalk() {
     const now = Date.now();
     const lastUpdate = Number(village.walk.lastUpdateTime) || Number(village.walk.startTime) || now;
     const elapsed = Math.max(0, now - lastUpdate);
+    const totalAway = Math.max(0, now - (Number(village.walk.startTime) || now));
+    const showSummary = totalAway >= 15 * 60 * 1000;
 
     if (elapsed < 1000) {
         updateVillageWalkUI();
@@ -653,6 +655,29 @@ function catchUpVillageWalk() {
                 (totalDamage ? ", and lost " + totalDamage + " HP" : "") +
                 "."
             );
+        }
+    }
+
+    if (showSummary) {
+        const popup = document.getElementById("awaySummaryOverlay");
+        const popupText = document.getElementById("awaySummaryText");
+
+        if (popup && popupText) {
+            const lines = [
+                "You were away for " + Math.floor(totalAway / 60000) + " minutes.",
+                summary.length ? "Resources: " + summary.join(", ") : "Resources: none",
+                encounterCount ? "Encounters: " + encounterCount : "Encounters: none",
+                totalXp ? "XP gained: " + totalXp : "XP gained: none",
+                totalGold ? "Gold gained: " + totalGold : "Gold gained: none",
+                totalDamage ? "HP lost: " + totalDamage : "HP lost: none"
+            ];
+
+            if (defeated) {
+                lines.push("You were defeated and must rest for 25 minutes.");
+            }
+
+            popupText.textContent = lines.join("\n");
+            popup.classList.remove("hidden");
         }
     }
 
