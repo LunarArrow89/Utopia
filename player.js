@@ -314,7 +314,7 @@ async function resetGame() {
         player.attack = 8;
         player.level = 1;
         player.xp = 0;
-        player.xpToNext = 50;
+        player.xpToNext = 150;
         player.gold = 0;
 
         resting = false;
@@ -398,7 +398,7 @@ async function resetGame() {
                 player.attack = 8;
                 player.level = 1;
                 player.xp = 0;
-                player.xpToNext = 50;
+                player.xpToNext = 150;
                 player.gold = 0;
                 resting = false;
                 restForced = false;
