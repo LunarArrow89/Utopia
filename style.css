@@ -3188,3 +3188,55 @@ body {
 }
 #villageWalkScreen.walk-active .walk-next-event { margin-top:8px; color:#aebcaf; font-size:12px; text-align:center; }
 #villageWalkScreen.walk-active #villageWalkBar { display:none !important; }
+
+
+.away-summary-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.72);
+}
+.away-summary-overlay.hidden {
+    display: none !important;
+}
+.away-summary-box {
+    position: relative;
+    width: min(460px, 100%);
+    padding: 28px 22px 24px;
+    border-radius: 18px;
+    background: #18241b;
+    border: 1px solid #4f7656;
+    box-shadow: 0 18px 60px rgba(0,0,0,.45);
+    color: #eef6ee;
+}
+.away-summary-box h2 {
+    margin: 6px 0 12px;
+}
+.away-summary-box p {
+    margin: 0;
+    line-height: 1.65;
+    white-space: pre-line;
+    color: #cbd9cc;
+}
+.away-summary-close {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #fff;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+}
+.away-summary-close:hover {
+    background: rgba(255,255,255,.08);
+}
+
