@@ -3020,3 +3020,26 @@ body {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
 }
+
+
+/* FINAL MOBILE NAV: one bottom tab bar only */
+#mainTabs {
+    top: auto !important;
+    bottom: max(8px, env(safe-area-inset-bottom)) !important;
+    width: min(420px, calc(100% - 10px)) !important;
+    z-index: 25000 !important;
+}
+#villageTabs {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+#mainTabs .main-tab {
+    min-height: 48px;
+}
+#forestGame,
+#villageScreen,
+.village-walk-screen,
+.walk-screen {
+    padding-bottom: 90px !important;
+}
