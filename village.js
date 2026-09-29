@@ -84,7 +84,7 @@ function nextArrivalLine() {
 function showQuestScreen() {
     setVillageTabsVisible(false);
     const screen = document.getElementById("questScreen");
-    if (!screen || !village.unlocked || !paths.forest.completed) return;
+    if (!screen || !village.unlocked) return;
 
     document.getElementById("forestGame")?.classList.add("hidden");
     document.getElementById("villageScreen")?.classList.add("hidden");
@@ -216,7 +216,7 @@ function showVillageTab() {
 }
 
 function showVillageWalkTab(startWalk = false) {
-    if (!village.unlocked || !paths.forest.completed) return;
+    if (!village.unlocked) return;
     if (!village.walk.active && !startWalk) return;
 
     setVillageTabsVisible(true);
