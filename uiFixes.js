@@ -20,7 +20,7 @@
         story?.setAttribute("aria-selected", active === "story" ? "true" : "false");
         village?.setAttribute("aria-selected", active === "village" ? "true" : "false");
         const walkActive = active === "walk";
-        const walkRunning = typeof window.village !== "undefined" && window.village?.walk?.active;
+        const walkRunning = typeof village !== "undefined" && village.walk.active;
         walk?.classList.toggle("active", walkActive);
         walk?.classList.toggle("hidden", !walkRunning && !walkActive);
         walk?.setAttribute("aria-selected", walkActive ? "true" : "false");
