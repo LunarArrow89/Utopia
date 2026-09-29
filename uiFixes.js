@@ -52,14 +52,14 @@
 
         hideScreens();
 
-        const village = document.getElementById("villageScreen");
+        const villageScreen = document.getElementById("villageScreen");
         story.classList.remove("hidden");
         story.style.display = "block";
-        if (village) village.style.display = "none";
+        if (villageScreen) villageScreen.style.display = "none";
 
         updateMainTabs("story");
         localStorage.setItem(TAB_KEY, "story");
-        if (typeof village !== "undefined" && village.walk.active) {
+        if (window.village?.walk?.active) {
             story.querySelectorAll("button").forEach(button => button.disabled = true);
         }
     }
