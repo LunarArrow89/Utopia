@@ -4,7 +4,7 @@ const player = {
     attack: 8,
     level: 1,
     xp: 0,
-    xpToNext: 50,
+    xpToNext: 150,
     gold: 0
 };
 
