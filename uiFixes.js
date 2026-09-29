@@ -36,6 +36,10 @@
         ["forestGame", "storyScreen", "villageScreen", "villageWalkScreen", "questScreen", "villageTabs", "arrivalScene", "ashHillsScreen"].forEach(id => {
             const screen = document.getElementById(id);
             if (screen) {
+                // IMPORTANT: walk-active has display:block !important in the CSS.
+                // Remove it before hiding the walk screen, otherwise the Walk
+                // screen can remain visible underneath Story or Village.
+                screen.classList.remove("walk-active");
                 screen.classList.add("hidden");
                 screen.style.display = "none";
             }
