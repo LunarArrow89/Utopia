@@ -3110,3 +3110,40 @@ body {
         min-height: calc(100vh - 177px);
     }
 }
+
+
+/* FINAL: Story and Village occupy the exact same screen. Only one can be visible. */
+#storyScreen,
+#villageScreen {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+}
+
+#storyScreen {
+    z-index: 10001 !important;
+    padding: 80px 12px 110px !important;
+}
+
+#villageScreen {
+    z-index: 10000 !important;
+    padding: 68px 10px 90px !important;
+}
+
+#storyScreen.hidden,
+#villageScreen.hidden {
+    display: none !important;
+}
+
+#storyScreen:not(.hidden) {
+    display: block !important;
+}
+
+#villageScreen:not(.hidden) {
+    display: block !important;
+}
