@@ -19,6 +19,7 @@ function nextAwakeningLine() {
     // Act I ends here: the village is now the permanent home screen.
     awakeningSeen = true;
     village.unlocked = true;
+    arrivalCutsceneSeen = true;
     currentPath = "village";
     gameEnded = true;
 
@@ -97,6 +98,7 @@ async function initializeGame() {
     // the village-first version of Utopia instead of reopening the forest.
     if (awakeningSeen && !village.unlocked) {
         village.unlocked = true;
+        arrivalCutsceneSeen = true;
         currentPath = "village";
         gameEnded = true;
         if (paths.forest) {
