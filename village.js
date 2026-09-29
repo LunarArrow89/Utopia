@@ -737,6 +737,9 @@ function updateVillageWalkUI() {
     const xpText = document.getElementById("villageWalkXpText");
     const xpBar = document.getElementById("villageWalkXpBar");
     const goldText = document.getElementById("villageWalkGoldText");
+    const woodText = document.getElementById("villageWalkWoodText");
+    const stoneText = document.getElementById("villageWalkStoneText");
+    const foodText = document.getElementById("villageWalkFoodText");
     const level = document.getElementById("villageWalkLevelText");
     const attack = document.getElementById("villageWalkAttackText");
 
@@ -746,6 +749,9 @@ function updateVillageWalkUI() {
     if (xpText) xpText.textContent = player.xp + " / " + player.xpToNext + " XP";
     if (xpBar) xpBar.style.width = (player.xp / player.xpToNext * 100) + "%";
     if (goldText) goldText.textContent = player.gold;
+    if (woodText) woodText.textContent = village.resources.wood;
+    if (stoneText) stoneText.textContent = village.resources.stone;
+    if (foodText) foodText.textContent = village.resources.food;
     if (level) level.textContent = player.level;
     if (attack) attack.textContent = player.attack;
 }
