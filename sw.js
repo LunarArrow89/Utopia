@@ -1,4 +1,4 @@
-const CACHE_NAME = "utopia-offline-v20";
+const CACHE_NAME = "utopia-offline-v21";
 
 const FILES = [
     "./",
