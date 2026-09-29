@@ -63,28 +63,28 @@
 
             if (target.id === "storyMainTab") {
                 event.preventDefault();
-                event.stopPropagation();
+                event.stopImmediatePropagation();
                 showStory();
                 return;
             }
 
             if (target.id === "villageMainTab") {
                 event.preventDefault();
-                event.stopPropagation();
+                event.stopImmediatePropagation();
                 showVillageMain();
                 return;
             }
 
             if (target.id === "villageTabButton") {
                 event.preventDefault();
-                event.stopPropagation();
+                event.stopImmediatePropagation();
                 if (typeof showVillageTab === "function") showVillageTab();
                 return;
             }
 
             if (target.id === "walkTabButton") {
                 event.preventDefault();
-                event.stopPropagation();
+                event.stopImmediatePropagation();
                 if (typeof showVillageWalkTab === "function") showVillageWalkTab();
                 return;
             }
