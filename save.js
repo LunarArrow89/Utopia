@@ -286,7 +286,23 @@ async function loadGame() {
         console.warn("Server idle processing unavailable:", error);
     }
 
-    return await loadRemoteGame();
+    // A missing cloud save does NOT mean the user is logged out.
+    // The account session is the login state; a save row may simply not
+    // exist yet for a new account.
+    const loadedRemote = await loadRemoteGame();
+
+    if (!loadedRemote) {
+        try {
+            const local = localStorage.getItem(SAVE_KEY);
+            if (local) {
+                applySaveData(JSON.parse(local));
+            }
+        } catch (error) {
+            console.warn("Local save restore failed:", error);
+        }
+    }
+
+    return true;
 }
 
 async function flushSaveNow() {
