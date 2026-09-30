@@ -15,23 +15,56 @@ registerPath("forest", {
 }, {
     update() {
         const path = paths.forest;
+        const now = Date.now();
+
         if (path.completed || gameEnded || resting) return;
 
-        const now = Date.now();
         if (!path.lastUpdateTime) {
             path.lastUpdateTime = now;
             updateForest();
             return;
         }
 
-        const seconds = Math.floor((now - path.lastUpdateTime) / 1000);
-        if (seconds <= 0) return updateForest();
+        const elapsedSeconds = Math.floor((now - path.lastUpdateTime) / 1000);
+        if (elapsedSeconds <= 0) {
+            updateForest();
+            return;
+        }
 
-        path.lastUpdateTime += seconds * 1000;
-        path.progress = Math.min(path.duration, path.progress + seconds);
+        path.lastUpdateTime += elapsedSeconds * 1000;
+        path.progress = Math.min(path.duration, path.progress + elapsedSeconds);
 
+        // An encounter is allowed only when the progress crosses the
+        // scheduled encounter point. Never run the same encounter again
+        // just because update() is called again during the same second.
         if (path.progress >= path.encounterTime) {
-            if (forestEncounter(path)) return;
+            const enemy = forestEnemies[Math.floor(Math.random() * forestEnemies.length)];
+            const result = resolveBattle(enemy);
+
+            if (result.defeated) {
+                player.gold += enemy.gold;
+                giveXP(enemy.xp);
+                addLog("You defeated " + enemy.name + ".");
+            } else {
+                player.hp = Math.max(0, player.hp - result.damageTaken);
+                addLog(enemy.name + " attacked you for " + result.damageTaken + " damage.");
+
+                if (player.hp <= 0) {
+                    addLog(enemy.name + " defeated you.");
+                    path.encounterTime = path.progress + randomEncounterTime();
+                    updateHP();
+                    updateGold();
+                    startRest(true);
+                    updateForest();
+                    return;
+                }
+            }
+
+            // Move the encounter point forward immediately. This prevents
+            // the same encounter from firing on every timer tick.
+            path.encounterTime = path.progress + randomEncounterTime();
+            updateHP();
+            updateGold();
         }
 
         if (path.progress >= path.duration) {
@@ -44,114 +77,92 @@ registerPath("forest", {
 
     catchUp() {
         const path = paths.forest;
-        if (path.completed || village.unlocked || !path.lastUpdateTime) return;
+        const now = Date.now();
 
-        const seconds = Math.floor((Date.now() - path.lastUpdateTime) / 1000);
-        if (seconds <= 0) return;
+        if (path.completed || village.unlocked) return;
 
-        const target = Math.min(path.duration, path.progress + seconds);
-        path.progress = target;
-
-        while (path.encounterTime <= target) {
-            if (offlineEncounter(path)) break;
+        if (!path.lastUpdateTime) {
+            path.lastUpdateTime = now;
+            return;
         }
 
-        path.lastUpdateTime = Date.now();
+        const offlineSeconds = Math.floor((now - path.lastUpdateTime) / 1000);
+        if (offlineSeconds <= 0) return;
+
+        const oldProgress = path.progress;
+        const targetProgress = Math.min(path.duration, oldProgress + offlineSeconds);
+        let encounterTime = path.encounterTime;
+        let diedOffline = false;
+
+        while (encounterTime <= targetProgress && encounterTime > oldProgress) {
+            const enemy = forestEnemies[Math.floor(Math.random() * forestEnemies.length)];
+            const result = resolveBattle(enemy);
+
+            if (result.defeated) {
+                player.gold += enemy.gold;
+                player.xp += enemy.xp;
+                addLog("You defeated " + enemy.name + ".");
+            } else {
+                player.hp = Math.max(0, player.hp - result.damageTaken);
+                addLog(enemy.name + " attacked you for " + result.damageTaken + " damage.");
+
+                if (player.hp <= 0) {
+                    player.hp = 0;
+                    addLog(enemy.name + " defeated you.");
+                    diedOffline = true;
+                    break;
+                }
+            }
+
+            encounterTime += randomEncounterTime();
+        }
+
+        // Apply any level-ups caused by offline XP without calling saveGame
+        // once per enemy.
+        while (player.xp >= player.xpToNext) {
+            player.xp -= player.xpToNext;
+            player.level++;
+            player.attack += 1;
+            player.maxHp += 3;
+            player.hp = Math.min(player.maxHp, player.hp + 3);
+            player.xpToNext += 25;
+            addLog(`You reached level ${player.level}! Attack +1, Max HP +3.`);
+        }
+
+        path.encounterTime = encounterTime;
+        path.progress = targetProgress;
+        path.lastUpdateTime = now;
+
         updateHP();
         updateGold();
-        updateForest();
 
-        if (path.progress >= path.duration && !resting) {
-            finishPath("forest");
-        } else {
+        if (diedOffline) {
+            resting = false;
+            startRest(true);
             saveGame();
+            return;
         }
+
+        if (path.progress >= path.duration) {
+            finishPath("forest");
+            return;
+        }
+
+        updateForest();
     },
 
     finish() {
         const path = paths.forest;
+
         path.progress = path.duration;
         path.completed = true;
         gameEnded = true;
 
-        if (!arrivalCutsceneSeen) showArrivalScene();
+        if (typeof arrivalCutsceneSeen !== "undefined" && !arrivalCutsceneSeen) {
+            showArrivalScene();
+        }
 
-        addLog("The Forest completed!");
+        addLog(path.name + " completed!");
         saveGame();
     }
 });
-
-function randomForestEnemy() {
-    return forestEnemies[Math.floor(Math.random() * forestEnemies.length)];
-}
-
-function nextForestEncounter(path) {
-    path.encounterTime = path.progress + randomEncounterTime();
-}
-
-function forestEncounter(path) {
-    const enemy = randomForestEnemy();
-    const result = resolveBattle(enemy);
-
-    if (result.defeated) {
-        player.gold += enemy.gold;
-        giveXP(enemy.xp);
-        addLog(`You defeated ${enemy.name}.`);
-    } else {
-        player.hp = Math.max(0, player.hp - result.damageTaken);
-        addLog(`${enemy.name} attacked you for ${result.damageTaken} damage.`);
-
-        if (player.hp <= 0) {
-            addLog(`${enemy.name} defeated you.`);
-            nextForestEncounter(path);
-            updateHP();
-            updateGold();
-            startRest(true);
-            return true;
-        }
-    }
-
-    nextForestEncounter(path);
-    updateHP();
-    updateGold();
-    return false;
-}
-
-function offlineEncounter(path) {
-    const enemy = randomForestEnemy();
-    const result = resolveBattle(enemy);
-
-    if (result.defeated) {
-        player.gold += enemy.gold;
-        addOfflineXP(enemy.xp);
-        addLog(`You defeated ${enemy.name}.`);
-    } else {
-        player.hp = Math.max(0, player.hp - result.damageTaken);
-        addLog(`${enemy.name} attacked you for ${result.damageTaken} damage.`);
-
-        if (player.hp <= 0) {
-            player.hp = 0;
-            addLog(`${enemy.name} defeated you.`);
-            nextForestEncounter(path);
-            startRest(true);
-            return true;
-        }
-    }
-
-    nextForestEncounter(path);
-    return false;
-}
-
-function addOfflineXP(amount) {
-    player.xp += amount;
-
-    while (player.xp >= player.xpToNext) {
-        player.xp -= player.xpToNext;
-        player.level++;
-        player.attack++;
-        player.maxHp += 3;
-        player.hp = Math.min(player.maxHp, player.hp + 3);
-        player.xpToNext += 25;
-        addLog(`You reached level ${player.level}! Attack +1, Max HP +3.`);
-    }
-}
