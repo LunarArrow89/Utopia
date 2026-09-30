@@ -135,11 +135,6 @@
             event.preventDefault();
             event.stopImmediatePropagation();
             showWalk();
-        } else if (button.id === "questButton") {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            showQuests();
-        }
     }, true);
 
     window.__utopiaStoryTab = showStory;
@@ -149,11 +144,6 @@
     window.updateMainTabs = updateTabs;
 
     document.addEventListener("DOMContentLoaded", function () {
-        const questButton = get("questButton");
-        if (questButton) {
-            questButton.addEventListener("click", showQuests);
-        }
-
         setInterval(function () {
             updateTabs(localStorage.getItem(TAB_KEY) || "village");
         }, 500);
