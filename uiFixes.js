@@ -18,8 +18,16 @@
 
     const $ = id => document.getElementById(id);
 
+    function getVillage() {
+        return typeof village !== "undefined" ? village : null;
+    }
+
     function isWalking() {
-        return !!window.village?.walk?.active;
+        return !!getVillage()?.walk?.active;
+    }
+
+    function isVillageUnlocked() {
+        return !!getVillage()?.unlocked;
     }
 
     function hideScreens() {
@@ -38,14 +46,14 @@
         tabs.classList.remove("hidden");
 
         const story = $("storyMainTab");
-        const village = $("villageMainTab");
+        const villageTab = $("villageMainTab");
         const walk = $("walkMainTab");
         const walkVisible = isWalking();
 
         story?.classList.toggle("active", tab === "story");
-        village?.classList.toggle("active", tab === "village");
+        villageTab?.classList.toggle("active", tab === "village");
         story?.setAttribute("aria-selected", String(tab === "story"));
-        village?.setAttribute("aria-selected", String(tab === "village"));
+        villageTab?.setAttribute("aria-selected", String(tab === "village"));
 
         if (walk) {
             walk.classList.toggle("hidden", !walkVisible);
@@ -60,7 +68,7 @@
     }
 
     function showStory() {
-        if (!window.gameInitialized && !window.village?.unlocked) return;
+        if (!isVillageUnlocked() && typeof gameInitialized !== "undefined" && !gameInitialized) return;
         hideScreens();
         $("storyScreen")?.classList.remove("hidden");
         setActiveTab("story");
@@ -68,28 +76,33 @@
     }
 
     function showVillage() {
-        if (!window.village?.unlocked) return;
+        if (!isVillageUnlocked()) return;
+
         hideScreens();
         $("villageScreen")?.classList.remove("hidden");
         $("villageScreen")?.classList.toggle("walk-view-only", isWalking());
         setActiveTab("village");
         remember("village");
+
         if (typeof updateVillageUI === "function") updateVillageUI();
     }
 
     function showWalk() {
         if (!isWalking()) return;
+
         hideScreens();
         const screen = $("villageWalkScreen");
         screen?.classList.remove("hidden");
         screen?.classList.add("walk-active");
         setActiveTab("walk");
         remember("walk");
+
         if (typeof updateVillageWalkUI === "function") updateVillageWalkUI();
     }
 
     function showQuests() {
-        if (!window.village?.unlocked || isWalking()) return;
+        if (!isVillageUnlocked() || isWalking()) return;
+
         hideScreens();
         $("questScreen")?.classList.remove("hidden");
         setActiveTab("village");
@@ -111,11 +124,11 @@
 
     function connectButtons() {
         const story = $("storyMainTab");
-        const village = $("villageMainTab");
+        const villageTab = $("villageMainTab");
         const walk = $("walkMainTab");
 
         if (story) story.onclick = showStory;
-        if (village) village.onclick = showVillage;
+        if (villageTab) villageTab.onclick = showVillage;
         if (walk) walk.onclick = showWalk;
 
         const questButton = $("questButton");
@@ -165,7 +178,7 @@
         connectButtons();
         addSpacingFixes();
         if (isWalking()) setActiveTab("walk");
-        else if (window.village?.unlocked) setActiveTab("village");
+        else if (isVillageUnlocked()) setActiveTab("village");
     }
 
     window.updateMainTabs = setActiveTab;
