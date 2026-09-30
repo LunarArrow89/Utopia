@@ -4,14 +4,15 @@
 
     const TAB_KEY = "utopiaActiveTab";
 
-    function walking() {
-        return typeof window.villageWalkIsActive === "function"
-            ? window.villageWalkIsActive()
-            : !!window.village?.walk?.active;
-    }
-
     function get(id) {
         return document.getElementById(id);
+    }
+
+    function walking() {
+        if (typeof window.villageWalkIsActive === "function") {
+            return window.villageWalkIsActive();
+        }
+        return !!window.village?.walk?.active;
     }
 
     function hideAll() {
@@ -28,6 +29,7 @@
             if (!el) return;
             el.classList.add("hidden");
             el.classList.remove("walk-active");
+            el.classList.remove("walk-view-only");
             el.style.display = "none";
         });
     }
@@ -41,6 +43,7 @@
         const story = get("storyMainTab");
         const village = get("villageMainTab");
         const walk = get("walkMainTab");
+        const showWalk = walking() || active === "walk";
 
         story?.classList.toggle("active", active === "story");
         story?.setAttribute("aria-selected", String(active === "story"));
@@ -49,12 +52,18 @@
         village?.setAttribute("aria-selected", String(active === "village"));
 
         if (walk) {
-            const showWalkTab = walking() || active === "walk";
             walk.classList.toggle("active", active === "walk");
-            walk.classList.toggle("hidden", !showWalkTab);
-            walk.style.display = showWalkTab ? "" : "none";
-            walk.setAttribute("aria-hidden", String(!showWalkTab));
+            walk.classList.toggle("hidden", !showWalk);
+            walk.style.display = showWalk ? "" : "none";
             walk.setAttribute("aria-selected", String(active === "walk"));
+        }
+    }
+
+    function saveTab(tab) {
+        try {
+            localStorage.setItem(TAB_KEY, tab);
+        } catch (error) {
+            console.log("Could not save active tab.", error);
         }
     }
 
@@ -65,22 +74,21 @@
         hideAll();
         el.classList.remove("hidden");
         el.style.display = "block";
-
         updateTabs("story");
-        localStorage.setItem(TAB_KEY, "story");
+        saveTab("story");
     }
 
     function showVillage() {
         const el = get("villageScreen");
-        if (!el || (window.village && !village.unlocked)) return;
+        if (!el) return;
+        if (window.village && !window.village.unlocked) return;
 
         hideAll();
         el.classList.remove("hidden");
         el.style.display = "block";
         el.classList.toggle("walk-view-only", walking());
-
         updateTabs("village");
-        localStorage.setItem(TAB_KEY, "village");
+        saveTab("village");
 
         if (typeof updateVillageUI === "function") {
             updateVillageUI();
@@ -95,9 +103,8 @@
         el.classList.remove("hidden");
         el.classList.add("walk-active");
         el.style.display = "block";
-
         updateTabs("walk");
-        localStorage.setItem(TAB_KEY, "walk");
+        saveTab("walk");
 
         if (typeof updateVillageWalkUI === "function") {
             updateVillageWalkUI();
@@ -125,16 +132,23 @@
 
         if (button.id === "storyMainTab") {
             event.preventDefault();
-            event.stopImmediatePropagation();
+            event.stopPropagation();
             showStory();
-        } else if (button.id === "villageMainTab") {
+            return;
+        }
+
+        if (button.id === "villageMainTab") {
             event.preventDefault();
-            event.stopImmediatePropagation();
+            event.stopPropagation();
             showVillage();
-        } else if (button.id === "walkMainTab") {
+            return;
+        }
+
+        if (button.id === "walkMainTab") {
             event.preventDefault();
-            event.stopImmediatePropagation();
+            event.stopPropagation();
             showWalk();
+        }
     }, true);
 
     window.__utopiaStoryTab = showStory;
@@ -144,8 +158,9 @@
     window.updateMainTabs = updateTabs;
 
     document.addEventListener("DOMContentLoaded", function () {
-        setInterval(function () {
-            updateTabs(localStorage.getItem(TAB_KEY) || "village");
-        }, 500);
+        const savedTab = localStorage.getItem(TAB_KEY);
+        if (savedTab) {
+            updateTabs(savedTab);
+        }
     });
 })();
