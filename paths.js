@@ -1,65 +1,31 @@
 const paths = {};
 const pathHandlers = {};
 
+let currentPath = "forest";
+
 function registerPath(name, data, handlers = {}) {
     paths[name] = data;
     pathHandlers[name] = handlers;
 }
 
-let currentPath = "forest";
-
-function randomEncounterTime() {
-    return 30 + Math.floor(Math.random() * 31);
+function updatePath(name = currentPath) {
+    pathHandlers[name]?.update?.();
 }
 
-function updatePath(pathName = currentPath) {
-    const handler = pathHandlers[pathName];
-
-    if (handler && typeof handler.update === "function") {
-        handler.update();
-    }
+function catchUpPathWhileAway(name) {
+    pathHandlers[name]?.catchUp?.();
 }
 
-function catchUpPathWhileAway(pathName) {
-    const handler = pathHandlers[pathName];
+function finishPath(name = currentPath) {
+    const handler = pathHandlers[name];
+    if (handler?.finish) return handler.finish();
 
-    if (handler && typeof handler.catchUp === "function") {
-        handler.catchUp();
-    }
-}
-
-function catchUpPathsWhileAway() {
-    Object.keys(pathHandlers).forEach(pathName => {
-        catchUpPathWhileAway(pathName);
-    });
-}
-
-function finishPath(pathName = currentPath) {
-    const handler = pathHandlers[pathName];
-
-    if (handler && typeof handler.finish === "function") {
-        handler.finish();
-        return;
-    }
-
-    const path = paths[pathName];
+    const path = paths[name];
     if (!path) return;
 
     path.progress = path.duration;
     path.completed = true;
     gameEnded = true;
-
-    addLog(path.name + " completed!");
+    addLog(`${path.name} completed!`);
     saveGame();
-}
-
-function updatePaths() {
-    // The Forest is independent of the village screen.
-    if (!resting && !gameEnded && paths.forest && !paths.forest.completed) {
-        updatePath("forest");
-    }
-
-    if (!resting && paths.ashHills?.active && !paths.ashHills.completed) {
-        updatePath("ashHills");
-    }
 }
