@@ -1,166 +1,182 @@
-/* Simple Utopia tab navigation */
+/* UTOPIA UI CONTROLLER
+   One system owns the main tabs. Game systems can update their data,
+   but they do not fight over which screen is visible.
+*/
 (function () {
     "use strict";
 
     const TAB_KEY = "utopiaActiveTab";
+    const SCREEN_IDS = [
+        "forestGame",
+        "storyScreen",
+        "villageScreen",
+        "villageWalkScreen",
+        "questScreen",
+        "arrivalScene",
+        "ashHillsScreen"
+    ];
 
-    function get(id) {
-        return document.getElementById(id);
-    }
+    const $ = id => document.getElementById(id);
 
-    function walking() {
-        if (typeof window.villageWalkIsActive === "function") {
-            return window.villageWalkIsActive();
-        }
+    function isWalking() {
         return !!window.village?.walk?.active;
     }
 
-    function hideAll() {
-        [
-            "forestGame",
-            "storyScreen",
-            "villageScreen",
-            "villageWalkScreen",
-            "questScreen",
-            "arrivalScene",
-            "ashHillsScreen"
-        ].forEach(id => {
-            const el = get(id);
-            if (!el) return;
-            el.classList.add("hidden");
-            el.classList.remove("walk-active");
-            el.classList.remove("walk-view-only");
-            el.style.display = "none";
+    function hideScreens() {
+        SCREEN_IDS.forEach(id => {
+            const screen = $(id);
+            if (!screen) return;
+            screen.classList.add("hidden");
+            screen.classList.remove("walk-active");
         });
     }
 
-    function updateTabs(active) {
-        const bar = get("mainTabs");
-        if (!bar) return;
+    function setActiveTab(tab) {
+        const tabs = $("mainTabs");
+        if (!tabs) return;
 
-        bar.classList.remove("hidden");
+        tabs.classList.remove("hidden");
 
-        const story = get("storyMainTab");
-        const village = get("villageMainTab");
-        const walk = get("walkMainTab");
-        const showWalk = walking() || active === "walk";
+        const story = $("storyMainTab");
+        const village = $("villageMainTab");
+        const walk = $("walkMainTab");
+        const walkVisible = isWalking();
 
-        story?.classList.toggle("active", active === "story");
-        story?.setAttribute("aria-selected", String(active === "story"));
-
-        village?.classList.toggle("active", active === "village");
-        village?.setAttribute("aria-selected", String(active === "village"));
+        story?.classList.toggle("active", tab === "story");
+        village?.classList.toggle("active", tab === "village");
+        story?.setAttribute("aria-selected", String(tab === "story"));
+        village?.setAttribute("aria-selected", String(tab === "village"));
 
         if (walk) {
-            walk.classList.toggle("active", active === "walk");
-            walk.classList.toggle("hidden", !showWalk);
-            walk.style.display = showWalk ? "" : "none";
-            walk.setAttribute("aria-selected", String(active === "walk"));
+            walk.classList.toggle("hidden", !walkVisible);
+            walk.style.display = walkVisible ? "" : "none";
+            walk.classList.toggle("active", tab === "walk");
+            walk.setAttribute("aria-selected", String(tab === "walk"));
         }
     }
 
-    function saveTab(tab) {
-        try {
-            localStorage.setItem(TAB_KEY, tab);
-        } catch (error) {
-            console.log("Could not save active tab.", error);
-        }
+    function remember(tab) {
+        try { localStorage.setItem(TAB_KEY, tab); } catch (_) {}
     }
 
     function showStory() {
-        const el = get("storyScreen");
-        if (!el) return;
-
-        hideAll();
-        el.classList.remove("hidden");
-        el.style.display = "block";
-        updateTabs("story");
-        saveTab("story");
+        if (!window.gameInitialized && !window.village?.unlocked) return;
+        hideScreens();
+        $("storyScreen")?.classList.remove("hidden");
+        setActiveTab("story");
+        remember("story");
     }
 
     function showVillage() {
-        const el = get("villageScreen");
-        if (!el) return;
-        if (window.village && !window.village.unlocked) return;
-
-        hideAll();
-        el.classList.remove("hidden");
-        el.style.display = "block";
-        el.classList.toggle("walk-view-only", walking());
-        updateTabs("village");
-        saveTab("village");
-
-        if (typeof updateVillageUI === "function") {
-            updateVillageUI();
-        }
+        if (!window.village?.unlocked) return;
+        hideScreens();
+        $("villageScreen")?.classList.remove("hidden");
+        $("villageScreen")?.classList.toggle("walk-view-only", isWalking());
+        setActiveTab("village");
+        remember("village");
+        if (typeof updateVillageUI === "function") updateVillageUI();
     }
 
     function showWalk() {
-        const el = get("villageWalkScreen");
-        if (!el || !walking()) return;
-
-        hideAll();
-        el.classList.remove("hidden");
-        el.classList.add("walk-active");
-        el.style.display = "block";
-        updateTabs("walk");
-        saveTab("walk");
-
-        if (typeof updateVillageWalkUI === "function") {
-            updateVillageWalkUI();
-        }
+        if (!isWalking()) return;
+        hideScreens();
+        const screen = $("villageWalkScreen");
+        screen?.classList.remove("hidden");
+        screen?.classList.add("walk-active");
+        setActiveTab("walk");
+        remember("walk");
+        if (typeof updateVillageWalkUI === "function") updateVillageWalkUI();
     }
 
     function showQuests() {
-        const el = get("questScreen");
-        if (!el || walking()) return;
-
-        hideAll();
-        el.classList.remove("hidden");
-        el.style.display = "flex";
-
-        if (typeof updateQuests === "function") {
-            updateQuests();
-        }
-
-        updateTabs("village");
+        if (!window.village?.unlocked || isWalking()) return;
+        hideScreens();
+        $("questScreen")?.classList.remove("hidden");
+        setActiveTab("village");
+        if (typeof updateQuests === "function") updateQuests();
     }
 
-    document.addEventListener("click", function (event) {
-        const button = event.target.closest?.("button");
-        if (!button) return;
-
-        if (button.id === "storyMainTab") {
-            event.preventDefault();
-            event.stopPropagation();
-            showStory();
+    /* Replace the old competing global screen functions. */
+    window.showVillage = showVillage;
+    window.showVillageTab = showVillage;
+    window.showVillageWalkTab = function (startWalk) {
+        if (startWalk && typeof startVillageWalk === "function" && !isWalking()) {
+            startVillageWalk();
             return;
         }
+        showWalk();
+    };
+    window.showStoryScreen = showStory;
+    window.showQuestScreen = showQuests;
 
-        if (button.id === "villageMainTab") {
-            event.preventDefault();
-            event.stopPropagation();
-            showVillage();
-            return;
+    function connectButtons() {
+        const story = $("storyMainTab");
+        const village = $("villageMainTab");
+        const walk = $("walkMainTab");
+
+        if (story) story.onclick = showStory;
+        if (village) village.onclick = showVillage;
+        if (walk) walk.onclick = showWalk;
+
+        const questButton = $("questButton");
+        if (questButton) questButton.onclick = showQuests;
+
+        const questClose = document.querySelector(".quest-close");
+        if (questClose) {
+            questClose.onclick = function () {
+                if (isWalking()) showWalk();
+                else showVillage();
+            };
         }
+    }
 
-        if (button.id === "walkMainTab") {
-            event.preventDefault();
-            event.stopPropagation();
-            showWalk();
-        }
-    }, true);
+    function addSpacingFixes() {
+        if ($("utopiaSpacingFixes")) return;
 
+        const style = document.createElement("style");
+        style.id = "utopiaSpacingFixes";
+        style.textContent = `
+            .main-tabs { gap: 12px !important; }
+            .main-tab { padding: 10px 16px !important; }
+            .village-header { gap: 28px !important; padding-bottom: 28px !important; }
+            .village-header-actions { gap: 14px !important; }
+            .village-content { gap: 26px !important; padding-top: 28px !important; }
+            .village-player-stats { margin-bottom: 22px !important; gap: 12px !important; }
+            .village-panel-title { margin-bottom: 15px !important; }
+            .village-panel + .village-panel { margin-top: 8px !important; }
+            .resource-grid { gap: 12px !important; }
+            .building-list { gap: 12px !important; }
+            .building-card { gap: 18px !important; padding: 13px !important; }
+            .buttons { gap: 12px !important; margin-top: 13px !important; }
+            .section { padding: 16px !important; }
+            .health-xp { gap: 18px !important; }
+
+            @media (max-width: 700px) {
+                .village-header { gap: 18px !important; }
+                .village-content { gap: 18px !important; }
+                .main-tabs { gap: 7px !important; }
+                .main-tab { padding: 9px 11px !important; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function init() {
+        connectButtons();
+        addSpacingFixes();
+        if (isWalking()) setActiveTab("walk");
+        else if (window.village?.unlocked) setActiveTab("village");
+    }
+
+    window.updateMainTabs = setActiveTab;
     window.__utopiaStoryTab = showStory;
     window.__utopiaVillageTab = showVillage;
     window.__utopiaWalkTab = showWalk;
     window.__utopiaQuestScreen = showQuests;
-    window.updateMainTabs = updateTabs;
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const savedTab = localStorage.getItem(TAB_KEY);
-        if (savedTab) {
-            updateTabs(savedTab);
-        }
-    });
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init, { once: true });
+    } else {
+        init();
+    }
 })();
