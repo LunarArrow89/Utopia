@@ -162,7 +162,21 @@
     function init() {
         connectTabs();
         addSpacing();
-        updateTabButtons(isWalking() ? "walk" : "village");
+
+        let savedTab = "village";
+
+        try {
+            savedTab = localStorage.getItem("utopiaActiveTab") || "village";
+        } catch (_) {}
+
+        // Restore the screen that was open when the game was closed.
+        if (savedTab === "walk" && isWalking()) {
+            showWalk();
+        } else if (savedTab === "story") {
+            showStory();
+        } else {
+            showVillage();
+        }
     }
 
     if (document.readyState === "loading") {
