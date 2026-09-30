@@ -423,9 +423,11 @@ function updateVillageUI() {
     const houseCostText = document.getElementById("houseCostText");
     const houseButton = document.getElementById("houseBuildButton");
     const houseCount = document.getElementById("houseCountText");
+    const houseCountVillage = document.getElementById("houseCountVillageText");
 
     if (houseCostText) houseCostText.textContent = houseCost.wood + " wood · " + houseCost.stone + " stone";
     if (houseCount) houseCount.textContent = village.housesBuilt;
+    if (houseCountVillage) houseCountVillage.textContent = village.housesBuilt + " built";
     if (houseButton) houseButton.disabled =
         village.resources.wood < houseCost.wood ||
         village.resources.stone < houseCost.stone;
