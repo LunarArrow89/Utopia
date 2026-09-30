@@ -36,9 +36,6 @@
         ["forestGame", "storyScreen", "villageScreen", "villageWalkScreen", "questScreen", "villageTabs", "arrivalScene", "ashHillsScreen"].forEach(id => {
             const screen = document.getElementById(id);
             if (screen) {
-                // IMPORTANT: walk-active has display:block !important in the CSS.
-                // Remove it before hiding the walk screen, otherwise the Walk
-                // screen can remain visible underneath Story or Village.
                 screen.classList.remove("walk-active");
                 screen.classList.add("hidden");
                 screen.style.display = "none";
@@ -91,6 +88,24 @@
         if (typeof updateVillageWalkUI === "function") updateVillageWalkUI();
     }
 
+    function showQuestMain() {
+        if (typeof village === "undefined" || !village.unlocked || village.walk.active) return;
+
+        const quest = document.getElementById("questScreen");
+        if (!quest) return;
+
+        hideScreens();
+        quest.classList.remove("hidden");
+        quest.classList.remove("walk-active");
+        quest.style.display = "block";
+        quest.style.removeProperty("z-index");
+
+        document.getElementById("mainTabs")?.classList.add("hidden");
+        document.getElementById("villageTabs")?.classList.add("hidden");
+
+        if (typeof updateQuests === "function") updateQuests();
+    }
+
     function restoreMainTab() {
         if (typeof gameInitialized !== "undefined" && !gameInitialized) return;
         if (typeof awakeningSeen !== "undefined" && !awakeningSeen) return;
@@ -132,6 +147,9 @@
                 if (typeof window.leaveVillageWalk === "function") window.leaveVillageWalk();
                 return;
             }
+            if (target.getAttribute("onclick")?.includes("showQuestScreen")) {
+                event.preventDefault(); event.stopImmediatePropagation(); showQuestMain(); return;
+            }
         }, true);
     }
 
@@ -151,6 +169,7 @@
     window.__utopiaStoryTab = showStory;
     window.__utopiaVillageTab = showVillageMain;
     window.__utopiaWalkTab = showWalkMain;
+    window.__utopiaQuestScreen = showQuestMain;
     window.updateMainTabs = updateMainTabs;
 
     document.addEventListener("DOMContentLoaded", () => {
