@@ -104,6 +104,21 @@
         }
     }
 
+    function showQuests() {
+        const el = get("questScreen");
+        if (!el || walking()) return;
+
+        hideAll();
+        el.classList.remove("hidden");
+        el.style.display = "flex";
+
+        if (typeof updateQuests === "function") {
+            updateQuests();
+        }
+
+        updateTabs("village");
+    }
+
     document.addEventListener("click", function (event) {
         const button = event.target.closest?.("button");
         if (!button) return;
@@ -120,15 +135,25 @@
             event.preventDefault();
             event.stopImmediatePropagation();
             showWalk();
+        } else if (button.id === "questButton") {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            showQuests();
         }
     }, true);
 
     window.__utopiaStoryTab = showStory;
     window.__utopiaVillageTab = showVillage;
     window.__utopiaWalkTab = showWalk;
+    window.__utopiaQuestScreen = showQuests;
     window.updateMainTabs = updateTabs;
 
     document.addEventListener("DOMContentLoaded", function () {
+        const questButton = get("questButton");
+        if (questButton) {
+            questButton.addEventListener("click", showQuests);
+        }
+
         setInterval(function () {
             updateTabs(localStorage.getItem(TAB_KEY) || "village");
         }, 500);
