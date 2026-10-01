@@ -1,10 +1,11 @@
-const CACHE_NAME = "utopia-offline-v25";
+const CACHE_NAME = "utopia-offline-v26";
 
 const FILES = [
     "./",
     "./index.html",
     "./style.css",
     "./player.js",
+    "./items.js",
     "./battle.js",
     "./paths.js",
     "./forestPath.js",
