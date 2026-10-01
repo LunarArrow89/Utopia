@@ -4,11 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Utopia</title>
-<link rel="stylesheet" href="./style.css?v=15">
+<link rel="stylesheet" href="./style.css?v=16">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-
 
 <div id="mainTabs" class="main-tabs hidden" role="tablist" aria-label="Main navigation">
 <button id="storyMainTab" class="main-tab" type="button" role="tab" aria-selected="false">📖 Story</button>
@@ -17,17 +16,14 @@
 </div>
 
 <div id="questStoryOverlay" class="quest-story-overlay hidden">
-    <div class="quest-story-box">
-        <div class="quest-story-kicker" id="questStoryKicker">QUEST</div>
-        <h2 id="questStoryTitle">Quest</h2>
-        <p id="questStoryText"></p>
-        <div class="quest-story-objective" id="questStoryObjective"></div>
-        <div class="quest-story-reward" id="questStoryReward"></div>
-        <div class="buttons">
-            <button type="button" onclick="closeQuestStory()">Back</button>
-            <button type="button" id="questStoryAction" class="hidden" onclick="acceptQuestFromStory()">Claim Reward</button>
-        </div>
-    </div>
+<div class="quest-story-box">
+<div class="quest-story-kicker" id="questStoryKicker">QUEST</div>
+<h2 id="questStoryTitle">Quest</h2>
+<p id="questStoryText"></p>
+<div class="quest-story-objective" id="questStoryObjective"></div>
+<div class="quest-story-reward" id="questStoryReward"></div>
+<div class="buttons"><button type="button" onclick="closeQuestStory()">Back</button><button type="button" id="questStoryAction" class="hidden" onclick="acceptQuestFromStory()">Claim Reward</button></div>
+</div>
 </div>
 
 <div id="awaySummaryOverlay" class="away-summary-overlay hidden">
@@ -47,10 +43,7 @@
 <p id="accountMessage">Sign in to save your Utopia progress online and use it on another device.</p>
 <input id="accountUsername" type="text" placeholder="Username" autocomplete="username" maxlength="20">
 <input id="accountPassword" type="password" placeholder="Password" autocomplete="current-password" minlength="6">
-<div class="buttons">
-<button id="signInButton">Sign In</button>
-<button id="signUpButton">Create Account</button>
-</div>
+<div class="buttons"><button id="signInButton">Sign In</button><button id="signUpButton">Create Account</button></div>
 <button id="signOutButton" class="hidden">Sign Out</button>
 <div id="accountStatus" class="account-status"></div>
 </div>
@@ -61,29 +54,15 @@
 <div id="storyScreen" class="story-screen hidden"><div class="story-box"><div class="story-header"><div><div class="story-kicker">YOUR STORY</div><h1>Story</h1><p>Follow your journey act by act.</p></div></div><div class="story-act"><div class="story-act-number">ACT I</div><h2>The Awakening</h2><p>You wake in a quiet, unfamiliar village. The buildings around you are worn and abandoned.</p><p>You do not remember how you got here. The village looks like it has been forgotten for a very long time.</p><p>You step outside and look around. Something tells you that this place needs you.</p><div class="story-status">Current Act</div></div><div class="story-locked"><div class="story-act-number">ACT II</div><strong>Locked</strong><span>The next part of your story has not been discovered yet.</span></div></div></div>
 
 <div id="forestGame" class="game-screen">
-<div class="game">
-<header>
-<h1>Utopia</h1>
-<p class="subtitle">A forgotten village. A story waiting to be uncovered.</p>
-</header>
-<div class="stats">
-<div class="stat"><div class="stat-label">HP</div><div class="stat-value" id="hpText">40 / 40</div></div>
-<div class="stat"><div class="stat-label">Attack</div><div class="stat-value" id="attackText">8</div></div>
-<div class="stat"><div class="stat-label">Level</div><div class="stat-value" id="levelText">1</div></div>
-<div class="stat"><div class="stat-label">Gold</div><div class="stat-value" id="goldText">0</div></div>
-<div class="stat"><div class="stat-label">Status</div><div class="stat-value" id="statusText">Walking</div></div>
-</div>
+<div class="game"><header><h1>Utopia</h1><p class="subtitle">A forgotten village. A story waiting to be uncovered.</p></header>
+<div class="stats"><div class="stat"><div class="stat-label">HP</div><div class="stat-value" id="hpText">40 / 40</div></div><div class="stat"><div class="stat-label">Attack</div><div class="stat-value" id="attackText">8</div></div><div class="stat"><div class="stat-label">Level</div><div class="stat-value" id="levelText">1</div></div><div class="stat"><div class="stat-label">Gold</div><div class="stat-value" id="goldText">0</div></div><div class="stat"><div class="stat-label">Status</div><div class="stat-value" id="statusText">Walking</div></div></div>
 <div class="game-box">
-<div id="forestScreen">
-<div class="section"><div class="section-title">🌲 Forest Journey</div><div class="bar"><div class="bar-fill" id="forestBar"></div></div><div class="bar-text" id="forestText">0:00 / 5:00</div><iframe src="animation1.html?v=2" class="forest-animation" title="Forest animation" scrolling="no"></iframe></div>
+<div id="forestScreen"><div class="section"><div class="section-title">🌲 Forest Journey</div><div class="bar"><div class="bar-fill" id="forestBar"></div></div><div class="bar-text" id="forestText">0:00 / 5:00</div><iframe src="animation1.html?v=2" class="forest-animation" title="Forest animation" scrolling="no"></iframe></div>
 <div class="section"><div class="section-title">❤️ Health & Experience</div><div class="health-xp"><div><div class="small-title">Health</div><div class="bar"><div class="bar-fill" id="hpBar"></div></div><div class="bar-text" id="hpBarText">40 / 40 HP</div></div><div><div class="small-title">Experience</div><div class="bar"><div class="bar-fill" id="xpBar"></div></div><div class="bar-text" id="xpBarText">0 / 50 XP</div></div></div></div>
-<div class="section"><div class="section-title">💤 Rest</div><div class="bar"><div class="bar-fill" id="restBar"></div></div><div class="bar-text" id="restText">Rest when you need to recover.</div><div class="buttons"><button id="restButton">Rest</button><button id="leaveButton" disabled>Leave</button></div></div>
-</div>
+<div class="section"><div class="section-title">💤 Rest</div><div class="bar"><div class="bar-fill" id="restBar"></div></div><div class="bar-text" id="restText">Rest when you need to recover.</div><div class="buttons"><button id="restButton">Rest</button><button id="leaveButton" disabled>Leave</button></div></div></div>
 <div class="section"><div class="section-title">📖 Adventure Log</div><div class="log" id="log"></div></div>
 <div class="section"><div class="section-title">⚙️ Settings</div><div class="buttons"><button id="accountButton" type="button" onclick="showAccountScreen()">Cloud Save / Account</button><button id="resetButton" type="button" onclick="resetGame()">Reset Save</button></div></div>
-</div>
-</div>
-</div>
+</div></div></div>
 
 <div id="arrivalScene" class="arrival-scene hidden"><div class="arrival-box"><div class="arrival-label">THE FOREST ENDS</div><div class="arrival-text" id="arrivalText"></div><button id="arrivalContinue" data-step="1">Continue</button></div></div>
 
@@ -93,50 +72,31 @@
 <div class="village-message village-intro"><strong>The village is yours to restore.</strong><span>Gather resources, repair important buildings, and turn this forgotten place into a home.</span></div>
 <div class="village-player-stats"><div class="stat"><div class="stat-label">HP</div><div class="stat-value" id="villageHpText">40 / 40</div></div><div class="stat"><div class="stat-label">Attack</div><div class="stat-value" id="villageAttackText">8</div></div><div class="stat"><div class="stat-label">Level</div><div class="stat-value" id="villageLevelText">1</div></div><div class="stat"><div class="stat-label">Gold</div><div class="stat-value" id="villageGoldText">0</div></div></div>
 <div class="village-panel"><div class="village-panel-title">Resources</div><div class="resource-grid"><div class="resource-card"><div class="resource-icon">🪵</div><div><div class="resource-name">Wood</div><div class="resource-value" id="woodText">0</div></div></div><div class="resource-card"><div class="resource-icon">🪨</div><div><div class="resource-name">Stone</div><div class="resource-value" id="stoneText">0</div></div></div><div class="resource-card"><div class="resource-icon">🥕</div><div><div class="resource-name">Food</div><div class="resource-value" id="foodText">0</div></div></div></div></div>
-<div class="village-panel travel-panel">
-<div class="village-panel-title">🧭 Travel</div>
-<div class="village-walk-description">Choose a path to explore outside Oakshade Village.</div>
-<button id="travelButton" type="button" onclick="showTravel()">🧭 Open Travel</button>
-</div>
-<div class="village-panel"><div class="village-panel-heading"><div class="village-panel-title">Rebuild the Village</div><div class="village-hint">Each building unlocks more of the village later.</div></div><div class="building-list"><div class="building-card" id="houseBuilding"><div><div class="building-name">🏠 House</div><div class="building-description">A home for someone in Oakshade.</div><div class="building-cost"><span id="houseCostText">20 wood · 10 stone</span></div></div><div class="building-actions"><span id="houseCountVillageText">0 built</span><button id="houseBuildButton" type="button" onclick="buildHouse()">Build</button></div></div><div class="building-card" id="campfireBuilding"><div><div class="building-name">🔥 Campfire</div><div class="building-description">A warm place to gather.</div><div class="building-cost">10 wood · 5 stone</div></div><button id="campfireBuildButton" data-build="campfire">Build</button></div><div class="building-card" id="shelterBuilding"><div><div class="building-name">🏠 Shelter</div><div class="building-description">A safe roof over the village.</div><div class="building-cost">20 wood · 10 stone</div></div><button id="shelterBuildButton" data-build="shelter">Build</button></div><div class="building-card" id="workshopBuilding"><div><div class="building-name">🛠️ Workshop</div><div class="building-description">A place for future village projects.</div><div class="building-cost">35 wood · 25 stone</div></div><button id="workshopBuildButton" data-build="workshop">Build</button></div></div></div>
+<div class="village-panel travel-panel"><div class="village-panel-title">🧭 Travel</div><div class="village-walk-description">Choose a path to explore outside Oakshade Village.</div><button id="travelButton" type="button" onclick="showTravel()">🧭 Open Travel</button></div>
+<div class="village-panel"><div class="village-panel-heading"><div class="village-panel-title">Rebuild the Village</div><div class="village-hint">Build houses at the start. Rescue the civilian to unlock the Forge.</div></div>
+<div class="building-list">
+<div class="building-card" id="houseBuilding"><div><div class="building-name">🏠 House</div><div class="building-description">A home for someone in Oakshade.</div><div class="building-cost"><span id="houseCostText">20 wood · 10 stone</span></div></div><div class="building-actions"><span id="houseCountVillageText">0 built</span><button id="houseBuildButton" type="button" onclick="buildHouse()">Build</button></div></div>
+<div class="building-card hidden" id="campfireBuilding"><div><div class="building-name">🔥 Campfire</div><div class="building-description">A warm place to gather.</div><div class="building-cost">10 wood · 5 stone</div></div><button id="campfireBuildButton" data-build="campfire">Build</button></div>
+<div class="building-card hidden" id="shelterBuilding"><div><div class="building-name">🏠 Shelter</div><div class="building-description">A safe roof over the village.</div><div class="building-cost">20 wood · 10 stone</div></div><button id="shelterBuildButton" data-build="shelter">Build</button></div>
+<div class="building-card hidden" id="workshopBuilding"><div><div class="building-name">🛠️ Workshop</div><div class="building-description">A place for future village projects.</div><div class="building-cost">35 wood · 25 stone</div></div><button id="workshopBuildButton" data-build="workshop">Build</button></div>
+<div class="building-card hidden" id="forgeBuilding"><div><div class="building-name">⚒️ Forge</div><div class="building-description">A forge unlocked after you rescue the civilian from Ash Hills.</div><div class="building-cost">50 wood · 40 stone</div></div><button id="forgeBuildButton" data-build="forge">Build</button></div>
+</div></div>
 <div class="village-footer"><div class="village-footer-actions"><button id="accountButtonVillage" type="button" onclick="showAccountScreen()">Cloud Save / Account</button><button id="villageResetButton" class="danger-button" type="button" onclick="resetGame()">Reset Game</button></div></div>
 </div></div>
-<div id="travelScreen" class="travel-screen hidden">
-<div class="travel-screen-box">
-<button id="travelBackButton" class="travel-back-button" type="button">← Back to Village</button>
-<div class="village-kicker">TRAVEL</div>
-<h1>🧭 Travel</h1>
-<p class="travel-screen-subtitle">Choose a path to explore outside Oakshade Village.</p>
-<div class="travel-options">
-    <div class="travel-option">
-        <div class="travel-option-info">
-            <strong>🌲 Whispering Woods</strong>
-            <span>Walk endlessly through the woods. Find a random resource every 15 seconds and face an enemy every 45 seconds.</span>
-        </div>
-        <button id="takeWalkButton" type="button">Enter Whispering Woods</button>
-    </div>
-    <div class="travel-option ash-hills-option">
-        <div class="travel-option-info">
-            <strong>⚠️ Ash Hills</strong>
-            <span>A dangerous 45 minute path with tougher enemies. Rescue the civilian waiting beyond the hills.</span>
-            <small class="ash-hills-requirement">Requires 2 houses and Level 3</small>
-        </div>
-        <button id="ashHillsButton" type="button" onclick="startAshHills()">Build 2 Houses First</button>
-    </div>
-</div>
-</div>
-</div>
+
+<div id="travelScreen" class="travel-screen hidden"><div class="travel-screen-box"><button id="travelBackButton" class="travel-back-button" type="button">← Back to Village</button><div class="village-kicker">TRAVEL</div><h1>🧭 Travel</h1><p class="travel-screen-subtitle">Choose a path to explore outside Oakshade Village.</p><div class="travel-options">
+<div class="travel-option"><div class="travel-option-info"><strong>🌲 Whispering Woods</strong><span>Walk endlessly through the woods. Find a random resource every 15 seconds and face an enemy every 45 seconds.</span></div><button id="takeWalkButton" type="button">Enter Whispering Woods</button></div>
+<div class="travel-option ash-hills-option"><div class="travel-option-info"><strong>⚠️ Ash Hills</strong><span>A dangerous 45 minute path with tougher enemies. Rescue the civilian waiting beyond the hills.</span><small class="ash-hills-requirement">Requires 2 houses and Level 3</small></div><button id="ashHillsButton" type="button" onclick="startAshHills()">Build 2 Houses First</button></div>
+</div></div></div>
 <div id="villageTabs" class="village-tabs hidden" aria-hidden="true"></div>
 
-<div id="questScreen" class="quest-screen hidden"><div class="quest-screen-box"><button class="quest-close" type="button" onclick="hideQuestScreen()">×</button><div class="village-kicker">UTOPIA QUESTS</div><h1>📜 Quests</h1><p class="quest-screen-subtitle">Complete goals to earn gold.</p><div class="quest-list"><div class="quest-card" id="questVillage"><div><strong>Get to Village</strong><span>Reach Oakshade Village.</span></div><div><small id="questVillageReward">Reward: 6 Gold</small><button type="button" onclick="openQuestStory('getToVillage')">Read Story</button></div></div><div class="quest-card" id="questHouses"><div><strong>Make Two Houses</strong><span>Build 2 houses. <b><span id="houseCountText">0</span>/2</b></span></div><div><small id="questHousesReward">Reward: 15 Gold</small><button type="button" onclick="openQuestStory('makeTwoHouses')">Read Story</button></div></div></div><div class="quest-card hidden" id="questAshLevel"><div><strong>Prepare for Ash Hills</strong><span>Reach level 3 after rebuilding two houses.</span></div><div><small id="questAshLevelReward">Reward: 25 Gold</small><button type="button" onclick="openQuestStory('reachAshLevel')">Read Story</button></div></div><div class="quest-card hidden" id="questRescue"><div><strong>Rescue the Civilian</strong><span>Complete Ash Hills and bring the civilian home.</span></div><div><small id="questRescueReward">Reward: 50 Gold</small><button type="button" onclick="openQuestStory('rescueCivilian')">Read Story</button></div></div></div></div></div>
+<div id="questScreen" class="quest-screen hidden"><div class="quest-screen-box"><button class="quest-close" type="button" onclick="hideQuestScreen()">×</button><div class="village-kicker">UTOPIA QUESTS</div><h1>📜 Quests</h1><p class="quest-screen-subtitle">Complete goals to earn gold.</p><div class="quest-list"><div class="quest-card" id="questVillage"><div><strong>Get to Village</strong><span>Reach Oakshade Village.</span></div><div><small id="questVillageReward">Reward: 6 Gold</small><button type="button" onclick="openQuestStory('getToVillage')">Read Story</button></div></div><div class="quest-card" id="questHouses"><div><strong>Make Two Houses</strong><span>Build 2 houses. <b><span id="houseCountText">0</span>/2</b></span></div><div><small id="questHousesReward">Reward: 15 Gold</small><button type="button" onclick="openQuestStory('makeTwoHouses')">Read Story</button></div></div></div><div class="quest-card hidden" id="questAshLevel"><div><strong>Prepare for Ash Hills</strong><span>Reach level 3 after rebuilding two houses.</span></div><div><small id="questAshLevelReward">Reward: 25 Gold</small><button type="button" onclick="openQuestStory('reachAshLevel')">Read Story</button></div></div><div class="quest-card hidden" id="questRescue"><div><strong>Rescue the Civilian</strong><span>Complete Ash Hills and bring the civilian home.</span></div><div><small id="questRescueReward">Reward: 50 Gold</small><button type="button" onclick="openQuestStory('rescueCivilian')">Read Story</button></div></div></div></div>
 
-<iframe id="ashHillsCutscene" class="ash-cutscene-frame hidden" src="ashHillsCutscene.html?v=1" title="Ash Hills cutscene" aria-hidden="true"></iframe>
+<iframe id="ashHillsCutscene" class="ash-cutscene-frame hidden" src="ashHillsCutscene.html?v=2" title="Ash Hills cutscene" aria-hidden="true"></iframe>
 
-<div id="ashHillsScreen" class="walk-screen hidden" data-walk-theme="ash">
-<div class="walk-box"><div class="walk-header"><div class="village-kicker">DANGEROUS PATH</div><h1>🌋 Ash Hills</h1><p>Push through the burned hills for 45 minutes. Tough enemies guard the path.</p></div><div class="walk-stats"><div><span>HP</span><strong id="ashHillsHpText">40 / 40</strong></div><div><span>Attack</span><strong id="ashHillsAttackText">8</strong></div><div><span>Level</span><strong id="ashHillsLevelText">1</strong></div><div><span>Gold</span><strong id="ashHillsGoldText">0</strong></div></div><div class="walk-section"><iframe src="animationAsh.html?v=1" class="forest-animation ash-hills-animation" title="Ash Hills animation" scrolling="no"></iframe></div><div class="walk-section"><div class="walk-title">🌋 Walk Progress</div><div class="bar"><div class="bar-fill" id="ashHillsBar"></div></div><div class="bar-text" id="ashHillsText">45:00 remaining</div></div><div class="walk-section"><div class="walk-title">❤️ Health & Experience</div><div class="health-xp"><div><div class="small-title">Health</div><div class="bar"><div class="bar-fill" id="ashHillsHpBar"></div></div><div class="bar-text" id="ashHillsHpBarText">40 / 40 HP</div></div><div><div class="small-title">Experience</div><div class="bar"><div class="bar-fill" id="ashHillsXpBar"></div></div><div class="bar-text" id="ashHillsXpText">0 / 50 XP</div></div></div></div><div class="walk-section"><div class="walk-title">💤 Rest</div><div class="bar"><div class="bar-fill" id="ashHillsRestBar"></div></div><div class="bar-text" id="ashHillsRestText">Rest when you need to recover.</div><div class="buttons"><button type="button" onclick="startRest(false)">Rest</button></div></div><div class="walk-section"><div class="walk-title">📖 Adventure Log</div><div class="log" id="ashHillsLog"></div></div><div class="buttons"><button id="ashHillsReturnButton" type="button" onclick="returnToVillageFromAshHills()">Return to Village</button></div></div></div>
+<div id="ashHillsScreen" class="walk-screen hidden" data-walk-theme="ash"><div class="walk-box"><div class="walk-header"><div class="village-kicker">DANGEROUS PATH</div><h1>🌋 Ash Hills</h1><p>Push through the burned hills for 45 minutes. Tough enemies guard the path.</p></div><div class="walk-stats"><div><span>HP</span><strong id="ashHillsHpText">40 / 40</strong></div><div><span>Attack</span><strong id="ashHillsAttackText">8</strong></div><div><span>Level</span><strong id="ashHillsLevelText">1</strong></div><div><span>Gold</span><strong id="ashHillsGoldText">0</strong></div></div><div class="walk-section"><iframe src="animationAsh.html?v=1" class="forest-animation ash-hills-animation" title="Ash Hills animation" scrolling="no"></iframe></div><div class="walk-section"><div class="walk-title">🌋 Walk Progress</div><div class="bar"><div class="bar-fill" id="ashHillsBar"></div></div><div class="bar-text" id="ashHillsText">45:00 remaining</div></div><div class="walk-section"><div class="walk-title">❤️ Health & Experience</div><div class="health-xp"><div><div class="small-title">Health</div><div class="bar"><div class="bar-fill" id="ashHillsHpBar"></div></div><div class="bar-text" id="ashHillsHpBarText">40 / 40 HP</div></div><div><div class="small-title">Experience</div><div class="bar"><div class="bar-fill" id="ashHillsXpBar"></div></div><div class="bar-text" id="ashHillsXpText">0 / 50 XP</div></div></div></div><div class="walk-section"><div class="walk-title">💤 Rest</div><div class="bar"><div class="bar-fill" id="ashHillsRestBar"></div></div><div class="bar-text" id="ashHillsRestText">Rest when you need to recover.</div><div class="buttons"><button type="button" onclick="startRest(false)">Rest</button></div></div><div class="walk-section"><div class="walk-title">📖 Adventure Log</div><div class="log" id="ashHillsLog"></div></div><div class="buttons"><button id="ashHillsReturnButton" type="button" onclick="returnToVillageFromAshHills()">Return to Village</button></div></div></div>
 
-<div id="villageWalkScreen" class="walk-screen hidden" data-walk-theme="village">
-<div class="walk-box"><div class="walk-header"><div class="village-kicker">EXPLORING THE WILDS</div><h1>Whispering Woods</h1><p>An endless walk through the woods. Find resources every 15 seconds and fight an enemy every 45 seconds.</p></div><div class="walk-stats"><div><span>HP</span><strong id="villageWalkHpText">40 / 40</strong></div><div><span>Attack</span><strong id="villageWalkAttackText">8</strong></div><div><span>Level</span><strong id="villageWalkLevelText">1</strong></div><div><span>Gold</span><strong id="villageWalkGoldText">0</strong></div></div><div class="walk-section"><div class="walk-title">🌿 Resources</div><div class="walk-stats"><div><span>🪵 Wood</span><strong id="villageWalkWoodText">0</strong></div><div><span>🪨 Stone</span><strong id="villageWalkStoneText">0</strong></div><div><span>🍎 Food</span><strong id="villageWalkFoodText">0</strong></div></div></div><div class="walk-section"><div class="walk-title">🌲 Time on the Trail</div><div class="bar-text" id="villageWalkText">0m 0s</div></div><div class="walk-section"><div class="walk-title">❤️ Health & Experience</div><div class="health-xp"><div><div class="small-title">Health</div><div class="bar"><div class="bar-fill" id="villageWalkHpBar"></div></div><div class="bar-text" id="villageWalkHpBarText">40 / 40 HP</div></div><div><div class="small-title">Experience</div><div class="bar"><div class="bar-fill" id="villageWalkXpBar"></div></div><div class="bar-text" id="villageWalkXpText">0 / 50 XP</div></div></div></div><div class="walk-section"><div class="walk-title">💤 Rest</div><div class="bar"><div class="bar-fill" id="villageWalkRestBar"></div></div><div class="bar-text" id="villageWalkRestText">Rest if you are defeated.</div></div><div class="walk-section"><div class="walk-title">📖 Adventure Log</div><div class="log" id="villageWalkLog"></div></div><div class="buttons"><button id="leaveVillageWalkButton">Leave Walk</button></div></div></div>
+<div id="villageWalkScreen" class="walk-screen hidden" data-walk-theme="village"><div class="walk-box"><div class="walk-header"><div class="village-kicker">EXPLORING THE WILDS</div><h1>Whispering Woods</h1><p>An endless walk through the woods. Find resources every 15 seconds and fight an enemy every 45 seconds.</p></div><div class="walk-stats"><div><span>HP</span><strong id="villageWalkHpText">40 / 40</strong></div><div><span>Attack</span><strong id="villageWalkAttackText">8</strong></div><div><span>Level</span><strong id="villageWalkLevelText">1</strong></div><div><span>Gold</span><strong id="villageWalkGoldText">0</strong></div></div><div class="walk-section"><div class="walk-title">🌿 Resources</div><div class="walk-stats"><div><span>🪵 Wood</span><strong id="villageWalkWoodText">0</strong></div><div><span>🪨 Stone</span><strong id="villageWalkStoneText">0</strong></div><div><span>🍎 Food</span><strong id="villageWalkFoodText">0</strong></div></div></div><div class="walk-section"><div class="walk-title">🌲 Time on the Trail</div><div class="bar-text" id="villageWalkText">0m 0s</div></div><div class="walk-section"><div class="walk-title">❤️ Health & Experience</div><div class="health-xp"><div><div class="small-title">Health</div><div class="bar"><div class="bar-fill" id="villageWalkHpBar"></div></div><div class="bar-text" id="villageWalkHpBarText">40 / 40 HP</div></div><div><div class="small-title">Experience</div><div class="bar"><div class="bar-fill" id="villageWalkXpBar"></div></div><div class="bar-text" id="villageWalkXpText">0 / 50 XP</div></div></div></div><div class="walk-section"><div class="walk-title">💤 Rest</div><div class="bar"><div class="bar-fill" id="villageWalkRestBar"></div></div><div class="bar-text" id="villageWalkRestText">Rest if you are defeated.</div></div><div class="walk-section"><div class="walk-title">📖 Adventure Log</div><div class="log" id="villageWalkLog"></div></div><div class="buttons"><button id="leaveVillageWalkButton">Leave Walk</button></div></div></div>
 
 <script src="player.js?v=7"></script>
 <script src="battle.js"></script>
@@ -144,16 +104,14 @@
 <script src="forestPath.js?v=4"></script>
 <script src="crystalCavePath.js"></script>
 <script src="ashHillsPath.js?v=2"></script>
-<script src="village.js?v=7"></script>
-<script src="save.js?v=11"></script>
+<script src="village.js?v=8"></script>
+<script src="save.js?v=12"></script>
 <script src="game.js?v=11"></script>
 <script src="ashHillsCutscene.js?v=1"></script>
 <script src="uiFixes.js?v=13"></script>
 <script>
 if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).catch(error => console.log("Offline support could not be registered.", error));
-    });
+window.addEventListener("load",()=>{navigator.serviceWorker.register("./sw.js",{updateViaCache:"none"}).catch(error=>console.log("Offline support could not be registered.",error));});
 }
 </script>
 </body>
