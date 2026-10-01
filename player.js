@@ -5,7 +5,9 @@ const player = {
     level: 1,
     xp: 0,
     xpToNext: 150,
-    gold: 0
+    gold: 0,
+    equipmentAttackBonus: 0,
+    equipmentMaxHpBonus: 0
 };
 
 let resting = false;
@@ -316,6 +318,9 @@ async function resetGame() {
         player.xp = 0;
         player.xpToNext = 150;
         player.gold = 0;
+        player.equipmentAttackBonus = 0;
+        player.equipmentMaxHpBonus = 0;
+        if (typeof resetItems === "function") resetItems();
 
         resting = false;
         restForced = false;
