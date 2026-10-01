@@ -24,62 +24,68 @@ body {
     width: min(900px, 96vw);
     height: min(500px, 78vh);
     overflow: hidden;
-    background:
-        linear-gradient(to bottom, #03040a 0%, #080b14 58%, #121620 100%);
+    background: linear-gradient(to bottom, #03040a 0%, #080b14 58%, #121620 100%);
 }
+
+/* Endless moving Ash Hills. The characters stay safely inside the scene. */
 .scene::before {
     content: "";
     position: absolute;
-    left: -10%;
+    left: -100%;
     bottom: 18%;
-    width: 120%;
+    width: 300%;
     height: 55%;
-    background:
-        linear-gradient(135deg, transparent 0 12%, #59616b 12.2% 12.8%, transparent 13% 25%, #454d58 25.2% 26%, transparent 26.2% 40%, #5f6872 40.2% 41%, transparent 41.2%),
-        #303740;
-    clip-path: polygon(0 100%, 0 72%, 10% 50%, 18% 66%, 28% 38%, 38% 62%, 48% 32%, 58% 65%, 69% 42%, 79% 68%, 89% 35%, 100% 60%, 100% 100%);
-    animation: hillsBack 7s linear infinite;
+    background: #4b535e;
+    clip-path: polygon(0 100%, 0 72%, 6% 50%, 12% 66%, 18% 38%, 24% 62%, 30% 32%, 36% 65%, 43% 42%, 50% 68%, 57% 35%, 64% 60%, 71% 40%, 78% 67%, 85% 32%, 92% 61%, 100% 43%, 100% 100%);
+    animation: endlessHillsBack 9s linear infinite;
     opacity: .85;
 }
 .scene::after {
     content: "";
     position: absolute;
-    left: -10%;
+    left: -100%;
     bottom: 0;
-    width: 120%;
-    height: 30%;
-    background: #1d232b;
-    clip-path: polygon(0 100%, 0 45%, 12% 30%, 24% 55%, 37% 20%, 50% 50%, 64% 25%, 77% 55%, 89% 18%, 100% 48%, 100% 100%);
-    animation: hillsFront 3.5s linear infinite;
+    width: 300%;
+    height: 31%;
+    background: #20262f;
+    clip-path: polygon(0 100%, 0 45%, 6% 30%, 12% 55%, 18% 20%, 25% 50%, 32% 25%, 39% 55%, 46% 18%, 53% 48%, 60% 28%, 67% 55%, 74% 20%, 82% 48%, 90% 18%, 100% 48%, 100% 100%);
+    animation: endlessHillsFront 4.5s linear infinite;
 }
+
 .runner {
     position: absolute;
-    top: 50%;
+    top: 52%;
     width: 52px;
     height: 52px;
     border-radius: 5px;
-    transform: translateY(-50%);
     z-index: 5;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
 }
-.runner { animation-timing-function: linear; }
+
+/* Both runners face left. They stay around the middle instead of reaching an edge. */
 .blue {
-    left: 18%;
+    left: 43%;
     color: #168cff;
     background: #168cff;
     border: 3px solid #65c3ff;
     box-shadow: 0 0 12px #168cff, 0 0 30px #168cff, 0 0 60px rgba(22,140,255,.65);
-    animation: runBlue 3.4s linear infinite;
+    transform: translateY(-50%) scaleX(-1);
+    animation: blueRun 0.55s ease-in-out infinite alternate;
 }
 .orange {
-    left: 30%;
-    color: #ff7a18;
+    left: 50%;
     width: 44px;
     height: 44px;
+    color: #ff7a18;
     background: #ff7a18;
     border: 3px solid #ffb15c;
     box-shadow: 0 0 12px #ff6a00, 0 0 30px #ff6a00, 0 0 55px rgba(255,106,0,.6);
-    animation: runOrange 3.4s linear infinite;
+    transform: translateY(-50%) scaleX(-1);
+    animation: orangeRun 0.55s ease-in-out infinite alternate;
 }
+
+/* Red triangles stay behind the runners and also face left. */
 .triangle {
     position: absolute;
     top: 50%;
@@ -90,35 +96,16 @@ body {
     border-left: 34px solid #ff2525;
     filter: drop-shadow(0 0 8px #ff2020) drop-shadow(0 0 20px rgba(255,0,0,.7));
     z-index: 4;
+    transform: scaleX(-1);
 }
-.t1 { left: 3%; animation: chase 3.4s linear infinite; }
-.t2 { left: 0%; top: 43%; animation: chase 3.7s linear infinite .15s; }
-.t3 { left: 7%; top: 57%; animation: chase 3.1s linear infinite .3s; }
-.t4 { left: -4%; top: 35%; animation: chase 4s linear infinite .45s; }
-.t5 { left: -5%; top: 65%; animation: chase 3.5s linear infinite .6s; }
-.t6 { left: 11%; top: 32%; animation: chase 3.8s linear infinite .75s; }
-.t7 { left: 10%; top: 68%; animation: chase 3.3s linear infinite .9s; }
+.t1 { left: 31%; top: 50%; animation: redRun1 .7s ease-in-out infinite alternate; }
+.t2 { left: 24%; top: 43%; animation: redRun2 .62s ease-in-out infinite alternate; }
+.t3 { left: 28%; top: 57%; animation: redRun3 .66s ease-in-out infinite alternate; }
+.t4 { left: 20%; top: 37%; animation: redRun1 .8s ease-in-out infinite alternate-reverse; }
+.t5 { left: 22%; top: 65%; animation: redRun2 .72s ease-in-out infinite alternate-reverse; }
+.t6 { left: 34%; top: 32%; animation: redRun3 .75s ease-in-out infinite alternate; }
+.t7 { left: 33%; top: 68%; animation: redRun1 .68s ease-in-out infinite alternate-reverse; }
 
-@keyframes runBlue {
-    0% { left: 16%; transform: translateY(-50%) translateY(0); }
-    25% { transform: translateY(-50%) translateY(-7px); }
-    50% { transform: translateY(-50%) translateY(0); }
-    75% { transform: translateY(-50%) translateY(-7px); }
-    100% { left: 82%; transform: translateY(-50%) translateY(0); }
-}
-@keyframes runOrange {
-    0% { left: 28%; transform: translateY(-50%) translateY(0); }
-    25% { transform: translateY(-50%) translateY(-7px); }
-    50% { transform: translateY(-50%) translateY(0); }
-    75% { transform: translateY(-50%) translateY(-7px); }
-    100% { left: 88%; transform: translateY(-50%) translateY(0); }
-}
-@keyframes hillsBack { from { transform: translateX(0); } to { transform: translateX(-12%); } }
-@keyframes hillsFront { from { transform: translateX(0); } to { transform: translateX(-22%); } }
-@keyframes runOrange {
-    0% { left: 28%; }
-    100% { left: 88%; }
-}
 .triangle::after {
     content: "";
     position: absolute;
@@ -131,12 +118,73 @@ body {
     box-shadow: 0 0 8px #ff2525;
     animation: sparks .18s linear infinite alternate;
 }
-@keyframes sparks { from { opacity: .3; transform: translateX(0); } to { opacity: 1; transform: translateX(-12px); } }
-@keyframes chase {
-    0% { left: -8%; }
-    100% { left: 72%; }
+
+/* Small vertical bounces make the squares and triangles look like they are running. */
+@keyframes blueRun {
+    from { transform: translateY(-50%) translateY(5px) scaleX(-1); }
+    to   { transform: translateY(-50%) translateY(-7px) scaleX(-1); }
 }
-button { position:absolute; left:50%; bottom:18px; transform:translateX(-50%); z-index:10; padding:10px 28px; border:1px solid #38a9ff; border-radius:10px; background:#0b1020; color:white; font-size:16px; cursor:pointer; box-shadow:0 0 14px rgba(56,169,255,.5); }\n .complete { position: absolute; top: 7vh; left: 50%; transform: translateX(-50%); z-index: 20; color: #fff; font-family: "Courier New", monospace; font-weight: 900; font-size: clamp(30px, 7vw, 64px); letter-spacing: 6px; text-shadow: 3px 0 #38a9ff, -3px 0 #ff3030, 0 0 14px rgba(255,255,255,.7); image-rendering: pixelated; }\n</style>
+@keyframes orangeRun {
+    from { transform: translateY(-50%) translateY(6px) scaleX(-1); }
+    to   { transform: translateY(-50%) translateY(-6px) scaleX(-1); }
+}
+@keyframes redRun1 {
+    from { transform: translateY(6px) scaleX(-1); }
+    to   { transform: translateY(-8px) scaleX(-1); }
+}
+@keyframes redRun2 {
+    from { transform: translateY(-4px) scaleX(-1); }
+    to   { transform: translateY(9px) scaleX(-1); }
+}
+@keyframes redRun3 {
+    from { transform: translateY(8px) scaleX(-1); }
+    to   { transform: translateY(-6px) scaleX(-1); }
+}
+
+/* The world moves left forever, making the runners appear to run forward. */
+@keyframes endlessHillsBack {
+    from { transform: translateX(0); }
+    to { transform: translateX(33.333%); }
+}
+@keyframes endlessHillsFront {
+    from { transform: translateX(0); }
+    to { transform: translateX(33.333%); }
+}
+@keyframes sparks {
+    from { opacity: .3; transform: translateX(0); }
+    to { opacity: 1; transform: translateX(-12px); }
+}
+
+button {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    z-index: 10;
+    padding: 10px 28px;
+    border: 1px solid #38a9ff;
+    border-radius: 10px;
+    background: #0b1020;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 0 14px rgba(56,169,255,.5);
+}
+.complete {
+    position: absolute;
+    top: 7vh;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    color: #fff;
+    font-family: "Courier New", monospace;
+    font-weight: 900;
+    font-size: clamp(30px, 7vw, 64px);
+    letter-spacing: 6px;
+    text-shadow: 3px 0 #38a9ff, -3px 0 #ff3030, 0 0 14px rgba(255,255,255,.7);
+    image-rendering: pixelated;
+}
+</style>
 </head>
 <body>
 <div class="complete">COMPLETE</div>
@@ -148,7 +196,6 @@ button { position:absolute; left:50%; bottom:18px; transform:translateX(-50%); z
     <div class="triangle t5"></div>
     <div class="triangle t6"></div>
     <div class="triangle t7"></div>
-
     <div class="runner blue"></div>
     <div class="runner orange"></div>
 </div>
