@@ -856,3 +856,27 @@ function acceptQuestFromStory() {
     claimQuest(openQuestStoryId);
     openQuestStory(openQuestStoryId);
 }
+
+
+function connectVillageWalkButton() {
+    const button = document.getElementById("takeWalkButton");
+    if (!button || button.dataset.walkConnected === "true") return;
+
+    button.dataset.walkConnected = "true";
+    button.disabled = false;
+    button.onclick = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        startVillageWalk();
+    };
+}
+
+window.startVillageWalk = startVillageWalk;
+window.showVillageWalkTab = showVillageWalkTab;
+window.leaveVillageWalk = leaveVillageWalk;
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", connectVillageWalkButton, { once: true });
+} else {
+    connectVillageWalkButton();
+}
