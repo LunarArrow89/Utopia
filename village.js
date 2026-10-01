@@ -58,27 +58,6 @@ function showArrivalScene() {
     scene.classList.remove("hidden");
 }
 
-function showArrivalScene() {
-    // The arrival scene is a real pause screen. Nothing should progress
-    // while the player is reading it.
-    gameEnded = true;
-    setVillageTabsVisible(false);
-    const scene = document.getElementById("arrivalScene");
-    const forestGame = document.getElementById("forestGame");
-    const text = document.getElementById("arrivalText");
-    const button = document.getElementById("arrivalContinue");
-
-    if (!scene || !text || !button) return;
-
-    if (forestGame) forestGame.classList.add("hidden");
-
-    text.textContent = "You leave the forest behind...";
-    button.textContent = "Continue";
-    button.dataset.step = "1";
-
-    scene.classList.remove("hidden");
-}
-
 function nextArrivalLine() {
     const text = document.getElementById("arrivalText");
     const button = document.getElementById("arrivalContinue");
@@ -439,7 +418,7 @@ function updateVillageUI() {
     // 2 houses built AND Level 3 reached.
     const ashHillsUnlocked =
         village.housesBuilt >= 2 &&
-        player.level >= paths.ashHills.levelRequirement;
+        player.level >= 3;
 
     if (ashPanel) {
         ashPanel.classList.toggle("hidden", !ashHillsUnlocked);
