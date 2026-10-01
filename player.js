@@ -309,6 +309,7 @@ async function resetGame() {
             clearInterval(villageWalkTimer);
             villageWalkTimer = null;
         }
+        try { localStorage.removeItem("utopiaWalkActive"); } catch (error) {}
 
         // Completely rebuild the player state.
         player.hp = 40;
@@ -367,6 +368,7 @@ async function resetGame() {
         document.getElementById("forestScreen")?.classList.remove("hidden");
         document.getElementById("villageScreen")?.classList.add("hidden");
         document.getElementById("villageWalkScreen")?.classList.add("hidden");
+        document.getElementById("travelScreen")?.classList.add("hidden");
         document.getElementById("questScreen")?.classList.add("hidden");
         document.getElementById("ashHillsScreen")?.classList.add("hidden");
         document.getElementById("arrivalScene")?.classList.add("hidden");
