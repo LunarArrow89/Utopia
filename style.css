@@ -3244,131 +3244,16 @@ body {
    Blue shapes protect the orange shapes while red triangles chase.
    No text is used for the story itself.
    ========================================================== */
-.ash-cutscene {
+.ash-cutscene-frame {
     position: fixed;
     inset: 0;
     z-index: 60000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    overflow: hidden;
-    background:
-        radial-gradient(circle at 50% 50%, #111b35 0%, #050711 48%, #010207 100%);
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: #010207;
 }
-.ash-cutscene.hidden {
+.ash-cutscene-frame.hidden {
     display: none !important;
 }
-.ash-cutscene-stage {
-    position: relative;
-    width: min(390px, 90vw);
-    height: min(520px, 72vh);
-    overflow: hidden;
-}
-.ash-blue,
-.ash-orange,
-.ash-chaser {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform-origin: center;
-}
-.ash-blue {
-    width: 38px;
-    height: 38px;
-    border: 3px solid #38a9ff;
-    background: rgba(30, 120, 255, .14);
-    box-shadow: 0 0 12px #168cff, 0 0 28px rgba(22,140,255,.7);
-}
-.ash-blue-one {
-    animation: ashBlueOne 6s linear infinite;
-}
-.ash-blue-two {
-    width: 27px;
-    height: 27px;
-    border-radius: 50%;
-    animation: ashBlueTwo 6s linear infinite;
-}
-.ash-blue-three {
-    width: 20px;
-    height: 20px;
-    transform: rotate(45deg);
-    animation: ashBlueThree 6s linear infinite;
-}
-.ash-orange {
-    width: 26px;
-    height: 26px;
-    background: #ff8a22;
-    box-shadow: 0 0 12px #ff6a00, 0 0 28px rgba(255,106,0,.75);
-}
-.ash-orange-one {
-    animation: ashOrangeOne 6s linear infinite;
-}
-.ash-orange-two {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    animation: ashOrangeTwo 6s linear infinite;
-}
-.ash-chaser {
-    width: 0;
-    height: 0;
-    border-top: 15px solid transparent;
-    border-bottom: 15px solid transparent;
-    border-left: 27px solid #ff3030;
-    filter: drop-shadow(0 0 9px #ff2020) drop-shadow(0 0 20px rgba(255,0,0,.65));
-}
-.ash-red-one { animation: ashRedOne 3.2s linear infinite; }
-.ash-red-two { animation: ashRedTwo 3.8s linear infinite; }
-.ash-red-three { animation: ashRedThree 4.4s linear infinite; }
 
-#ashCutsceneContinue {
-    width: min(260px, 80vw);
-    flex: 0 0 auto;
-    margin-top: 10px;
-    border-color: #328cff;
-    background: #111a2e;
-    box-shadow: 0 0 14px rgba(30,140,255,.25);
-}
-
-@keyframes ashBlueOne {
-    0%,100% { transform: translate(-150px,-100px) rotate(0deg); }
-    25% { transform: translate(40px,-155px) rotate(90deg); }
-    50% { transform: translate(145px,10px) rotate(180deg); }
-    75% { transform: translate(-20px,145px) rotate(270deg); }
-}
-@keyframes ashBlueTwo {
-    0%,100% { transform: translate(130px,-100px); }
-    25% { transform: translate(-10px,-155px); }
-    50% { transform: translate(-145px,15px); }
-    75% { transform: translate(25px,145px); }
-}
-@keyframes ashBlueThree {
-    0%,100% { transform: translate(-75px,125px) rotate(45deg); }
-    50% { transform: translate(105px,-125px) rotate(225deg); }
-}
-@keyframes ashOrangeOne {
-    0%,100% { transform: translate(-100px,-25px); }
-    25% { transform: translate(5px,-80px); }
-    50% { transform: translate(100px,0); }
-    75% { transform: translate(0,80px); }
-}
-@keyframes ashOrangeTwo {
-    0%,100% { transform: translate(75px,40px); }
-    50% { transform: translate(-75px,-40px); }
-}
-@keyframes ashRedOne {
-    0% { transform: translate(185px,-210px) rotate(145deg); }
-    50% { transform: translate(-155px,15px) rotate(325deg); }
-    100% { transform: translate(185px,190px) rotate(505deg); }
-}
-@keyframes ashRedTwo {
-    0% { transform: translate(-190px,190px) rotate(-45deg); }
-    50% { transform: translate(145px,40px) rotate(135deg); }
-    100% { transform: translate(-190px,-190px) rotate(315deg); }
-}
-@keyframes ashRedThree {
-    0% { transform: translate(0,235px) rotate(-90deg); }
-    50% { transform: translate(-170px,-80px) rotate(90deg); }
-    100% { transform: translate(175px,-220px) rotate(270deg); }
-}
