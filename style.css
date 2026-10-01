@@ -3281,3 +3281,12 @@ body {
 .item-rarity-uncommon{color:#8ed19a}
 .item-rarity-rare{color:#78aee8}
 .item-rarity-epic{color:#c39bea}
+
+
+/* Keep inline quest counters such as 0/2 together. */
+#houseCountText {
+    display: inline !important;
+    margin: 0 !important;
+    color: inherit !important;
+    font-size: inherit !important;
+}
