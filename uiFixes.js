@@ -9,6 +9,7 @@
         "forestGame",
         "storyScreen",
         "villageScreen",
+        "travelScreen",
         "villageWalkScreen",
         "questScreen",
         "arrivalScene",
@@ -87,6 +88,12 @@
         if (typeof updateVillageUI === "function") updateVillageUI();
     }
 
+function showTravel() {
+        if (typeof village !== "undefined" && !village.unlocked) return;
+        showScreen("travelScreen", "village");
+        if (typeof updateVillageUI === "function") updateVillageUI();
+    }
+
     function showWalk() {
         if (!isWalking()) return;
         showScreen("villageWalkScreen", "walk");
@@ -103,7 +110,7 @@
         const village = $("villageMainTab");
         const walk = $("walkMainTab");
         const travel = $("travelButton");
-        const travelOptions = $("travelOptions");
+        const travelBack = $("travelBackButton");
 
         if (story) {
             story.onclick = function (event) {
@@ -112,13 +119,17 @@
             };
         }
 
-        if (travel && travelOptions) {
+        if (travel) {
             travel.onclick = function (event) {
                 event.preventDefault();
-                const isOpen = !travelOptions.classList.contains("hidden");
-                travelOptions.classList.toggle("hidden", isOpen);
-                travel.setAttribute("aria-expanded", String(!isOpen));
-                travel.textContent = isOpen ? "🧭 Travel" : "✕ Close Travel";
+                showTravel();
+            };
+        }
+
+        if (travelBack) {
+            travelBack.onclick = function (event) {
+                event.preventDefault();
+                showVillage();
             };
         }
 
@@ -142,6 +153,7 @@
 
     window.showStoryScreen = showStory;
     window.showVillage = showVillage;
+    window.showTravel = showTravel;
     window.showVillageTab = showVillage;
     window.showVillageWalkTab = showWalk;
     window.showQuestScreen = showQuests;
@@ -168,7 +180,30 @@
                 gap: 14px;
                 margin-top: 16px;
             }
-            .travel-options.hidden { display: none !important; }
+            .travel-screen {
+                min-height: 100vh;
+                padding: 28px 18px 40px;
+            }
+            .travel-screen-box {
+                width: min(900px, 100%);
+                margin: 0 auto;
+                padding: 28px;
+                border-radius: 20px;
+                background: rgba(0,0,0,.18);
+            }
+            .travel-screen-box h1 {
+                margin: 8px 0 6px;
+            }
+            .travel-screen-subtitle {
+                margin: 0 0 24px;
+                opacity: .82;
+            }
+            .travel-back-button {
+                margin-bottom: 18px;
+            }
+            .travel-screen .travel-options {
+                margin-top: 0;
+            }
             .travel-option {
                 display: flex;
                 align-items: center;
@@ -219,6 +254,8 @@
             showWalk();
         } else if (savedTab === "story") {
             showStory();
+        } else if (savedTab === "travel") {
+            showTravel();
         } else {
             showVillage();
         }
