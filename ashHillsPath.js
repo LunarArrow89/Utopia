@@ -220,6 +220,10 @@ function finishAshHills() {
     currentPath = "forest";
     gameEnded = true;
 
+    // Pause the game on the visual rescue sequence. It is intentionally
+    // silent: the animation tells the story with shapes and motion.
+    ashHillsCutsceneSeen = false;
+
     addLog("Ash Hills completed!");
     addLog("You found a civilian trapped beyond the hills.");
     addLog("You rescued the civilian and brought them safely back to Oakshade Village.");
@@ -227,15 +231,15 @@ function finishAshHills() {
     village.quests.rescueCivilian.completed = true;
 
     document.getElementById("ashHillsScreen")?.classList.add("hidden");
-
-    if (village.unlocked) {
-        showVillage();
-        addVillageLog("You returned with a rescued civilian from Ash Hills.");
-    }
-
     updateQuests();
     updateAshHillsUI();
     saveGame();
+
+    if (typeof showAshHillsCutscene === "function") {
+        showAshHillsCutscene();
+    } else if (village.unlocked) {
+        showVillage();
+    }
 }
 
 function updateAshHillsUI() {
@@ -251,7 +255,17 @@ function updateAshHillsUI() {
     const goldText = document.getElementById("ashHillsGoldText");
     const restText = document.getElementById("ashHillsRestText");
 
-    if (bar) bar.style.width = (path.progress / path.duration * 100) + "%";
+    const progressPercent = path.duration > 0
+        ? Math.max(0, Math.min(100, (path.progress / path.duration) * 100))
+        : 0;
+    const hpPercent = player.maxHp > 0
+        ? Math.max(0, Math.min(100, (player.hp / player.maxHp) * 100))
+        : 0;
+    const xpPercent = player.xpToNext > 0
+        ? Math.max(0, Math.min(100, (player.xp / player.xpToNext) * 100))
+        : 0;
+
+    if (bar) bar.style.width = progressPercent + "%";
 
     if (text) {
         const remaining = Math.max(0, path.duration - path.progress);
@@ -261,9 +275,17 @@ function updateAshHillsUI() {
     }
 
     if (hpText) hpText.textContent = player.hp + " / " + player.maxHp;
-    if (hpBar) hpBar.style.width = (player.hp / player.maxHp * 100) + "%";
+    if (hpBar) hpBar.style.width = hpPercent + "%";
     if (xpText) xpText.textContent = player.xp + " / " + player.xpToNext + " XP";
-    if (xpBar) xpBar.style.width = (player.xp / player.xpToNext * 100) + "%";
+    if (xpBar) xpBar.style.width = xpPercent + "%";
+
+    const restBar = document.getElementById("ashHillsRestBar");
+    if (restBar) {
+        const restPercent = resting && restDuration > 0
+            ? Math.max(0, Math.min(100, ((Date.now() - restStartTime) / 1000 / restDuration) * 100))
+            : 0;
+        restBar.style.width = restPercent + "%";
+    }
     if (levelText) levelText.textContent = player.level;
     if (attackText) attackText.textContent = player.attack;
     if (goldText) goldText.textContent = player.gold;
