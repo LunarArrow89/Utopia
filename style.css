@@ -3290,3 +3290,28 @@ body {
     color: inherit !important;
     font-size: inherit !important;
 }
+
+
+/* WALK SCREEN: leave enough room below the content for the fixed bottom tabs. */
+#villageWalkScreen.walk-active,
+#ashHillsScreen:not(.hidden) {
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding-bottom: 190px !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+}
+
+#villageWalkScreen.walk-active .walk-box,
+#ashHillsScreen:not(.hidden) .walk-box {
+    width: min(420px, 100%) !important;
+    margin: 0 auto !important;
+    padding-bottom: 35px !important;
+}
+
+#villageWalkScreen.walk-active .buttons:last-child,
+#ashHillsScreen:not(.hidden) .walk-box > .buttons:last-child {
+    margin-bottom: 35px !important;
+}
