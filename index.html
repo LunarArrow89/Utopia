@@ -85,7 +85,7 @@
 </div></div>
 
 <div id="travelScreen" class="travel-screen hidden"><div class="travel-screen-box"><button id="travelBackButton" class="travel-back-button" type="button">← Back to Village</button><div class="village-kicker">TRAVEL</div><h1>🧭 Travel</h1><p class="travel-screen-subtitle">Choose a path to explore outside Oakshade Village.</p><div class="travel-options">
-<div class="travel-option"><div class="travel-option-info"><strong>🌲 Whispering Woods</strong><span>Walk endlessly through the woods. Find a random resource every 30 seconds and face an enemy every 90 seconds.</span></div><button id="takeWalkButton" type="button">Enter Whispering Woods</button></div>
+<div class="travel-option"><div class="travel-option-info"><strong>🌲 Whispering Woods</strong><span>Walk endlessly through the woods. Find a random resource every 30 seconds and face an enemy every 90 seconds.</span></div><button id="takeWalkButton" type="button" onclick="startVillageWalk()">Enter Whispering Woods</button></div>
 <div class="travel-option ash-hills-option"><div class="travel-option-info"><strong>⚠️ Ash Hills</strong><span>An endless route with less frequent encounters. Rescue the civilian on your first journey, then return whenever you want.</span><small class="ash-hills-requirement">Requires 2 houses and Level 3</small></div><button id="ashHillsButton" type="button" onclick="startAshHills()">Build 2 Houses First</button></div>
 </div></div></div>
 <div id="villageTabs" class="village-tabs hidden" aria-hidden="true"></div>
@@ -104,7 +104,7 @@
 <script src="forestPath.js?v=4"></script>
 <script src="crystalCavePath.js"></script>
 <script src="ashHillsPath.js?v=5"></script>
-<script src="village.js?v=10"></script>
+<script src="village.js?v=11"></script>
 <script src="save.js?v=12"></script>
 <script src="game.js?v=11"></script>
 <script src="ashHillsCutscene.js?v=1"></script>
