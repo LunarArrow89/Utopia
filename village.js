@@ -745,7 +745,8 @@ function addVillageWalkLog(message) {
 }
 
 function leaveVillageWalk() {
-    if (!village.walk.active) return;
+    // Leaving the walk must always work, even if the screen was restored
+    // from saved/local walk state and the active flag is slightly out of sync.
     village.walk.active = false;
     currentPath = "village";
     try {
