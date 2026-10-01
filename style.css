@@ -3141,7 +3141,14 @@ body {
 }
 
 
-/* WHISPERING WOODS WALK */
+/* MOBILE TOUCH: make the Whispering Woods travel button respond reliably on phones. */
+#takeWalkButton {
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-user-select: none;
+    user-select: none;
+}
+\n/* WHISPERING WOODS WALK */
 #walkMainTab.hidden { display: none !important; }
 #walkMainTab:disabled { opacity: .55; cursor: not-allowed; }
 #villageWalkScreen.walk-active {
