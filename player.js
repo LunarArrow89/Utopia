@@ -326,12 +326,19 @@ async function resetGame() {
         awakeningSeen = false;
         currentPath = "forest";
 
+        // Clear any saved walk state so the reset starts completely fresh.
+        try {
+            localStorage.removeItem("utopiaWalkActive");
+            localStorage.setItem("utopiaActiveTab", "village");
+        } catch (error) {}
+
         // Reset every registered path without assuming a future path exists.
         Object.keys(paths).forEach(pathName => {
             const path = paths[pathName];
 
             if ("progress" in path) path.progress = 0;
             if ("completed" in path) path.completed = false;
+            if ("rescueCompleted" in path) path.rescueCompleted = false;
             if ("active" in path) path.active = pathName === "forest";
             if ("lastUpdateTime" in path) path.lastUpdateTime = Date.now();
 
@@ -413,6 +420,7 @@ async function resetGame() {
                     const path = paths[pathName];
                     if ("progress" in path) path.progress = 0;
                     if ("completed" in path) path.completed = false;
+                    if ("rescueCompleted" in path) path.rescueCompleted = false;
                     if ("active" in path) path.active = pathName === "forest";
                     if ("lastUpdateTime" in path) path.lastUpdateTime = Date.now();
                     if (pathName === "forest") path.encounterTime = 45;
