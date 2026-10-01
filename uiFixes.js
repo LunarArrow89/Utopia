@@ -102,11 +102,23 @@
         const story = $("storyMainTab");
         const village = $("villageMainTab");
         const walk = $("walkMainTab");
+        const travel = $("travelButton");
+        const travelOptions = $("travelOptions");
 
         if (story) {
             story.onclick = function (event) {
                 event.preventDefault();
                 showStory();
+            };
+        }
+
+        if (travel && travelOptions) {
+            travel.onclick = function (event) {
+                event.preventDefault();
+                const isOpen = !travelOptions.classList.contains("hidden");
+                travelOptions.classList.toggle("hidden", isOpen);
+                travel.setAttribute("aria-expanded", String(!isOpen));
+                travel.textContent = isOpen ? "🧭 Travel" : "✕ Close Travel";
             };
         }
 
@@ -150,6 +162,39 @@
             .resource-grid, .building-list { gap: 12px !important; }
             .building-card { gap: 18px !important; padding: 13px !important; }
             .health-xp { gap: 18px !important; }
+            .travel-options {
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+                margin-top: 16px;
+            }
+            .travel-options.hidden { display: none !important; }
+            .travel-option {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 18px;
+                padding: 16px;
+                border: 1px solid rgba(255,255,255,.10);
+                border-radius: 14px;
+                background: rgba(0,0,0,.16);
+            }
+            .travel-option-info {
+                display: flex;
+                flex-direction: column;
+                gap: 7px;
+                min-width: 0;
+            }
+            .travel-option-info strong { font-size: 1.05rem; }
+            .travel-option-info span, .travel-option-info small { line-height: 1.45; }
+            .travel-option button { flex-shrink: 0; }
+            @media (max-width: 700px) {
+                .travel-option {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+                .travel-option button { width: 100%; }
+            }
             @media (max-width: 700px) {
                 #mainTabs { gap: 7px !important; }
                 #mainTabs .main-tab { padding: 9px 11px !important; }
