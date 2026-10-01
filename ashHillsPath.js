@@ -8,7 +8,7 @@ const ashEnemies = [
 registerPath("ashHills", {
     name: "Ash Hills",
     progress: 0,
-    duration: 45 * 60,
+    duration: 0,
     encounterTime: 90,
     completed: false,
     active: false,
@@ -38,12 +38,14 @@ function startAshHills() {
         return;
     }
 
-    if (path.completed || path.active) {
+    if (path.active || path.completed) {
         showAshHills();
         return;
     }
 
     path.active = true;
+    path.completed = false;
+    path.progress = 0;
     path.lastUpdateTime = Date.now();
     path.encounterTime = 90;
     currentPath = "ashHills";
@@ -53,7 +55,7 @@ function startAshHills() {
         localStorage.setItem("utopiaActiveTab", "walk");
     } catch (error) {}
 
-    addVillageLog("You entered Ash Hills. The path will take 45 minutes.");
+    addVillageLog("You entered the endless Ash Hills route.");
     showAshHills();
     saveGame();
 }
@@ -113,7 +115,7 @@ function updateAshHills() {
     }
 
     path.lastUpdateTime = now;
-    path.progress = Math.min(path.duration, path.progress + elapsed);
+    path.progress += elapsed;
 
     // Process every encounter that happened during the elapsed time.
     // This keeps Ash Hills working correctly after the browser has been
@@ -135,9 +137,7 @@ function updateAshHills() {
     updateGold();
     updateAshHillsUI();
 
-    if (path.progress >= path.duration && path.active && !resting) {
-        finishAshHills();
-    }
+
 
     // Keep the account/local save current while the path is running.
     if (typeof saveGame === "function") {
@@ -162,7 +162,7 @@ function catchUpAshHillsWhileAway() {
     if (offlineSeconds <= 0) return;
 
     const oldProgress = path.progress;
-    const targetProgress = Math.min(path.duration, oldProgress + offlineSeconds);
+    const targetProgress = oldProgress + offlineSeconds;
 
     let encounterTime = path.encounterTime;
     let diedOffline = false;
@@ -204,9 +204,7 @@ function catchUpAshHillsWhileAway() {
         return;
     }
 
-    if (path.progress >= path.duration) {
-        finishAshHills();
-    }
+
 }
 
 function finishAshHills() {
@@ -214,15 +212,12 @@ function finishAshHills() {
 
     if (path.completed) return;
 
-    path.progress = path.duration;
     path.active = false;
     path.completed = true;
-    currentPath = "forest";
+    currentPath = "village";
     gameEnded = true;
 
-    // Pause the game on the visual rescue sequence. It is intentionally
-    // silent: the animation tells the story with shapes and motion.
-    ashHillsCutsceneSeen = false;
+    // The first completion triggers the rescue story. After that, Ash Hills becomes an endless route.
 
     addLog("Ash Hills completed!");
     addLog("You found a civilian trapped beyond the hills.");
@@ -255,9 +250,7 @@ function updateAshHillsUI() {
     const goldText = document.getElementById("ashHillsGoldText");
     const restText = document.getElementById("ashHillsRestText");
 
-    const progressPercent = path.duration > 0
-        ? Math.max(0, Math.min(100, (path.progress / path.duration) * 100))
-        : 0;
+    const progressPercent = 0;
     const hpPercent = player.maxHp > 0
         ? Math.max(0, Math.min(100, (player.hp / player.maxHp) * 100))
         : 0;
@@ -270,8 +263,7 @@ function updateAshHillsUI() {
     if (text) {
         const remaining = Math.max(0, path.duration - path.progress);
         text.textContent =
-            Math.floor(remaining / 60) + ":" +
-            String(remaining % 60).padStart(2, "0") + " remaining";
+            Math.floor(path.progress / 60) + ":" + String(path.progress % 60).padStart(2, "0") + " elapsed";
     }
 
     if (hpText) hpText.textContent = player.hp + " / " + player.maxHp;
