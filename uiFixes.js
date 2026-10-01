@@ -6,24 +6,19 @@
     "use strict";
 
     const SCREEN_IDS = [
-        "forestGame",
-        "storyScreen",
-        "villageScreen",
-        "travelScreen",
-        "villageWalkScreen",
-        "questScreen",
-        "arrivalScene",
-        "ashHillsScreen"
+        "forestGame", "storyScreen", "villageScreen", "travelScreen",
+        "villageWalkScreen", "questScreen", "arrivalScene", "ashHillsScreen"
     ];
 
     const $ = id => document.getElementById(id);
 
     function isWalking() {
-        const villageWalking = typeof window.villageWalkIsActive === "function"
-            ? window.villageWalkIsActive()
-            : false;
-        const ashWalking = typeof paths !== "undefined" && paths.ashHills?.active;
-        return !!(villageWalking || ashWalking);
+        // Check the actual game state first. This keeps the Walk tab visible
+        // even when the player switches to Village or Story while walking.
+        const villageWalking = typeof village !== "undefined" && village.walk && village.walk.active === true;
+        const savedWalking = localStorage.getItem("utopiaWalkActive") === "true";
+        const ashWalking = typeof paths !== "undefined" && paths.ashHills?.active === true;
+        return !!(villageWalking || savedWalking || ashWalking);
     }
 
     function hideAllScreens() {
@@ -38,22 +33,22 @@
     function updateTabButtons(active) {
         const bar = $("mainTabs");
         if (!bar) return;
-
         bar.classList.remove("hidden");
 
         const story = $("storyMainTab");
-        const village = $("villageMainTab");
+        const villageButton = $("villageMainTab");
         const walk = $("walkMainTab");
-        const walkVisible = isWalking();
+        const walking = isWalking();
 
         story?.classList.toggle("active", active === "story");
-        village?.classList.toggle("active", active === "village");
+        villageButton?.classList.toggle("active", active === "village");
         story?.setAttribute("aria-selected", String(active === "story"));
-        village?.setAttribute("aria-selected", String(active === "village"));
+        villageButton?.setAttribute("aria-selected", String(active === "village"));
 
         if (walk) {
-            walk.classList.toggle("hidden", !walkVisible);
-            walk.style.display = walkVisible ? "" : "none";
+            // NEVER hide Walk just because another tab is selected.
+            walk.classList.remove("hidden");
+            walk.style.display = walking ? "" : "none";
             walk.classList.toggle("active", active === "walk");
             walk.setAttribute("aria-selected", String(active === "walk"));
         }
@@ -66,31 +61,21 @@
         hideAllScreens();
         screen.classList.remove("hidden");
 
-        if (tab === "village" && isWalking()) {
-            screen.classList.add("walk-view-only");
-        }
-
-        if (tab === "walk") {
-            screen.classList.add("walk-active");
-        }
+        if (tab === "village" && isWalking()) screen.classList.add("walk-view-only");
+        if (tab === "walk") screen.classList.add("walk-active");
 
         updateTabButtons(tab);
-
-        try {
-            localStorage.setItem("utopiaActiveTab", tab);
-        } catch (_) {}
+        try { localStorage.setItem("utopiaActiveTab", tab); } catch (_) {}
     }
 
-    function showStory() {
-        showScreen("storyScreen", "story");
-    }
+    function showStory() { showScreen("storyScreen", "story"); }
 
     function showVillage() {
         showScreen("villageScreen", "village");
         if (typeof updateVillageUI === "function") updateVillageUI();
     }
 
-function showTravel() {
+    function showTravel() {
         if (typeof village !== "undefined" && !village.unlocked) return;
         showScreen("travelScreen", "village");
         if (typeof updateVillageUI === "function") updateVillageUI();
@@ -116,45 +101,16 @@ function showTravel() {
 
     function connectTabs() {
         const story = $("storyMainTab");
-        const village = $("villageMainTab");
+        const villageButton = $("villageMainTab");
         const walk = $("walkMainTab");
         const travel = $("travelButton");
         const travelBack = $("travelBackButton");
 
-        if (story) {
-            story.onclick = function (event) {
-                event.preventDefault();
-                showStory();
-            };
-        }
-
-        if (travel) {
-            travel.onclick = function (event) {
-                event.preventDefault();
-                showTravel();
-            };
-        }
-
-        if (travelBack) {
-            travelBack.onclick = function (event) {
-                event.preventDefault();
-                showVillage();
-            };
-        }
-
-        if (village) {
-            village.onclick = function (event) {
-                event.preventDefault();
-                showVillage();
-            };
-        }
-
-        if (walk) {
-            walk.onclick = function (event) {
-                event.preventDefault();
-                showWalk();
-            };
-        }
+        if (story) story.onclick = e => { e.preventDefault(); showStory(); };
+        if (villageButton) villageButton.onclick = e => { e.preventDefault(); showVillage(); };
+        if (walk) walk.onclick = e => { e.preventDefault(); showWalk(); };
+        if (travel) travel.onclick = e => { e.preventDefault(); showTravel(); };
+        if (travelBack) travelBack.onclick = e => { e.preventDefault(); showVillage(); };
 
         const quest = $("questButton");
         if (quest) quest.onclick = showQuests;
@@ -170,7 +126,6 @@ function showTravel() {
 
     function addSpacing() {
         if ($("utopiaSpacingFixes")) return;
-
         const style = document.createElement("style");
         style.id = "utopiaSpacingFixes";
         style.textContent = `
@@ -182,93 +137,23 @@ function showTravel() {
             .village-panel + .village-panel { margin-top: 10px !important; }
             .resource-grid, .building-list { gap: 12px !important; }
             .building-card { gap: 18px !important; padding: 13px !important; }
-            .building-actions {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: flex-end !important;
-                gap: 8px !important;
-                flex: 0 0 auto !important;
-                white-space: nowrap !important;
-            }
-            .building-actions span {
-                display: inline-flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                min-width: 54px !important;
-                padding: 6px 8px !important;
-                border: 1px solid #4a5d47 !important;
-                border-radius: 999px !important;
-                background: #172119 !important;
-                color: #aebcaf !important;
-                font-size: 10px !important;
-                line-height: 1 !important;
-            }
-            .building-actions button {
-                flex: 0 0 62px !important;
-                width: 62px !important;
-            }
-            .health-xp { gap: 18px !important; }
-            .travel-options {
-                display: flex;
-                flex-direction: column;
-                gap: 14px;
-                margin-top: 16px;
-            }
-            .travel-screen {
-                min-height: 100vh;
-                padding: 28px 18px 40px;
-            }
-            .travel-screen-box {
-                width: min(900px, 100%);
-                margin: 0 auto;
-                padding: 28px;
-                border-radius: 20px;
-                background: rgba(0,0,0,.18);
-            }
-            .travel-screen-box h1 {
-                margin: 8px 0 6px;
-            }
-            .travel-screen-subtitle {
-                margin: 0 0 24px;
-                opacity: .82;
-            }
-            .travel-back-button {
-                margin-bottom: 18px;
-            }
-            .travel-screen .travel-options {
-                margin-top: 0;
-            }
-            .travel-option {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 18px;
-                padding: 16px;
-                border: 1px solid rgba(255,255,255,.10);
-                border-radius: 14px;
-                background: rgba(0,0,0,.16);
-            }
-            .travel-option-info {
-                display: flex;
-                flex-direction: column;
-                gap: 7px;
-                min-width: 0;
-            }
-            .travel-option-info strong { font-size: 1.05rem; }
-            .travel-option-info span, .travel-option-info small { line-height: 1.45; }
-            .travel-option button { flex-shrink: 0; }
-            @media (max-width: 700px) {
-                .travel-option {
-                    flex-direction: column;
-                    align-items: stretch;
-                }
-                .travel-option button { width: 100%; }
-            }
-            @media (max-width: 700px) {
-                #mainTabs { gap: 7px !important; }
-                #mainTabs .main-tab { padding: 9px 11px !important; }
-                .village-content { gap: 18px !important; }
-            }
+            .building-actions { display:flex !important; align-items:center !important; justify-content:flex-end !important; gap:8px !important; flex:0 0 auto !important; white-space:nowrap !important; }
+            .building-actions span { display:inline-flex !important; align-items:center !important; justify-content:center !important; min-width:54px !important; padding:6px 8px !important; border:1px solid #4a5d47 !important; border-radius:999px !important; background:#172119 !important; color:#aebcaf !important; font-size:10px !important; line-height:1 !important; }
+            .building-actions button { flex:0 0 62px !important; width:62px !important; }
+            .health-xp { gap:18px !important; }
+            .travel-options { display:flex; flex-direction:column; gap:14px; margin-top:16px; }
+            .travel-screen { min-height:100vh; padding:28px 18px 40px; }
+            .travel-screen-box { width:min(900px,100%); margin:0 auto; padding:28px; border-radius:20px; background:rgba(0,0,0,.18); }
+            .travel-screen-box h1 { margin:8px 0 6px; }
+            .travel-screen-subtitle { margin:0 0 24px; opacity:.82; }
+            .travel-back-button { margin-bottom:18px; }
+            .travel-screen .travel-options { margin-top:0; }
+            .travel-option { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:16px; border:1px solid rgba(255,255,255,.10); border-radius:14px; background:rgba(0,0,0,.16); }
+            .travel-option-info { display:flex; flex-direction:column; gap:7px; min-width:0; }
+            .travel-option-info strong { font-size:1.05rem; }
+            .travel-option-info span,.travel-option-info small { line-height:1.45; }
+            .travel-option button { flex-shrink:0; }
+            @media (max-width:700px) { .travel-option { flex-direction:column; align-items:stretch; } .travel-option button { width:100%; } #mainTabs { gap:7px !important; } #mainTabs .main-tab { padding:9px 11px !important; } .village-content { gap:18px !important; } }
         `;
         document.head.appendChild(style);
     }
@@ -276,28 +161,15 @@ function showTravel() {
     function init() {
         connectTabs();
         addSpacing();
-
         let savedTab = "village";
+        try { savedTab = localStorage.getItem("utopiaActiveTab") || "village"; } catch (_) {}
 
-        try {
-            savedTab = localStorage.getItem("utopiaActiveTab") || "village";
-        } catch (_) {}
-
-        // Restore the screen that was open when the game was closed.
-        if (savedTab === "walk" && isWalking()) {
-            showWalk();
-        } else if (savedTab === "story") {
-            showStory();
-        } else if (savedTab === "travel") {
-            showTravel();
-        } else {
-            showVillage();
-        }
+        if (savedTab === "walk" && isWalking()) showWalk();
+        else if (savedTab === "story") showStory();
+        else if (savedTab === "travel") showTravel();
+        else showVillage();
     }
 
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", init, { once: true });
-    } else {
-        init();
-    }
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once:true });
+    else init();
 })();
