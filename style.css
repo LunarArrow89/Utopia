@@ -3264,3 +3264,20 @@ body {
     display: none !important;
 }
 
+
+
+/* PROCEDURAL LOOT + SHOP */
+.loot-shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+.loot-shop-grid button{min-height:42px;padding:8px 6px;font-size:11px}
+.inventory-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:300px;overflow-y:auto}
+.item-card{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px;border:1px solid #35463a;border-radius:10px;background:#101710}
+.item-info{min-width:0;display:flex;flex-direction:column;gap:3px}
+.item-info strong{font-size:11px;overflow-wrap:anywhere}
+.item-info span,.equipped-item span,.equipped-item small{color:#9eaa9a;font-size:10px}
+.item-card button{flex:0 0 auto;padding:7px 9px;font-size:10px}
+.empty-inventory{padding:10px;color:#8fa594;text-align:center;font-size:11px}
+.equipped-item{display:flex;flex-direction:column;gap:3px;padding:9px;border-radius:9px;background:#101710}
+.item-rarity-common{color:#d7ddd8}
+.item-rarity-uncommon{color:#8ed19a}
+.item-rarity-rare{color:#78aee8}
+.item-rarity-epic{color:#c39bea}
