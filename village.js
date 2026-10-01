@@ -940,14 +940,19 @@ function openQuestStory(questId) {
 
     const state = village.quests[questId];
     if (state?.claimed) {
-        action.textContent = "Completed";
+        action.textContent = "Claimed";
         action.disabled = true;
+        action.classList.add("hidden");
     } else if (state?.completed) {
         action.textContent = "Claim Reward";
         action.disabled = false;
+        action.classList.remove("hidden");
     } else {
-        action.textContent = "Accept Quest";
-        action.disabled = false;
+        // Quests are already available from the quest list, so there is no
+        // separate "Accept Quest" action to duplicate the Back button.
+        action.textContent = "Claim Reward";
+        action.disabled = true;
+        action.classList.add("hidden");
     }
 
     overlay.classList.remove("hidden");
@@ -962,14 +967,8 @@ function acceptQuestFromStory() {
     if (!openQuestStoryId) return;
 
     const state = village.quests[openQuestStoryId];
-    if (!state) return;
+    if (!state || state.claimed || !state.completed) return;
 
-    if (state.completed && !state.claimed) {
-        claimQuest(openQuestStoryId);
-        openQuestStory(openQuestStoryId);
-        return;
-    }
-
-    closeQuestStory();
-    addVillageLog("Quest accepted: " + questStories[openQuestStoryId].title + ".");
+    claimQuest(openQuestStoryId);
+    openQuestStory(openQuestStoryId);
 }
