@@ -93,28 +93,55 @@ function returnToVillageFromAshHills() {
 function updateAshHills() {
     const path = paths.ashHills;
 
-    if (!path.active || path.completed || resting) return;
+    if (!path || !path.active || path.completed || resting) {
+        updateAshHillsUI();
+        return;
+    }
 
     const now = Date.now();
-    const elapsed = Math.floor((now - path.lastUpdateTime) / 1000);
 
-    if (elapsed <= 0) return;
+    if (!path.lastUpdateTime) {
+        path.lastUpdateTime = now;
+        updateAshHillsUI();
+        return;
+    }
+
+    const elapsed = Math.floor((now - path.lastUpdateTime) / 1000);
+    if (elapsed <= 0) {
+        updateAshHillsUI();
+        return;
+    }
 
     path.lastUpdateTime = now;
     path.progress = Math.min(path.duration, path.progress + elapsed);
 
-    if (path.progress >= path.encounterTime) {
+    // Process every encounter that happened during the elapsed time.
+    // This keeps Ash Hills working correctly after the browser has been
+    // sitting in the background for a while.
+    while (
+        path.active &&
+        !path.completed &&
+        !resting &&
+        path.encounterTime <= path.progress
+    ) {
         startAshBattle();
 
-        if (path.active && !path.completed) {
-            path.encounterTime = path.progress + randomEncounterTime();
+        if (path.active && !path.completed && !resting) {
+            path.encounterTime += randomEncounterTime();
         }
     }
 
+    updateHP();
+    updateGold();
     updateAshHillsUI();
 
-    if (path.progress >= path.duration) {
+    if (path.progress >= path.duration && path.active && !resting) {
         finishAshHills();
+    }
+
+    // Keep the account/local save current while the path is running.
+    if (typeof saveGame === "function") {
+        saveGame();
     }
 }
 
@@ -247,3 +274,35 @@ function updateAshHillsUI() {
             : "Rest when you need to recover.";
     }
 }
+
+
+/*
+ * Ash Hills has its own clock so it keeps progressing even though the
+ * normal Forest tick is no longer the active path.
+ */
+let ashHillsTimer = null;
+
+function startAshHillsTimer() {
+    if (ashHillsTimer) clearInterval(ashHillsTimer);
+    ashHillsTimer = setInterval(() => {
+        if (paths.ashHills?.active && !paths.ashHills.completed) {
+            updateAshHills();
+        }
+    }, 1000);
+}
+
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && paths.ashHills?.active) {
+        catchUpAshHillsWhileAway();
+        updateAshHillsUI();
+    }
+});
+
+window.addEventListener("pageshow", () => {
+    if (paths.ashHills?.active) {
+        catchUpAshHillsWhileAway();
+        updateAshHillsUI();
+    }
+});
+
+startAshHillsTimer();
