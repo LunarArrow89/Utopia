@@ -487,7 +487,16 @@ function resumeVillageWalk() {
 }
 
 function startVillageWalk() {
-    if (!village.unlocked || village.walk.active) return;
+    // The Travel screen can only be opened from the village, so if the
+    // button is visible, always allow it to start the walk.
+    if (village.walk.active) {
+        showVillageWalkTab();
+        return;
+    }
+
+    if (!village.unlocked) {
+        village.unlocked = true;
+    }
     setVillageTabsVisible(true);
     clearInterval(villageWalkTimer);
     village.walk.active = true;
@@ -874,6 +883,17 @@ function connectVillageWalkButton() {
 window.startVillageWalk = startVillageWalk;
 window.showVillageWalkTab = showVillageWalkTab;
 window.leaveVillageWalk = leaveVillageWalk;
+
+// Final fallback for the Whispering Woods button. This catches clicks even
+// if another script replaced the button handler after the page loaded.
+document.addEventListener("click", function (event) {
+    const button = event.target?.closest?.("#takeWalkButton");
+    if (!button || button.disabled) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    startVillageWalk();
+}, true);
 
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", connectVillageWalkButton, { once: true });
