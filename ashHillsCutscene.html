@@ -25,8 +25,32 @@ body {
     height: min(500px, 78vh);
     overflow: hidden;
     background:
-        radial-gradient(circle at 50% 50%, rgba(35,45,75,.25), transparent 60%),
-        #03040a;
+        linear-gradient(to bottom, #03040a 0%, #080b14 58%, #121620 100%);
+}
+.scene::before {
+    content: "";
+    position: absolute;
+    left: -10%;
+    bottom: 18%;
+    width: 120%;
+    height: 55%;
+    background:
+        linear-gradient(135deg, transparent 0 12%, #59616b 12.2% 12.8%, transparent 13% 25%, #454d58 25.2% 26%, transparent 26.2% 40%, #5f6872 40.2% 41%, transparent 41.2%),
+        #303740;
+    clip-path: polygon(0 100%, 0 72%, 10% 50%, 18% 66%, 28% 38%, 38% 62%, 48% 32%, 58% 65%, 69% 42%, 79% 68%, 89% 35%, 100% 60%, 100% 100%);
+    animation: hillsBack 7s linear infinite;
+    opacity: .85;
+}
+.scene::after {
+    content: "";
+    position: absolute;
+    left: -10%;
+    bottom: 0;
+    width: 120%;
+    height: 30%;
+    background: #1d232b;
+    clip-path: polygon(0 100%, 0 45%, 12% 30%, 24% 55%, 37% 20%, 50% 50%, 64% 25%, 77% 55%, 89% 18%, 100% 48%, 100% 100%);
+    animation: hillsFront 3.5s linear infinite;
 }
 .runner {
     position: absolute;
@@ -37,8 +61,23 @@ body {
     transform: translateY(-50%);
     z-index: 5;
 }
+.runner::before,
+.runner::after {
+    content: "";
+    position: absolute;
+    width: 11px;
+    height: 28px;
+    bottom: -22px;
+    border-radius: 5px;
+    background: inherit;
+    box-shadow: 0 0 10px currentColor;
+}
+.runner::before { left: 7px; animation: legA .22s linear infinite alternate; }
+.runner::after { right: 7px; animation: legB .22s linear infinite alternate; }
+.runner { animation-timing-function: linear; }
 .blue {
     left: 18%;
+    color: #168cff;
     background: #168cff;
     border: 3px solid #65c3ff;
     box-shadow: 0 0 12px #168cff, 0 0 30px #168cff, 0 0 60px rgba(22,140,255,.65);
@@ -46,6 +85,7 @@ body {
 }
 .orange {
     left: 30%;
+    color: #ff7a18;
     width: 44px;
     height: 44px;
     background: #ff7a18;
@@ -73,13 +113,40 @@ body {
 .t7 { left: 10%; top: 68%; animation: chase 3.3s linear infinite .9s; }
 
 @keyframes runBlue {
-    0% { left: 16%; }
-    100% { left: 82%; }
+    0% { left: 16%; transform: translateY(-50%) translateY(0); }
+    25% { transform: translateY(-50%) translateY(-7px); }
+    50% { transform: translateY(-50%) translateY(0); }
+    75% { transform: translateY(-50%) translateY(-7px); }
+    100% { left: 82%; transform: translateY(-50%) translateY(0); }
 }
+@keyframes runOrange {
+    0% { left: 28%; transform: translateY(-50%) translateY(0); }
+    25% { transform: translateY(-50%) translateY(-7px); }
+    50% { transform: translateY(-50%) translateY(0); }
+    75% { transform: translateY(-50%) translateY(-7px); }
+    100% { left: 88%; transform: translateY(-50%) translateY(0); }
+}
+@keyframes legA { from { transform: rotate(35deg); } to { transform: rotate(-35deg); } }
+@keyframes legB { from { transform: rotate(-35deg); } to { transform: rotate(35deg); } }
+@keyframes hillsBack { from { transform: translateX(0); } to { transform: translateX(-12%); } }
+@keyframes hillsFront { from { transform: translateX(0); } to { transform: translateX(-22%); } }
 @keyframes runOrange {
     0% { left: 28%; }
     100% { left: 88%; }
 }
+.triangle::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    left: -45px;
+    top: -4px;
+    border-radius: 50%;
+    background: #ff2525;
+    box-shadow: 0 0 8px #ff2525;
+    animation: sparks .18s linear infinite alternate;
+}
+@keyframes sparks { from { opacity: .3; transform: translateX(0); } to { opacity: 1; transform: translateX(-12px); } }
 @keyframes chase {
     0% { left: -8%; }
     100% { left: 72%; }
@@ -100,5 +167,6 @@ button { position:absolute; left:50%; bottom:18px; transform:translateX(-50%); z
     <div class="runner blue"></div>
     <div class="runner orange"></div>
 </div>
+<button type="button" onclick="parent.finishAshHillsCutscene()">Continue</button>
 </body>
 </html>
