@@ -3046,17 +3046,14 @@ body {
 
 
 /* Walking content is disabled for the current village-only prototype. */
-.village-walk-option,
-.ash-hills-option {
+.village-walk-option {
     display: none !important;
 }
 
 
-/* VILLAGE-ONLY PROTOTYPE: walking/path gameplay is completely hidden for now. */
+/* VILLAGE-ONLY PROTOTYPE: the old forest screen stays hidden for now. */
 #forestGame,
-#forestScreen,
-#ashHillsScreen,
-.ash-hills-option {
+#forestScreen {
     display: none !important;
     visibility: hidden !important;
     pointer-events: none !important;
