@@ -165,13 +165,19 @@ function runRestTimer() {
         const ashRestBar = document.getElementById("ashHillsRestBar");
         if (ashRestBar) ashRestBar.style.width = `${progress * 100}%`;
 
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        const remainingText =
+            `${minutes}:${String(seconds).padStart(2, "0")} remaining`;
+
         const restText = document.getElementById("restText");
-        if (restText) {
-            const minutes = Math.floor(remaining / 60000);
-            const seconds = Math.floor((remaining % 60000) / 1000);
-            restText.textContent =
-                `${minutes}:${String(seconds).padStart(2, "0")} remaining`;
-        }
+        if (restText) restText.textContent = remainingText;
+
+        const villageWalkRestText = document.getElementById("villageWalkRestText");
+        if (villageWalkRestText) villageWalkRestText.textContent = remainingText;
+
+        const ashHillsRestText = document.getElementById("ashHillsRestText");
+        if (ashHillsRestText) ashHillsRestText.textContent = remainingText;
 
         if (progress >= 1) {
             finishRest();
@@ -189,14 +195,16 @@ function startRest(force = false) {
 
     const missingHp = Math.max(0, player.maxHp - player.hp);
 
-    if (missingHp <= 0) {
+    if (!force && missingHp <= 0) {
         addLog("You don't need to rest.");
         return;
     }
 
     resting = true;
     restForced = force;
-    restDuration = missingHp * 0.5 * 60 * 1000;
+    // Defeat always causes a fixed 20-minute forced rest.
+    // Normal voluntary rest keeps the existing missing-HP-based timer.
+    restDuration = force ? 20 * 60 * 1000 : missingHp * 0.5 * 60 * 1000;
     restStartTime = Date.now();
 
     const restButton = document.getElementById("restButton");
@@ -205,10 +213,27 @@ function startRest(force = false) {
     document.getElementById("statusText").textContent =
         force ? "Forced Rest" : "Resting";
 
-    document.getElementById("restText").textContent =
-        `${Math.floor(restDuration / 60000)}:00 remaining`;
+    const restMessage = force
+        ? "You were defeated. You must rest for 20:00."
+        : `${Math.floor(restDuration / 60000)}:00 remaining`;
 
-    document.getElementById("restBar").style.width = "0%";
+    const restText = document.getElementById("restText");
+    if (restText) restText.textContent = restMessage;
+
+    const villageWalkRestText = document.getElementById("villageWalkRestText");
+    if (villageWalkRestText) villageWalkRestText.textContent = restMessage;
+
+    const ashHillsRestText = document.getElementById("ashHillsRestText");
+    if (ashHillsRestText) ashHillsRestText.textContent = restMessage;
+
+    const restBar = document.getElementById("restBar");
+    if (restBar) restBar.style.width = "0%";
+
+    const villageWalkRestBar = document.getElementById("villageWalkRestBar");
+    if (villageWalkRestBar) villageWalkRestBar.style.width = "0%";
+
+    const ashRestBar = document.getElementById("ashHillsRestBar");
+    if (ashRestBar) ashRestBar.style.width = "0%";
 
     if (restButton) restButton.disabled = true;
     if (leaveButton) leaveButton.disabled = force;
