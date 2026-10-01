@@ -114,7 +114,8 @@ function hideQuestScreen() {
 }
 
 function updateQuests() {
-    // Re-check completion every time the quest screen is opened or the village updates.\n    if (paths.ashHills?.completed) village.quests.rescueCivilian.completed = true;
+    // Re-check completion every time the quest screen is opened or the village updates.
+    if (paths.ashHills?.completed) village.quests.rescueCivilian.completed = true;
     if (village.unlocked) village.quests.getToVillage.completed = true;
     if (village.housesBuilt >= 2) village.quests.makeTwoHouses.completed = true;
     if (village.housesBuilt >= 2 && player.level >= 3) village.quests.reachAshLevel.completed = true;
@@ -151,7 +152,11 @@ function updateQuests() {
     if (villageClaimButton) villageClaimButton.disabled = village.quests.getToVillage.claimed;
     if (houseClaimButton) houseClaimButton.disabled = village.quests.makeTwoHouses.claimed;
     if (ashLevelClaimButton) ashLevelClaimButton.disabled = village.quests.reachAshLevel.claimed;
-    if (rescueClaimButton) {\n        rescueClaimButton.classList.toggle("hidden", !village.quests.rescueCivilian.completed);\n        rescueClaimButton.disabled = village.quests.rescueCivilian.claimed;\n        rescueClaimButton.textContent = village.quests.rescueCivilian.claimed ? "Claimed" : "Claim Reward";\n    }
+    if (rescueClaimButton) {
+        rescueClaimButton.classList.toggle("hidden", !village.quests.rescueCivilian.completed);
+        rescueClaimButton.disabled = village.quests.rescueCivilian.claimed;
+        rescueClaimButton.textContent = village.quests.rescueCivilian.claimed ? "Claimed" : "Claim Reward";
+    }
 }
 
 function claimQuest(type) {
