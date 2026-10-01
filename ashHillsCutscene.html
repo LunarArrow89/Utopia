@@ -61,19 +61,6 @@ body {
     transform: translateY(-50%);
     z-index: 5;
 }
-.runner::before,
-.runner::after {
-    content: "";
-    position: absolute;
-    width: 11px;
-    height: 28px;
-    bottom: -22px;
-    border-radius: 5px;
-    background: inherit;
-    box-shadow: 0 0 10px currentColor;
-}
-.runner::before { left: 7px; animation: legA .22s linear infinite alternate; }
-.runner::after { right: 7px; animation: legB .22s linear infinite alternate; }
 .runner { animation-timing-function: linear; }
 .blue {
     left: 18%;
@@ -126,8 +113,6 @@ body {
     75% { transform: translateY(-50%) translateY(-7px); }
     100% { left: 88%; transform: translateY(-50%) translateY(0); }
 }
-@keyframes legA { from { transform: rotate(35deg); } to { transform: rotate(-35deg); } }
-@keyframes legB { from { transform: rotate(-35deg); } to { transform: rotate(35deg); } }
 @keyframes hillsBack { from { transform: translateX(0); } to { transform: translateX(-12%); } }
 @keyframes hillsFront { from { transform: translateX(0); } to { transform: translateX(-22%); } }
 @keyframes runOrange {
