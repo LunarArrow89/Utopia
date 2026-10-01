@@ -906,6 +906,34 @@ window.startVillageWalk = startVillageWalk;
 window.showVillageWalkTab = showVillageWalkTab;
 window.leaveVillageWalk = leaveVillageWalk;
 
+function connectLeaveVillageWalkButton() {
+    const button = document.getElementById("leaveVillageWalkButton");
+    if (!button || button.dataset.leaveWalkConnected === "true") return;
+
+    button.dataset.leaveWalkConnected = "true";
+    button.disabled = false;
+    button.style.touchAction = "manipulation";
+
+    let lastPress = 0;
+    const leave = (event) => {
+        const now = Date.now();
+        if (now - lastPress < 500) {
+            event?.preventDefault();
+            event?.stopPropagation();
+            return;
+        }
+        lastPress = now;
+        event?.preventDefault();
+        event?.stopPropagation();
+        leaveVillageWalk();
+    };
+
+    button.addEventListener("pointerup", leave, { passive: false });
+    button.addEventListener("touchend", leave, { passive: false });
+    button.addEventListener("click", leave);
+}
+
+
 // Final fallback for the Whispering Woods button. This catches clicks even
 // if another script replaced the button handler after the page loaded.
 document.addEventListener("click", function (event) {
@@ -921,6 +949,12 @@ if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", connectVillageWalkButton, { once: true });
 } else {
     connectVillageWalkButton();
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", connectLeaveVillageWalkButton, { once: true });
+} else {
+    connectLeaveVillageWalkButton();
 }
 
 function updateLootShopVisibility() {
