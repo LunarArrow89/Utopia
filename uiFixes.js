@@ -19,9 +19,11 @@
     const $ = id => document.getElementById(id);
 
     function isWalking() {
-        return typeof window.villageWalkIsActive === "function"
+        const villageWalking = typeof window.villageWalkIsActive === "function"
             ? window.villageWalkIsActive()
             : false;
+        const ashWalking = typeof paths !== "undefined" && paths.ashHills?.active;
+        return !!(villageWalking || ashWalking);
     }
 
     function hideAllScreens() {
@@ -96,6 +98,13 @@ function showTravel() {
 
     function showWalk() {
         if (!isWalking()) return;
+
+        if (typeof paths !== "undefined" && paths.ashHills?.active) {
+            showScreen("ashHillsScreen", "walk");
+            if (typeof updateAshHillsUI === "function") updateAshHillsUI();
+            return;
+        }
+
         showScreen("villageWalkScreen", "walk");
         if (typeof updateVillageWalkUI === "function") updateVillageWalkUI();
     }
