@@ -48,8 +48,6 @@ function generateItem(rarity) {
     const descriptor = randomItemPart(ITEM_DESCRIPTORS);
     const type = randomItemPart(ITEM_TYPES);
 
-    // Half the items use the original named bonus system.
-    // The other half get a completely random stat whose power depends on rarity.
     const hasBonusWord = Math.random() < 0.5;
     const bonus = hasBonusWord ? randomItemPart(ITEM_BONUSES) : null;
     const randomStat = hasBonusWord ? null : generateRandomStat(chosenRarity);
@@ -180,3 +178,58 @@ window.buyLootBox = buyLootBox;
 window.equipItem = equipItem;
 window.updateEquipmentUI = updateEquipmentUI;
 window.resetItems = resetItems;
+
+/* TOUCH-ONLY PHONE BUTTON BRIDGE */
+(function () {
+    let lastTouchTime = 0;
+
+    function handleTouch(event) {
+        const button = event.target && event.target.closest
+            ? event.target.closest("button")
+            : null;
+
+        if (!button || button.disabled) return;
+
+        // Whispering Woods already has its own touch handler.
+        if (button.id === "takeWalkButton") return;
+
+        const now = Date.now();
+        if (now - lastTouchTime < 350) {
+            event.preventDefault();
+            return;
+        }
+
+        lastTouchTime = now;
+        event.preventDefault();
+        event.stopPropagation();
+
+        button.click();
+    }
+
+    function initTouchControls() {
+        document.addEventListener("touchend", handleTouch, {
+            passive: false,
+            capture: true
+        });
+
+        const close = document.getElementById("awaySummaryClose");
+        if (close) {
+            close.addEventListener("touchend", function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                document.getElementById("awaySummaryOverlay")?.classList.add("hidden");
+            }, { passive: false });
+        }
+
+        document.querySelectorAll("button").forEach(button => {
+            button.style.touchAction = "manipulation";
+            button.style.webkitTapHighlightColor = "transparent";
+        });
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initTouchControls, { once: true });
+    } else {
+        initTouchControls();
+    }
+})();
