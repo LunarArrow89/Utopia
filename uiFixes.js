@@ -173,6 +173,31 @@ function showTravel() {
             .village-panel + .village-panel { margin-top: 10px !important; }
             .resource-grid, .building-list { gap: 12px !important; }
             .building-card { gap: 18px !important; padding: 13px !important; }
+            .building-actions {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: flex-end !important;
+                gap: 8px !important;
+                flex: 0 0 auto !important;
+                white-space: nowrap !important;
+            }
+            .building-actions span {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                min-width: 54px !important;
+                padding: 6px 8px !important;
+                border: 1px solid #4a5d47 !important;
+                border-radius: 999px !important;
+                background: #172119 !important;
+                color: #aebcaf !important;
+                font-size: 10px !important;
+                line-height: 1 !important;
+            }
+            .building-actions button {
+                flex: 0 0 62px !important;
+                width: 62px !important;
+            }
             .health-xp { gap: 18px !important; }
             .travel-options {
                 display: flex;
