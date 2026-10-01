@@ -1,6 +1,6 @@
 const ITEM_RARITIES=["Common","Uncommon","Rare","Epic"];
 const ITEM_BONUSES=[{name:"Health",stat:"maxHp",amount:10,text:"+10 Max HP"},{name:"Strength",stat:"attack",amount:2,text:"+2 Attack"}];
-const ITEM_TYPES=["Rags","Shirt","Sweater","Gun"];
+const ITEM_TYPES=["Rags","Shirt","Sweater","Boots"];
 const ITEM_DESCRIPTORS=["Cool","Funny","Dumb"];
 const LOOT_BOX_COSTS={Common:25,Uncommon:75,Rare:200,Epic:500};
 
