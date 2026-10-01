@@ -25,6 +25,18 @@ function startBattle(enemyList) {
             player.hp = 0;
             addLog(`${enemy.name} defeated you.`);
             startRest(true);
+
+            const villageWalkLog = document.getElementById("villageWalkLog");
+            if (villageWalkLog) {
+                const entry = document.createElement("div");
+                entry.className = "log-entry";
+                entry.textContent = "You were defeated. Forced rest: 20 minutes.";
+                villageWalkLog.appendChild(entry);
+                villageWalkLog.scrollTop = villageWalkLog.scrollHeight;
+            }
+
+            const ashHillsLog = document.getElementById("ashHillsLog");
+            if (ashHillsLog) addAshHillsLog("You were defeated. Forced rest: 20 minutes.");
         }
     }
 
