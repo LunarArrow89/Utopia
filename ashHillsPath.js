@@ -39,6 +39,11 @@ function startAshHills() {
         return;
     }
 
+    // Older saves used only completed=true. Treat those saves as already rescued.
+    if (path.completed && path.rescueCompleted !== true) {
+        path.rescueCompleted = true;
+    }
+
     // If the route is already active, just return to it.
     if (path.active) {
         currentPath = "ashHills";
