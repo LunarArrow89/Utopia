@@ -432,6 +432,7 @@ function updateVillageUI() {
 
     updateQuests();
     if (typeof updateEquipmentUI === "function") updateEquipmentUI();
+    updateLootShopVisibility();
 
     // Only the House is available at the beginning.
     // The Forge appears after the Ash Hills civilian is rescued.
@@ -920,4 +921,11 @@ if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", connectVillageWalkButton, { once: true });
 } else {
     connectVillageWalkButton();
+}
+
+function updateLootShopVisibility() {
+    const shop = document.getElementById("lootShopPanel");
+    if (!shop) return;
+    const unlocked = !!(village.quests.rescueCivilian?.claimed || village.quests.rescueCivilian?.completed) && !!village.buildings.forge;
+    shop.classList.toggle("hidden", !unlocked);
 }
