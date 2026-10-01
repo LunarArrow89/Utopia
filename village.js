@@ -402,24 +402,23 @@ function updateVillageUI() {
     const ashPanel = document.querySelector(".ash-hills-option");
     const ashButton = document.getElementById("ashHillsButton");
 
-    // Ash Hills is not shown until the "Make Two Houses" quest is completed.
+    // Ash Hills stays completely hidden until both requirements are met:
+    // 2 houses built AND Level 3 reached.
+    const ashHillsUnlocked =
+        village.housesBuilt >= 2 &&
+        player.level >= paths.ashHills.levelRequirement;
+
     if (ashPanel) {
-        ashPanel.classList.toggle("hidden", !village.quests.makeTwoHouses.completed);
+        ashPanel.classList.toggle("hidden", !ashHillsUnlocked);
     }
 
-    if (ashButton && village.quests.makeTwoHouses.completed) {
-        if (village.housesBuilt < 2) {
-            ashButton.disabled = true;
-            ashButton.textContent = "Build 2 Houses First";
-        } else if (paths.ashHills.completed) {
+    if (ashButton && ashHillsUnlocked) {
+        if (paths.ashHills.completed) {
             ashButton.disabled = false;
             ashButton.textContent = "Ash Hills Completed";
         } else if (paths.ashHills.active) {
             ashButton.disabled = false;
             ashButton.textContent = "Continue Ash Hills";
-        } else if (player.level < paths.ashHills.levelRequirement) {
-            ashButton.disabled = true;
-            ashButton.textContent = "Requires Level " + paths.ashHills.levelRequirement;
         } else {
             ashButton.disabled = false;
             ashButton.textContent = "Enter Ash Hills";
