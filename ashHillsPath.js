@@ -49,19 +49,34 @@ function startAshHills() {
     currentPath = "ashHills";
     gameEnded = false;
 
+    try {
+        localStorage.setItem("utopiaActiveTab", "walk");
+    } catch (error) {}
+
     addVillageLog("You entered Ash Hills. The path will take 45 minutes.");
     showAshHills();
     saveGame();
 }
 
 function showAshHills() {
-    setVillageTabsVisible(false);
+    setVillageTabsVisible(true);
+    if (typeof updateMainTabs === "function") updateMainTabs("walk");
+    try {
+        localStorage.setItem("utopiaActiveTab", "walk");
+    } catch (error) {}
     document.getElementById("arrivalScene")?.classList.add("hidden");
     document.getElementById("forestGame")?.classList.add("hidden");
     document.getElementById("villageScreen")?.classList.add("hidden");
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
     document.getElementById("questScreen")?.classList.add("hidden");
     document.getElementById("ashHillsScreen")?.classList.remove("hidden");
+    document.getElementById("ashHillsScreen")?.classList.add("walk-active");
+    const walkTab = document.getElementById("walkMainTab");
+    if (walkTab) {
+        walkTab.classList.remove("hidden");
+        walkTab.style.display = "";
+        walkTab.setAttribute("aria-hidden", "false");
+    }
     updateAshHillsUI();
 }
 
