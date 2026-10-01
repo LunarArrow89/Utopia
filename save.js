@@ -1,5 +1,5 @@
 const SAVE_KEY = "utopiaSave";
-const SAVE_VERSION = 5;
+const SAVE_VERSION = 6;
 
 const SUPABASE_URL = "https://pfwjljbugjgfbmrtzcid.supabase.co";
 const SUPABASE_KEY = "sb_publishable_YkIw0Q-nJNrXF47tPruRYQ_51mBVWuB";
@@ -32,6 +32,7 @@ function getGameSaveData(savedAt = Date.now()) {
         village: cloneSaveData(village),
         arrivalCutsceneSeen: Boolean(arrivalCutsceneSeen),
         awakeningSeen: Boolean(typeof awakeningSeen !== "undefined" ? awakeningSeen : false),
+        ashHillsCutsceneSeen: Boolean(typeof ashHillsCutsceneSeen !== "undefined" ? ashHillsCutsceneSeen : false),
         savedAt
     };
 }
@@ -264,6 +265,10 @@ function applySaveData(data) {
 
     if (typeof data.awakeningSeen === "boolean") {
         awakeningSeen = data.awakeningSeen;
+    }
+
+    if (typeof data.ashHillsCutsceneSeen === "boolean") {
+        ashHillsCutsceneSeen = data.ashHillsCutsceneSeen;
     }
 
     if (data.village) {
