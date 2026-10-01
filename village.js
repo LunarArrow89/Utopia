@@ -115,7 +115,6 @@ function hideQuestScreen() {
 }
 
 function updateQuests() {
-    // Re-check completion every time the quest screen is opened or the village updates.
     if (paths.ashHills?.completed) village.quests.rescueCivilian.completed = true;
     if (village.unlocked) village.quests.getToVillage.completed = true;
     if (village.housesBuilt >= 2) village.quests.makeTwoHouses.completed = true;
@@ -237,6 +236,8 @@ function showVillageWalkTab(startWalk = false) {
     document.getElementById("forestGame")?.classList.add("hidden");
     document.getElementById("questScreen")?.classList.add("hidden");
     document.getElementById("villageScreen")?.classList.add("hidden");
+    document.getElementById("ashHillsScreen")?.classList.remove("hidden");
+    document.getElementById("ashHillsScreen")?.classList.add("hidden");
     document.getElementById("villageWalkScreen")?.classList.remove("hidden");
     document.getElementById("villageWalkScreen")?.classList.add("walk-active");
 
@@ -322,8 +323,6 @@ function canBuild(type) {
 function buildBuilding(type) {
     if (!village.unlocked || village.walk.active || village.buildings[type]) return;
 
-    // At the beginning of the game, houses are the only buildable structure.
-    // Other buildings become available only after the Ash Hills rescue.
     if (type !== "forge" && !paths.ashHills.completed) {
         addVillageLog("The village needs more progress before this building can be built.");
         return;
@@ -434,8 +433,6 @@ function updateVillageUI() {
     if (typeof updateEquipmentUI === "function") updateEquipmentUI();
     updateLootShopVisibility();
 
-    // Only the House is available at the beginning.
-    // The Forge appears after the Ash Hills civilian is rescued.
     const forgeUnlocked = Boolean(paths.ashHills.completed);
     ["campfire", "shelter", "workshop"].forEach(type => {
         const card = document.getElementById(`${type}Building`);
@@ -490,8 +487,6 @@ function resumeVillageWalk() {
 }
 
 function startVillageWalk() {
-    // The Travel screen can only be opened from the village, so if the
-    // button is visible, always allow it to start the walk.
     if (village.walk.active) {
         showVillageWalkTab();
         return;
@@ -527,7 +522,8 @@ function startVillageWalk() {
 }
 
 function updateVillageWalk() {
-    if (!village.walk.active) return;
+    if (!village.walk.active || resting) return;
+
     const now = Date.now();
     const elapsed = Math.max(0, now - village.walk.startTime);
     const bar = document.getElementById("villageWalkBar");
@@ -564,7 +560,7 @@ function updateVillageWalk() {
 }
 
 function catchUpVillageWalk() {
-    if (!village.walk.active) return;
+    if (!village.walk.active || resting) return;
     const now = Date.now();
     const lastUpdate = Number(village.walk.lastUpdateTime) || Number(village.walk.startTime) || now;
     const elapsed = Math.max(0, now - lastUpdate);
@@ -621,28 +617,10 @@ function catchUpVillageWalk() {
     if (encounterCount > 0) {
         if (defeated) {
             player.hp = 0;
-            addVillageWalkLog("While you were away, you were defeated and must rest for 25 minutes.");
-            villageWalkRest();
+            addVillageWalkLog("While you were away, you were defeated and must rest for 20 minutes.");
+            startRest(true);
         } else if (totalXp > 0 || totalGold > 0 || totalDamage > 0) {
             addVillageWalkLog("While you were away, you fought " + encounterCount + " encounter" + (encounterCount === 1 ? "" : "s") + (totalXp ? ", gained " + totalXp + " XP" : "") + (totalGold ? ", gained " + totalGold + " gold" : "") + (totalDamage ? ", and lost " + totalDamage + " HP" : "") + ".");
-        }
-    }
-
-    if (showSummary) {
-        const popup = document.getElementById("awaySummaryOverlay");
-        const popupText = document.getElementById("awaySummaryText");
-        if (popup && popupText) {
-            const lines = [
-                "You were away for " + Math.floor(totalAway / 60000) + " minutes.",
-                summary.length ? "Resources: " + summary.join(", ") : "Resources: none",
-                encounterCount ? "Encounters: " + encounterCount : "Encounters: none",
-                totalXp ? "XP gained: " + totalXp : "XP gained: none",
-                totalGold ? "Gold gained: " + totalGold : "Gold gained: none",
-                totalDamage ? "HP lost: " + totalDamage : "HP lost: none"
-            ];
-            if (defeated) lines.push("You were defeated and must rest for 25 minutes.");
-            popupText.textContent = lines.join("\n");
-            popup.classList.remove("hidden");
         }
     }
 
@@ -658,6 +636,8 @@ function catchUpVillageWalk() {
 }
 
 function villageWalkBattle() {
+    if (resting) return;
+
     const enemy = whisperingWoodsEnemies[Math.floor(Math.random() * whisperingWoodsEnemies.length)];
     const damageTaken = Math.max(0, enemy.attack - player.attack);
 
@@ -671,7 +651,7 @@ function villageWalkBattle() {
         if (player.hp <= 0) {
             player.hp = 0;
             addVillageWalkLog(enemy.name + " defeated you.");
-            villageWalkRest();
+            startRest(true);
         }
     }
 
@@ -681,30 +661,10 @@ function villageWalkBattle() {
 }
 
 function villageWalkRest() {
-    const missingHp = Math.max(0, player.maxHp - player.hp);
-    if (missingHp <= 0) return;
-
-    const restDuration = 25 * 60 * 1000;
-    const startTime = Date.now();
-    clearInterval(villageWalkTimer);
-
-    const bar = document.getElementById("villageWalkRestBar");
-    const text = document.getElementById("villageWalkRestText");
-    if (text) text.textContent = "Forced Rest";
-
-    const timer = setInterval(() => {
-        const progress = Math.min(1, (Date.now() - startTime) / restDuration);
-        if (bar) bar.style.width = (progress * 100) + "%";
-        if (progress >= 1) {
-            clearInterval(timer);
-            player.hp = player.maxHp;
-            if (bar) bar.style.width = "0%";
-            if (text) text.textContent = "Rested! The walk continues.";
-            updateHP();
-            saveGame();
-            villageWalkTimer = setInterval(updateVillageWalk, 1000);
-        }
-    }, 1000);
+    if (resting) return;
+    player.hp = 0;
+    addVillageWalkLog("You were defeated. Forced rest: 20 minutes.");
+    startRest(true);
 }
 
 function updateVillageWalkUI() {
@@ -745,8 +705,6 @@ function addVillageWalkLog(message) {
 }
 
 function leaveVillageWalk() {
-    // Leaving the walk must always work, even if the screen was restored
-    // from saved/local walk state and the active flag is slightly out of sync.
     village.walk.active = false;
     currentPath = "village";
     try {
@@ -870,7 +828,6 @@ function acceptQuestFromStory() {
     openQuestStory(openQuestStoryId);
 }
 
-
 function connectVillageWalkButton() {
     const button = document.getElementById("takeWalkButton");
     if (!button || button.dataset.walkConnected === "true") return;
@@ -885,7 +842,6 @@ function connectVillageWalkButton() {
         if (button.disabled) return;
         const now = Date.now();
 
-        // Mobile browsers can fire pointer/touch/click more than once.
         if (now - lastWalkPress < 500) {
             event?.preventDefault();
             event?.stopPropagation();
@@ -934,9 +890,6 @@ function connectLeaveVillageWalkButton() {
     button.addEventListener("click", leave);
 }
 
-
-// Final fallback for the Whispering Woods button. This catches clicks even
-// if another script replaced the button handler after the page loaded.
 document.addEventListener("click", function (event) {
     const button = event.target?.closest?.("#takeWalkButton");
     if (!button || button.disabled) return;
