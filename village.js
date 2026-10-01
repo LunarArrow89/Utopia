@@ -6,8 +6,8 @@ const whisperingWoodsEnemies = [
     { name: "Dark Slime", attack: 6, xp: 10, gold: 4 }
 ];
 
-const WHISPERING_WOODS_RESOURCE_TIME = 15000;
-const WHISPERING_WOODS_ENCOUNTER_TIME = 45000;
+const WHISPERING_WOODS_RESOURCE_TIME = 30000;
+const WHISPERING_WOODS_ENCOUNTER_TIME = 90000;
 
 let arrivalCutsceneSeen = false;
 
@@ -22,7 +22,7 @@ const village = {
     },
     resources: { wood: 0, stone: 0, food: 0 },
     buildings: { campfire: false, shelter: false, workshop: false, forge: false },
-    walk: { active: false, startTime: 0, lastUpdateTime: 0, lastRewardCount: 0, nextEncounterTime: 45, duration: 0 }
+    walk: { active: false, startTime: 0, lastUpdateTime: 0, lastRewardCount: 0, nextEncounterTime: 90, duration: 0 }
 };
 
 const buildingCosts = {
@@ -114,6 +114,7 @@ function hideQuestScreen() {
 }
 
 function updateQuests() {
+    // Re-check completion every time the quest screen is opened or the village updates.\n    if (paths.ashHills?.completed) village.quests.rescueCivilian.completed = true;
     if (village.unlocked) village.quests.getToVillage.completed = true;
     if (village.housesBuilt >= 2) village.quests.makeTwoHouses.completed = true;
     if (village.housesBuilt >= 2 && player.level >= 3) village.quests.reachAshLevel.completed = true;
@@ -130,7 +131,7 @@ function updateQuests() {
     const villageClaimButton = document.querySelector("#questVillage button");
     const houseClaimButton = document.querySelector("#questHouses button");
     const ashLevelClaimButton = document.querySelector("#questAshLevel button");
-    const rescueClaimButton = document.querySelector("#questRescue button");
+    const rescueClaimButton = document.getElementById("questRescueClaimButton");
 
     if (villageQuest) villageQuest.classList.toggle("completed", village.quests.getToVillage.claimed);
     if (houseQuest) houseQuest.classList.toggle("completed", village.quests.makeTwoHouses.claimed);
@@ -150,7 +151,7 @@ function updateQuests() {
     if (villageClaimButton) villageClaimButton.disabled = village.quests.getToVillage.claimed;
     if (houseClaimButton) houseClaimButton.disabled = village.quests.makeTwoHouses.claimed;
     if (ashLevelClaimButton) ashLevelClaimButton.disabled = village.quests.reachAshLevel.claimed;
-    if (rescueClaimButton) rescueClaimButton.disabled = village.quests.rescueCivilian.claimed;
+    if (rescueClaimButton) {\n        rescueClaimButton.classList.toggle("hidden", !village.quests.rescueCivilian.completed);\n        rescueClaimButton.disabled = village.quests.rescueCivilian.claimed;\n        rescueClaimButton.textContent = village.quests.rescueCivilian.claimed ? "Claimed" : "Claim Reward";\n    }
 }
 
 function claimQuest(type) {
@@ -488,7 +489,7 @@ function startVillageWalk() {
     village.walk.startTime = Date.now();
     village.walk.lastUpdateTime = village.walk.startTime;
     village.walk.lastRewardCount = 0;
-    village.walk.nextEncounterTime = 45;
+    village.walk.nextEncounterTime = 90;
     currentPath = "villageWalk";
     gameEnded = false;
     try {
@@ -501,7 +502,7 @@ function startVillageWalk() {
     updateVillageTabs("walk");
     if (typeof updateMainTabs === "function") updateMainTabs("walk");
     updateVillageWalkUI();
-    addVillageLog("You set out on an endless village walk. Return whenever you want.");
+    addVillageLog("You set out on an endless village walk. Resources are found less often, and encounters are less frequent. Return whenever you want.");
     saveGame();
     clearInterval(villageWalkTimer);
     villageWalkTimer = setInterval(updateVillageWalk, 1000);
@@ -537,7 +538,7 @@ function updateVillageWalk() {
 
     if (elapsed >= village.walk.nextEncounterTime * 1000) {
         villageWalkBattle();
-        village.walk.nextEncounterTime += 45;
+        village.walk.nextEncounterTime += 90;
     }
 
     updateVillageWalkUI();
