@@ -58,31 +58,64 @@ function showArrivalScene() {
     scene.classList.remove("hidden");
 }
 
+function showArrivalScene() {
+    // The arrival scene is a real pause screen. Nothing should progress
+    // while the player is reading it.
+    gameEnded = true;
+    setVillageTabsVisible(false);
+    const scene = document.getElementById("arrivalScene");
+    const forestGame = document.getElementById("forestGame");
+    const text = document.getElementById("arrivalText");
+    const button = document.getElementById("arrivalContinue");
+
+    if (!scene || !text || !button) return;
+
+    if (forestGame) forestGame.classList.add("hidden");
+
+    text.textContent = "You leave the forest behind...";
+    button.textContent = "Continue";
+    button.dataset.step = "1";
+
+    scene.classList.remove("hidden");
+}
+
 function nextArrivalLine() {
     const text = document.getElementById("arrivalText");
     const button = document.getElementById("arrivalContinue");
 
     if (button.dataset.step === "1") {
         text.textContent =
-            "Beyond the trees, you see an old village. Broken homes stand quietly among the weeds.";
+            "Past the trees you spot an abandoned village";
         button.dataset.step = "2";
         return;
     }
 
     if (button.dataset.step === "2") {
         text.textContent =
-            "No one seems to live here anymore. But perhaps it does not have to stay that way.";
+            "Moss grows in the cracks of the houses. Maybe you can fix this place.";
         button.dataset.step = "3";
         return;
     }
 
+    if (button.dataset.step === "3") {
+        text.textContent =
+            "Maybe you can make this your own UTOPIA";
+        button.dataset.step = "4";
+        return;
+    }
+
+    // Step 4 finishes the cutscene and unlocks the village.
     arrivalCutsceneSeen = true;
     village.unlocked = true;
     gameEnded = true;
-    document.getElementById("arrivalScene").classList.add("hidden");
+
+    document.getElementById("arrivalScene")?.classList.add("hidden");
+
     showVillage();
+
     addVillageLog("You found Oakshade Village.");
     addVillageLog("Gather resources and begin rebuilding.");
+
     saveGame();
 }
 
