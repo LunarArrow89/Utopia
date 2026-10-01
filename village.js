@@ -431,6 +431,7 @@ function updateVillageUI() {
     if (houseButton) houseButton.disabled = village.resources.wood < houseCost.wood || village.resources.stone < houseCost.stone;
 
     updateQuests();
+    if (typeof updateEquipmentUI === "function") updateEquipmentUI();
 
     // Only the House is available at the beginning.
     // The Forge appears after the Ash Hills civilian is rescued.
