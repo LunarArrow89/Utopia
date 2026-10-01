@@ -769,7 +769,7 @@ function resetVillage() {
     };
     village.resources = { wood: 0, stone: 0, food: 0 };
     village.buildings = { campfire: false, shelter: false, workshop: false, forge: false };
-    village.walk = { active: false, startTime: 0, lastUpdateTime: 0, lastRewardCount: 0, nextEncounterTime: 45, duration: 0 };
+    village.walk = { active: false, startTime: 0, lastUpdateTime: 0, lastRewardCount: 0, nextEncounterTime: 90, duration: 0 };
     clearInterval(villageWalkTimer);
     villageWalkTimer = null;
     document.getElementById("villageWalkScreen")?.classList.add("hidden");
