@@ -1,5 +1,5 @@
 const SAVE_KEY = "utopiaSave";
-const SAVE_VERSION = 6;
+const SAVE_VERSION = 7;
 
 const SUPABASE_URL = "https://pfwjljbugjgfbmrtzcid.supabase.co";
 const SUPABASE_KEY = "sb_publishable_YkIw0Q-nJNrXF47tPruRYQ_51mBVWuB";
@@ -30,6 +30,7 @@ function getGameSaveData(savedAt = Date.now()) {
         restForced: Boolean(typeof restForced !== "undefined" ? restForced : false),
         gameEnded,
         village: cloneSaveData(village),
+        gearState: cloneSaveData(typeof gearState !== "undefined" ? gearState : { inventory: [], equipped: null }),
         arrivalCutsceneSeen: Boolean(arrivalCutsceneSeen),
         awakeningSeen: Boolean(typeof awakeningSeen !== "undefined" ? awakeningSeen : false),
         ashHillsCutsceneSeen: Boolean(typeof ashHillsCutsceneSeen !== "undefined" ? ashHillsCutsceneSeen : false),
@@ -271,6 +272,11 @@ function applySaveData(data) {
         ashHillsCutsceneSeen = data.ashHillsCutsceneSeen;
     }
 
+    if (data.gearState && typeof gearState !== "undefined") {
+        gearState.inventory = Array.isArray(data.gearState.inventory) ? data.gearState.inventory : [];
+        gearState.equipped = data.gearState.equipped || null;
+    }
+
     if (data.village) {
         village.unlocked = Boolean(data.village.unlocked);
         village.housesBuilt = Number(data.village.housesBuilt || 0);
@@ -279,6 +285,9 @@ function applySaveData(data) {
         Object.assign(village.buildings, data.village.buildings || {});
         Object.assign(village.walk, data.village.walk || {});
     }
+
+    if (typeof applyEquippedStats === "function") applyEquippedStats();
+    if (typeof updateEquipmentUI === "function") updateEquipmentUI();
 }
 
 async function loadGame() {
