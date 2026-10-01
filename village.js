@@ -10,6 +10,7 @@ const WHISPERING_WOODS_RESOURCE_TIME = 30000;
 const WHISPERING_WOODS_ENCOUNTER_TIME = 90000;
 
 let arrivalCutsceneSeen = false;
+let villageWalkTimer = null;
 
 const village = {
     unlocked: false,
