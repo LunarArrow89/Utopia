@@ -7,7 +7,6 @@ const ITEM_TYPES = ["Rags", "Shirt", "Sweater", "Boots"];
 const ITEM_DESCRIPTORS = ["Cool", "Funny", "Dumb"];
 const LOOT_BOX_COSTS = { Common: 25, Uncommon: 75, Rare: 200, Epic: 500 };
 
-// Random-stat ranges get stronger with rarity.
 const RANDOM_STAT_RANGES = {
     Common: { attack: [1, 2], maxHp: [5, 10] },
     Uncommon: { attack: [2, 4], maxHp: [10, 20] },
@@ -34,7 +33,6 @@ function generateRandomStat(rarity) {
     const ranges = RANDOM_STAT_RANGES[rarity];
     const stat = Math.random() < 0.5 ? "attack" : "maxHp";
     const amount = randomInt(ranges[stat][0], ranges[stat][1]);
-
     return {
         stat,
         amount,
@@ -47,7 +45,6 @@ function generateItem(rarity) {
     const chosenRarity = rarity || randomItemPart(ITEM_RARITIES);
     const descriptor = randomItemPart(ITEM_DESCRIPTORS);
     const type = randomItemPart(ITEM_TYPES);
-
     const hasBonusWord = Math.random() < 0.5;
     const bonus = hasBonusWord ? randomItemPart(ITEM_BONUSES) : null;
     const randomStat = hasBonusWord ? null : generateRandomStat(chosenRarity);
@@ -190,7 +187,6 @@ window.resetItems = resetItems;
 
         if (!button || button.disabled) return;
 
-        // Whispering Woods already has its own touch handler.
         if (button.id === "takeWalkButton") return;
 
         const now = Date.now();
@@ -198,10 +194,15 @@ window.resetItems = resetItems;
             event.preventDefault();
             return;
         }
-
         lastTouchTime = now;
+
         event.preventDefault();
         event.stopPropagation();
+
+        if (button.id === "awaySummaryClose") {
+            document.getElementById("awaySummaryOverlay")?.classList.add("hidden");
+            return;
+        }
 
         button.click();
     }
@@ -211,15 +212,6 @@ window.resetItems = resetItems;
             passive: false,
             capture: true
         });
-
-        const close = document.getElementById("awaySummaryClose");
-        if (close) {
-            close.addEventListener("touchend", function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-                document.getElementById("awaySummaryOverlay")?.classList.add("hidden");
-            }, { passive: false });
-        }
 
         document.querySelectorAll("button").forEach(button => {
             button.style.touchAction = "manipulation";
