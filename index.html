@@ -96,8 +96,18 @@
 <div class="village-panel travel-panel">
 <div class="village-panel-title">🧭 Travel</div>
 <div class="village-walk-description">Choose a path to explore outside Oakshade Village.</div>
-<button id="travelButton" type="button">🧭 Travel</button>
-<div id="travelOptions" class="travel-options hidden">
+<button id="travelButton" type="button">🧭 Open Travel</button>
+</div>
+<div class="village-panel"><div class="village-panel-heading"><div class="village-panel-title">Rebuild the Village</div><div class="village-hint">Each building unlocks more of the village later.</div></div><div class="building-list"><div class="building-card" id="houseBuilding"><div><div class="building-name">🏠 House</div><div class="building-description">A home for someone in Oakshade.</div><div class="building-cost"><span id="houseCostText">20 wood · 10 stone</span></div></div><div class="building-actions"><span id="houseCountVillageText">0 built</span><button id="houseBuildButton" type="button" onclick="buildHouse()">Build</button></div></div><div class="building-card" id="campfireBuilding"><div><div class="building-name">🔥 Campfire</div><div class="building-description">A warm place to gather.</div><div class="building-cost">10 wood · 5 stone</div></div><button id="campfireBuildButton" data-build="campfire">Build</button></div><div class="building-card" id="shelterBuilding"><div><div class="building-name">🏠 Shelter</div><div class="building-description">A safe roof over the village.</div><div class="building-cost">20 wood · 10 stone</div></div><button id="shelterBuildButton" data-build="shelter">Build</button></div><div class="building-card" id="workshopBuilding"><div><div class="building-name">🛠️ Workshop</div><div class="building-description">A place for future village projects.</div><div class="building-cost">35 wood · 25 stone</div></div><button id="workshopBuildButton" data-build="workshop">Build</button></div></div></div>
+<div class="village-footer"><div class="village-footer-actions"><button id="accountButtonVillage" type="button" onclick="showAccountScreen()">Cloud Save / Account</button><button id="villageResetButton" class="danger-button" type="button" onclick="resetGame()">Reset Game</button></div></div>
+</div></div>
+<div id="travelScreen" class="travel-screen hidden">
+<div class="travel-screen-box">
+<button id="travelBackButton" class="travel-back-button" type="button">← Back to Village</button>
+<div class="village-kicker">TRAVEL</div>
+<h1>🧭 Travel</h1>
+<p class="travel-screen-subtitle">Choose a path to explore outside Oakshade Village.</p>
+<div class="travel-options">
     <div class="travel-option">
         <div class="travel-option-info">
             <strong>🌲 Whispering Woods</strong>
@@ -115,9 +125,7 @@
     </div>
 </div>
 </div>
-<div class="village-panel"><div class="village-panel-heading"><div class="village-panel-title">Rebuild the Village</div><div class="village-hint">Each building unlocks more of the village later.</div></div><div class="building-list"><div class="building-card" id="houseBuilding"><div><div class="building-name">🏠 House</div><div class="building-description">A home for someone in Oakshade.</div><div class="building-cost"><span id="houseCostText">20 wood · 10 stone</span></div></div><div class="building-actions"><span id="houseCountVillageText">0 built</span><button id="houseBuildButton" type="button" onclick="buildHouse()">Build</button></div></div><div class="building-card" id="campfireBuilding"><div><div class="building-name">🔥 Campfire</div><div class="building-description">A warm place to gather.</div><div class="building-cost">10 wood · 5 stone</div></div><button id="campfireBuildButton" data-build="campfire">Build</button></div><div class="building-card" id="shelterBuilding"><div><div class="building-name">🏠 Shelter</div><div class="building-description">A safe roof over the village.</div><div class="building-cost">20 wood · 10 stone</div></div><button id="shelterBuildButton" data-build="shelter">Build</button></div><div class="building-card" id="workshopBuilding"><div><div class="building-name">🛠️ Workshop</div><div class="building-description">A place for future village projects.</div><div class="building-cost">35 wood · 25 stone</div></div><button id="workshopBuildButton" data-build="workshop">Build</button></div></div></div>
-<div class="village-footer"><div class="village-footer-actions"><button id="accountButtonVillage" type="button" onclick="showAccountScreen()">Cloud Save / Account</button><button id="villageResetButton" class="danger-button" type="button" onclick="resetGame()">Reset Game</button></div></div>
-</div></div>
+</div>
 <div id="villageTabs" class="village-tabs hidden" aria-hidden="true"></div>
 
 <div id="questScreen" class="quest-screen hidden"><div class="quest-screen-box"><button class="quest-close" type="button" onclick="hideQuestScreen()">×</button><div class="village-kicker">UTOPIA QUESTS</div><h1>📜 Quests</h1><p class="quest-screen-subtitle">Complete goals to earn gold.</p><div class="quest-list"><div class="quest-card" id="questVillage"><div><strong>Get to Village</strong><span>Reach Oakshade Village.</span></div><div><small id="questVillageReward">Reward: 6 Gold</small><button type="button" onclick="openQuestStory('getToVillage')">Read Story</button></div></div><div class="quest-card" id="questHouses"><div><strong>Make Two Houses</strong><span>Build 2 houses. <b><span id="houseCountText">0</span>/2</b></span></div><div><small id="questHousesReward">Reward: 15 Gold</small><button type="button" onclick="openQuestStory('makeTwoHouses')">Read Story</button></div></div></div><div class="quest-card hidden" id="questAshLevel"><div><strong>Prepare for Ash Hills</strong><span>Reach level 3 after rebuilding two houses.</span></div><div><small id="questAshLevelReward">Reward: 25 Gold</small><button type="button" onclick="openQuestStory('reachAshLevel')">Read Story</button></div></div><div class="quest-card hidden" id="questRescue"><div><strong>Rescue the Civilian</strong><span>Complete Ash Hills and bring the civilian home.</span></div><div><small id="questRescueReward">Reward: 50 Gold</small><button type="button" onclick="openQuestStory('rescueCivilian')">Read Story</button></div></div></div></div></div>
