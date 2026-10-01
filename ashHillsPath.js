@@ -9,7 +9,7 @@ registerPath("ashHills", {
     name: "Ash Hills",
     progress: 0,
     duration: 45 * 60,
-    encounterTime: 45,
+    encounterTime: 90,
     completed: false,
     active: false,
     lastUpdateTime: 0,
@@ -45,7 +45,7 @@ function startAshHills() {
 
     path.active = true;
     path.lastUpdateTime = Date.now();
-    path.encounterTime = 45;
+    path.encounterTime = 90;
     currentPath = "ashHills";
     gameEnded = false;
 
@@ -127,7 +127,7 @@ function updateAshHills() {
         startAshBattle();
 
         if (path.active && !path.completed && !resting) {
-            path.encounterTime += randomEncounterTime();
+            path.encounterTime += 90;
         }
     }
 
@@ -186,7 +186,7 @@ function catchUpAshHillsWhileAway() {
             }
         }
 
-        encounterTime += randomEncounterTime();
+        encounterTime += 90;
     }
 
     path.encounterTime = encounterTime;
