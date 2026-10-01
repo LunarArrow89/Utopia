@@ -399,8 +399,15 @@ function updateVillageUI() {
         walkButton.textContent = village.walk.active ? "Walking..." : "Take a Walk";
     }
 
+    const ashPanel = document.querySelector(".ash-hills-option");
     const ashButton = document.getElementById("ashHillsButton");
-    if (ashButton) {
+
+    // Ash Hills is not shown until the "Make Two Houses" quest is completed.
+    if (ashPanel) {
+        ashPanel.classList.toggle("hidden", !village.quests.makeTwoHouses.completed);
+    }
+
+    if (ashButton && village.quests.makeTwoHouses.completed) {
         if (village.housesBuilt < 2) {
             ashButton.disabled = true;
             ashButton.textContent = "Build 2 Houses First";
