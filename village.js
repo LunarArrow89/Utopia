@@ -874,11 +874,30 @@ function connectVillageWalkButton() {
 
     button.dataset.walkConnected = "true";
     button.disabled = false;
-    button.onclick = function (event) {
-        event.preventDefault();
-        event.stopPropagation();
+    button.style.touchAction = "manipulation";
+
+    let lastWalkPress = 0;
+
+    function beginWalk(event) {
+        if (button.disabled) return;
+        const now = Date.now();
+
+        // Mobile browsers can fire pointer/touch/click more than once.
+        if (now - lastWalkPress < 500) {
+            event?.preventDefault();
+            event?.stopPropagation();
+            return;
+        }
+
+        lastWalkPress = now;
+        event?.preventDefault();
+        event?.stopPropagation();
         startVillageWalk();
-    };
+    }
+
+    button.addEventListener("pointerup", beginWalk, { passive: false });
+    button.addEventListener("touchend", beginWalk, { passive: false });
+    button.addEventListener("click", beginWalk);
 }
 
 window.startVillageWalk = startVillageWalk;
