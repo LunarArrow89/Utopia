@@ -71,6 +71,15 @@
 
     function showTravel() {
         if (typeof village !== "undefined" && !village.unlocked) return;
+
+        // The Travel system owns the inside of the Travel screen.
+        // Do not replace its renderer with the main-tab controller.
+        if (typeof window.showTravelSelection === "function") {
+            window.showTravelSelection();
+            updateTabButtons("village");
+            return;
+        }
+
         showScreen("travelScreen", "village");
         if (typeof updateVillageUI === "function") updateVillageUI();
     }
