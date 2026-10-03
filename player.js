@@ -29,7 +29,7 @@ function updateHP() {
     const hpBar = document.getElementById("hpBar");
     if (hpText) hpText.textContent = `${player.hp} / ${player.maxHp}`;
     if (hpBarText) hpBarText.textContent = `${player.hp} / ${player.maxHp} HP`;
-    if (hpBar) hpBar.style.width = `${Math.max(0, Math.min(100, (player.hp / player.maxHp) * 100))}%`;
+    if (hpBar) hpBar.style.width = `${(player.hp / player.maxHp) * 100}%`;
     if (typeof updateVillageWalkUI === "function") updateVillageWalkUI();
     if (typeof updateAshHillsUI === "function") updateAshHillsUI();
 }
@@ -71,8 +71,9 @@ function giveXP(amount) {
     if (xpBar) xpBar.style.width = `${(player.xp / player.xpToNext) * 100}%`;
     if (levelText) levelText.textContent = player.level;
     if (attackText) attackText.textContent = player.attack;
-    updateHP();
     if (typeof updateVillageUI === "function") updateVillageUI();
+    if (typeof updateVillageWalkUI === "function") updateVillageWalkUI();
+    if (typeof updateAshHillsUI === "function") updateAshHillsUI();
     saveGame();
 }
 
@@ -84,27 +85,17 @@ let restForced = false;
 function ensureRestScreen() {
     let screen = document.getElementById("restScreen");
     if (screen) return screen;
-
     screen = document.createElement("div");
     screen.id = "restScreen";
     screen.className = "rest-screen hidden";
-    screen.innerHTML = `
-        <div class="rest-screen-box">
-            <div class="rest-screen-kicker">DEFEATED</div>
-            <h1>Slain</h1>
-            <p>Rest a bit</p>
-            <div class="rest-screen-bar"><div id="restScreenBar"></div></div>
-            <div id="restScreenText">0:00 remaining</div>
-        </div>`;
+    screen.innerHTML = `<div class="rest-screen-box"><div class="rest-screen-kicker">DEFEATED</div><h1>Slain</h1><p>Rest a bit</p><div class="rest-screen-bar"><div id="restScreenBar"></div></div><div id="restScreenText">0:00 remaining</div></div>`;
     document.body.appendChild(screen);
     return screen;
 }
 
 function showRestScreen() {
     const screen = ensureRestScreen();
-    ["mainTabs", "forestGame", "villageScreen", "travelScreen", "questScreen", "villageWalkScreen", "ashHillsScreen", "arrivalScene", "storyScreen"].forEach(id => {
-        document.getElementById(id)?.classList.add("hidden");
-    });
+    ["mainTabs", "forestGame", "villageScreen", "travelScreen", "questScreen", "villageWalkScreen", "ashHillsScreen", "arrivalScene", "storyScreen"].forEach(id => document.getElementById(id)?.classList.add("hidden"));
     screen.classList.remove("hidden");
     document.body.classList.add("is-resting");
 }
@@ -122,6 +113,7 @@ function finishRest() {
     restForced = false;
     restStartTime = 0;
     restDuration = 0;
+    gameEnded = false;
     hideRestScreen();
     const status = document.getElementById("statusText");
     if (status) status.textContent = "Walking";
@@ -153,12 +145,10 @@ function runRestTimer() {
         const screenBar = document.getElementById("restScreenBar");
         if (screenText) screenText.textContent = text;
         if (screenBar) screenBar.style.width = progress * 100 + "%";
-        const restText = document.getElementById("restText");
-        if (restText) restText.textContent = text;
-        const villageRest = document.getElementById("villageWalkRestText");
-        if (villageRest) villageRest.textContent = text;
-        const ashRest = document.getElementById("ashHillsRestText");
-        if (ashRest) ashRest.textContent = text;
+        ["restText", "villageWalkRestText", "ashHillsRestText"].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = text;
+        });
         ["restBar", "ashHillsRestBar", "villageWalkRestBar"].forEach(id => {
             const bar = document.getElementById(id);
             if (bar) bar.style.width = progress * 100 + "%";
@@ -174,27 +164,23 @@ function startRest(force = false) {
         showRestScreen();
         return;
     }
-
     const missingHp = Math.max(0, player.maxHp - player.hp);
     if (missingHp <= 0) {
         addLog("You don't need to rest.");
         return;
     }
-
     resting = true;
     restForced = force;
-    // Rest duration is based on missing HP: every missing HP costs 3 minutes.
+    // Every missing HP costs 3 minutes of rest.
     restDuration = missingHp * 3 * 60 * 1000;
     restStartTime = Date.now();
     gameEnded = true;
-
     const status = document.getElementById("statusText");
     if (status) status.textContent = "Resting";
     const restButton = document.getElementById("restButton");
     const leaveButton = document.getElementById("leaveButton");
     if (restButton) restButton.disabled = true;
     if (leaveButton) leaveButton.disabled = true;
-
     addLog(force ? "You were slain. Resting until fully healed." : "You are resting until fully healed.");
     showRestScreen();
     saveGame();
@@ -223,6 +209,84 @@ function updateRest() {
 }
 
 function leaveRest() {
-    // Rest is now a complete recovery screen and cannot be cancelled.
+    // Rest is a complete recovery screen and cannot be cancelled.
     return;
 }
+
+async function resetGame() {
+    if (!confirm("Are you sure you want to reset your save? This cannot be undone.")) return;
+    setAccountStatus("Resetting your profile...");
+    try {
+        if (remoteSaveTimer) { clearTimeout(remoteSaveTimer); remoteSaveTimer = null; }
+        pendingRemoteSave = null;
+        const waitUntil = Date.now() + 2000;
+        while (remoteSaveInProgress && Date.now() < waitUntil) await new Promise(resolve => setTimeout(resolve, 50));
+        remoteSaveInProgress = false;
+        clearInterval(restTimer);
+        restTimer = null;
+        if (typeof villageWalkTimer !== "undefined") { clearInterval(villageWalkTimer); villageWalkTimer = null; }
+        try { localStorage.removeItem("utopiaWalkActive"); } catch (error) {}
+        player.hp = 40; player.maxHp = 40; player.attack = 8; player.level = 1; player.xp = 0; player.xpToNext = 150; player.gold = 0; player.equipmentAttackBonus = 0; player.equipmentMaxHpBonus = 0;
+        if (typeof resetItems === "function") resetItems();
+        resting = false; restForced = false; restStartTime = 0; restDuration = 0; gameEnded = false; arrivalCutsceneSeen = false; awakeningSeen = false; currentPath = "forest";
+        hideRestScreen();
+        try { localStorage.removeItem("utopiaWalkActive"); localStorage.setItem("utopiaActiveTab", "village"); } catch (error) {}
+        Object.keys(paths).forEach(pathName => {
+            const path = paths[pathName];
+            if ("progress" in path) path.progress = 0;
+            if ("completed" in path) path.completed = false;
+            if ("rescueCompleted" in path) path.rescueCompleted = false;
+            if ("active" in path) path.active = pathName === "forest";
+            if ("lastUpdateTime" in path) path.lastUpdateTime = Date.now();
+            if (pathName === "forest") path.encounterTime = 45;
+            if (pathName === "ashHills") path.encounterTime = 45;
+            if (pathName === "cave") path.encounterTime = 60;
+        });
+        if (typeof resetVillage === "function") resetVillage();
+        document.getElementById("log")?.replaceChildren();
+        document.getElementById("villageLog")?.replaceChildren();
+        document.getElementById("forestGame")?.classList.remove("hidden");
+        document.getElementById("forestScreen")?.classList.remove("hidden");
+        document.getElementById("villageScreen")?.classList.add("hidden");
+        document.getElementById("villageWalkScreen")?.classList.add("hidden");
+        document.getElementById("travelScreen")?.classList.add("hidden");
+        document.getElementById("questScreen")?.classList.add("hidden");
+        document.getElementById("ashHillsScreen")?.classList.add("hidden");
+        document.getElementById("arrivalScene")?.classList.add("hidden");
+        updateHP(); updateGold(); updateForest();
+        const levelText = document.getElementById("levelText"); if (levelText) levelText.textContent = player.level;
+        const attackText = document.getElementById("attackText"); if (attackText) attackText.textContent = player.attack;
+        const status = document.getElementById("statusText"); if (status) status.textContent = "Walking";
+        const xpBar = document.getElementById("xpBar"); if (xpBar) xpBar.style.width = "0%";
+        const xpText = document.getElementById("xpBarText"); if (xpText) xpText.textContent = "0 / 150 XP";
+        const restBar = document.getElementById("restBar"); if (restBar) restBar.style.width = "0%";
+        const restText = document.getElementById("restText"); if (restText) restText.textContent = "Rest when you need to recover.";
+        const restButton = document.getElementById("restButton"); if (restButton) restButton.disabled = false;
+        const leaveButton = document.getElementById("leaveButton"); if (leaveButton) leaveButton.disabled = true;
+        const resetSave = getGameSaveData(Date.now());
+        if (currentSupabaseUser) {
+            let saved = await saveRemoteGame(resetSave);
+            if (!saved) throw new Error("The reset could not be saved to the cloud.");
+        } else {
+            localStorage.setItem(SAVE_KEY, JSON.stringify(resetSave));
+        }
+        pendingRemoteSave = null;
+        location.reload();
+    } catch (error) {
+        console.error("Reset failed:", error);
+        setAccountStatus("Reset failed: " + (error.message || "Please try again."));
+    }
+}
+
+window.resetGame = resetGame;
+
+document.addEventListener("DOMContentLoaded", () => {
+    updateHP();
+    updateGold();
+    if (resting) resumeRest();
+    const levelText = document.getElementById("levelText"); if (levelText) levelText.textContent = player.level;
+    const attackText = document.getElementById("attackText"); if (attackText) attackText.textContent = player.attack;
+    const resetButton = document.getElementById("resetButton"); if (resetButton) resetButton.addEventListener("click", resetGame);
+    const restButton = document.getElementById("restButton"); if (restButton) restButton.addEventListener("click", () => startRest(false));
+    const leaveButton = document.getElementById("leaveButton"); if (leaveButton) leaveButton.addEventListener("click", leaveRest);
+});
