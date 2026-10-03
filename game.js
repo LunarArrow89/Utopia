@@ -75,6 +75,13 @@ async function initializeGame() {
         return;
     }
 
+    // loadGame() applies the saved rest state. Resume it only after the
+    // save has been restored, so a refresh cannot make the slain screen vanish.
+    if (resting && typeof resumeRest === "function") {
+        resumeRest();
+        if (resting) return;
+    }
+
     // loadGame() has now finished applying the cloud/local save.
     // Only after that point may we decide whether the first-time
     // awakening should be shown.
