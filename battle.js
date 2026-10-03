@@ -1,25 +1,35 @@
 function resolveBattle(enemy) {
-    const damageTaken = Math.max(0, enemy.attack - player.attack);
+    const luckyHit = Math.random() < 0.12;
+    const glancingHit = !luckyHit && Math.random() < 0.18;
+    const baseDamage = Math.max(0, enemy.attack - player.attack);
 
     return {
-        damageTaken,
-        defeated: damageTaken <= 0
+        damageTaken: glancingHit ? Math.max(1, Math.ceil(baseDamage / 2)) : baseDamage,
+        defeated: baseDamage <= 0,
+        luckyHit,
+        glancingHit
     };
 }
 
 function startBattle(enemyList) {
-    if (!enemyList || enemyList.length === 0) return;
+    if (!enemyList || enemyList.length === 0 || resting) return;
 
     const enemy = enemyList[Math.floor(Math.random() * enemyList.length)];
     const result = resolveBattle(enemy);
 
     if (result.defeated) {
-        addLog(`You defeated ${enemy.name}.`);
-        player.gold += enemy.gold;
-        giveXP(enemy.xp);
+        const xpReward = result.luckyHit ? enemy.xp * 2 : enemy.xp;
+        const goldReward = result.luckyHit ? enemy.gold * 2 : enemy.gold;
+        addLog(result.luckyHit
+            ? `Lucky strike! You defeated ${enemy.name} and found extra loot.`
+            : `You defeated ${enemy.name}.`);
+        player.gold += goldReward;
+        giveXP(xpReward);
     } else {
         player.hp -= result.damageTaken;
-        addLog(`${enemy.name} attacked you for ${result.damageTaken} damage.`);
+        addLog(result.glancingHit
+            ? `${enemy.name} hit you, but you only took ${result.damageTaken} damage.`
+            : `${enemy.name} attacked you for ${result.damageTaken} damage.`);
 
         if (player.hp <= 0) {
             player.hp = 0;
@@ -60,7 +70,7 @@ function addAshHillsLog(message) {
 }
 
 function startAshBattle() {
-    if (!paths.ashHills.active || paths.ashHills.completed) return;
+    if (!paths.ashHills.active || paths.ashHills.completed || resting) return;
 
     startBattle(ashEnemies);
     updateAshHillsUI();
