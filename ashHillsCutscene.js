@@ -37,3 +37,20 @@ function finishAshHillsCutscene() {
     saveGame();
     refreshGameUI();
 }
+
+// Load the simpler enemy-selection travel system after the main game scripts.
+(function loadTravelSystem() {
+    function load() {
+        if (document.querySelector('script[data-utopia-travel-system]')) return;
+        const script = document.createElement("script");
+        script.src = "./travelSystem.js?v=1";
+        script.dataset.utopiaTravelSystem = "true";
+        document.body.appendChild(script);
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", load, { once: true });
+    } else {
+        load();
+    }
+})();
