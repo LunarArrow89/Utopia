@@ -56,54 +56,190 @@
         return roll < 0.65 ? "Common" : roll < 0.9 ? "Uncommon" : roll < 0.98 ? "Rare" : "Epic";
     }
 
-    function fightEnemy(enemy) {
-        if (!enemy || typeof player === "undefined") return;
-        if (typeof resting !== "undefined" && resting) return;
+    let currentBattle = null;
 
-        const damage = Math.max(0, enemy.attack - player.attack);
+    function finishBattleVictory() {
+        if (!currentBattle) return;
+        const enemy = currentBattle.enemy;
+        player.gold += enemy.gold;
+        if (typeof giveXP === "function") giveXP(enemy.xp);
+        travelLog("🏆 You defeated " + enemy.name + "! +" + enemy.xp + " XP, +" + enemy.gold + " gold.");
 
-        if (damage <= 0) {
-            player.gold += enemy.gold;
-            if (typeof giveXP === "function") giveXP(enemy.xp);
-            travelLog("⚔️ You defeated " + enemy.name + "! +" + enemy.xp + " XP, +" + enemy.gold + " gold.");
+        if (typeof generateItem === "function" && Array.isArray(player.inventory) && Math.random() < 0.12) {
+            const item = generateItem(rarityRoll());
+            player.inventory.unshift(item);
+            travelLog("🎒 You found " + item.name + "!");
+            if (typeof updateEquipmentUI === "function") updateEquipmentUI();
+        }
 
-            if (typeof generateItem === "function" && Array.isArray(player.inventory) && Math.random() < 0.12) {
-                const item = generateItem(rarityRoll());
-                player.inventory.unshift(item);
-                travelLog("🎒 You found " + item.name + "!");
-                if (typeof updateEquipmentUI === "function") updateEquipmentUI();
-            }
-
-            if (selectedRoute === "ash" && !paths.ashHills.rescueCompleted) {
-                const state = getTravelState();
-                state.ashVictories++;
-                if (state.ashVictories >= 5) {
-                    paths.ashHills.completed = true;
-                    paths.ashHills.rescueCompleted = true;
-                    paths.ashHills.active = false;
-                    if (typeof village !== "undefined" && village.quests) village.quests.rescueCivilian.completed = true;
-                    travelLog("🧑 You found the trapped civilian!");
-                    travelLog("🏠 You rescued them and brought them back to Oakshade.");
-                    if (typeof updateQuests === "function") updateQuests();
-                    if (typeof updateVillageUI === "function") updateVillageUI();
-                }
-            }
-        } else {
-            player.hp = Math.max(0, player.hp - damage);
-            travelLog("🔥 " + enemy.name + " attacked you for " + damage + " damage.");
-            if (player.hp <= 0) {
-                player.hp = 0;
-                travelLog("💀 You were defeated by " + enemy.name + ".");
-                if (typeof startRest === "function") startRest(true);
-                return;
+        if (selectedRoute === "ash" && !paths.ashHills.rescueCompleted) {
+            const state = getTravelState();
+            state.ashVictories++;
+            if (state.ashVictories >= 5) {
+                paths.ashHills.completed = true;
+                paths.ashHills.rescueCompleted = true;
+                paths.ashHills.active = false;
+                if (typeof village !== "undefined" && village.quests) village.quests.rescueCivilian.completed = true;
+                travelLog("🧑 You found the trapped civilian!");
+                travelLog("🏠 You rescued them and brought them back to Oakshade.");
+                if (typeof updateQuests === "function") updateQuests();
+                if (typeof updateVillageUI === "function") updateVillageUI();
             }
         }
 
+        currentBattle = null;
         if (typeof updateHP === "function") updateHP();
         if (typeof updateGold === "function") updateGold();
         if (typeof updateVillageUI === "function") updateVillageUI();
         if (typeof saveGame === "function") saveGame();
         renderRoute();
+    }
+
+    function enemyTurn() {
+        if (!currentBattle || typeof player === "undefined") return;
+        const enemy = currentBattle.enemy;
+        let damage = Math.max(1, enemy.attack - Math.floor(player.attack * 0.35));
+
+        if (currentBattle.defending) {
+            damage = Math.max(1, Math.floor(damage * 0.5));
+            currentBattle.defending = false;
+            travelLog("🛡️ Your guard reduced the damage.");
+        }
+
+        if (Math.random() < 0.12) {
+            damage *= 2;
+            travelLog("💥 " + enemy.name + " landed a critical hit!");
+        }
+
+        player.hp = Math.max(0, player.hp - damage);
+        travelLog("🔥 " + enemy.name + " hit you for " + damage + " damage.");
+
+        if (player.hp <= 0) {
+            player.hp = 0;
+            travelLog("You were defeated by " + enemy.name + ".");
+            currentBattle = null;
+            if (typeof updateHP === "function") updateHP();
+            if (typeof saveGame === "function") saveGame();
+            if (typeof startRest === "function") startRest(true);
+            return;
+        }
+
+        renderBattle();
+    }
+
+    function battleAction(action) {
+        if (!currentBattle || typeof player === "undefined") return;
+        if (typeof resting !== "undefined" && resting) return;
+
+        const enemy = currentBattle.enemy;
+
+        if (action === "attack") {
+            let damage = Math.max(1, player.attack + Math.floor(Math.random() * 5) - 2);
+            if (Math.random() < 0.15) {
+                damage *= 2;
+                travelLog("⚡ Critical hit!");
+            }
+            currentBattle.enemyHp = Math.max(0, currentBattle.enemyHp - damage);
+            travelLog("⚔️ You attacked " + enemy.name + " for " + damage + " damage.");
+
+            if (currentBattle.enemyHp <= 0) {
+                finishBattleVictory();
+                return;
+            }
+            enemyTurn();
+        } else if (action === "defend") {
+            currentBattle.defending = true;
+            travelLog("🛡️ You brace yourself. The next attack will deal reduced damage.");
+            enemyTurn();
+        } else if (action === "recover") {
+            const heal = Math.max(2, Math.floor(player.maxHp * 0.15));
+            const oldHp = player.hp;
+            player.hp = Math.min(player.maxHp, player.hp + heal);
+            travelLog("💚 You recovered " + (player.hp - oldHp) + " HP.");
+            enemyTurn();
+        } else if (action === "flee") {
+            if (Math.random() < 0.7) {
+                travelLog("🏃 You escaped from " + enemy.name + ".");
+                currentBattle = null;
+                renderRoute();
+                return;
+            }
+            travelLog("❌ You couldn't escape!");
+            enemyTurn();
+        }
+
+        if (typeof updateHP === "function") updateHP();
+        if (typeof updateVillageUI === "function") updateVillageUI();
+        if (typeof saveGame === "function") saveGame();
+    }
+
+    function startBattle(enemy) {
+        if (!enemy || typeof player === "undefined") return;
+        if (typeof resting !== "undefined" && resting) return;
+
+        currentBattle = {
+            enemy,
+            enemyHp: enemy.hp || Math.max(12, enemy.attack * 3),
+            defending: false
+        };
+
+        travelLog("⚔️ You encountered " + enemy.name + "!");
+        renderBattle();
+    }
+
+    function renderBattle() {
+        const screen = document.getElementById("travelScreen");
+        if (!screen || !currentBattle) return;
+
+        const enemy = currentBattle.enemy;
+        const enemyHp = currentBattle.enemyHp;
+        const enemyMaxHp = enemy.hp || Math.max(12, enemy.attack * 3);
+        const hpPercent = Math.max(0, Math.min(100, (enemyHp / enemyMaxHp) * 100));
+
+        screen.innerHTML = `
+            <div class="travel-screen-box travel-selection-box battle-screen ${selectedRoute === "ash" ? "ash-travel" : "woods-travel"}">
+                <button id="battleBackButton" class="travel-back-button" type="button">← Run Away</button>
+                <div class="village-kicker">BATTLE</div>
+                <h1>${selectedRoute === "ash" ? "🔥" : "⚔️"} ${enemy.name}</h1>
+                <p class="travel-screen-subtitle">Choose an action. The enemy responds after every move.</p>
+
+                <div class="battle-combatants">
+                    <div class="combatant-card player-combatant">
+                        <span>🧑 You</span>
+                        <strong>${player.hp} / ${player.maxHp} HP</strong>
+                        <small>⚔️ ${player.attack} Attack</small>
+                    </div>
+                    <div class="battle-vs">VS</div>
+                    <div class="combatant-card enemy-combatant">
+                        <span>👾 ${enemy.name}</span>
+                        <strong>${enemyHp} / ${enemyMaxHp} HP</strong>
+                        <small>⚔️ ${enemy.attack} Attack</small>
+                    </div>
+                </div>
+
+                <div class="bar battle-hp-bar"><div class="bar-fill" style="width:${hpPercent}%"></div></div>
+
+                <div class="battle-actions">
+                    <button type="button" data-battle-action="attack">⚔️ Attack</button>
+                    <button type="button" data-battle-action="defend">🛡️ Defend</button>
+                    <button type="button" data-battle-action="recover">💚 Recover</button>
+                    <button type="button" data-battle-action="flee">🏃 Flee</button>
+                </div>
+
+                <div class="travel-log-panel">
+                    <div class="village-panel-title">📖 Battle Log</div>
+                    <div id="travelBattleLog" class="log"></div>
+                </div>
+            </div>`;
+
+        document.getElementById("battleBackButton")?.addEventListener("click", () => battleAction("flee"));
+        screen.querySelectorAll("[data-battle-action]").forEach(button => {
+            button.addEventListener("click", () => battleAction(button.dataset.battleAction));
+        });
+    }
+
+    function fightEnemy(enemy) {
+        startBattle(enemy);
     }
 
     function selectRoute(route) {
@@ -184,6 +320,15 @@
             .travel-player-card { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:18px 0; }
             .travel-player-card div { display:flex; flex-direction:column; gap:4px; padding:11px; border-radius:12px; background:rgba(0,0,0,.16); }
             .travel-player-card span { opacity:.8; }
+            .battle-combatants { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; margin:18px 0 12px; }
+            .combatant-card { padding:15px; border:1px solid rgba(255,255,255,.14); border-radius:15px; background:rgba(0,0,0,.2); display:flex; flex-direction:column; gap:5px; }
+            .combatant-card strong { font-size:1.05rem; }
+            .combatant-card small { opacity:.75; }
+            .battle-vs { font-weight:900; opacity:.7; }
+            .battle-hp-bar { margin:8px 0 18px; }
+            .battle-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0; }
+            .battle-actions button { min-height:54px; border:1px solid rgba(255,255,255,.14); border-radius:14px; background:rgba(0,0,0,.2); color:inherit; font-weight:800; cursor:pointer; touch-action:manipulation; }
+            .battle-actions button:hover,.battle-actions button:focus-visible { transform:translateY(-1px); border-color:rgba(255,255,255,.35); }
             .enemy-title { font-size:1.15rem; font-weight:800; margin:22px 0 10px; }
             .enemy-selection-grid { display:grid; gap:10px; }
             .enemy-choice { width:100%; display:grid; grid-template-columns:42px 1fr auto; align-items:center; gap:12px; text-align:left; padding:13px; border:1px solid rgba(255,255,255,.1); border-radius:14px; background:rgba(0,0,0,.18); color:inherit; cursor:pointer; }
