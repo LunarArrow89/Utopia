@@ -208,10 +208,19 @@ async function loadRemoteGame() {
         const remoteTime = Number(remoteSave?.savedAt || 0);
         const localTime = Number(localSave?.savedAt || 0);
 
-        // Never let an older cloud copy overwrite a newer local copy.
-        // This was the main reason progress could appear to vanish after
-        // refreshing or switching devices.
-        if (localSave && localTime > remoteTime) {
+        // Resting is a real-time state. Never replace an active rest with
+        // an older/non-resting copy during a refresh.
+        const localResting = Boolean(localSave?.resting) && Number(localSave?.restStartTime || 0) > 0;
+        const remoteResting = Boolean(remoteSave?.resting) && Number(remoteSave?.restStartTime || 0) > 0;
+
+        if (localResting && (!remoteResting || Number(localSave.restStartTime) >= Number(remoteSave.restStartTime) || localTime > remoteTime)) {
+            applySaveData(localSave);
+            pendingRemoteSave = cloneSaveData(localSave);
+            queueRemoteSave(localSave);
+        } else if (remoteResting && !localResting) {
+            applySaveData(remoteSave);
+            saveLocalBackup(remoteSave);
+        } else if (localSave && localTime > remoteTime) {
             applySaveData(localSave);
             pendingRemoteSave = cloneSaveData(localSave);
             queueRemoteSave(localSave);
