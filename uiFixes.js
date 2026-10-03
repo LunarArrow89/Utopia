@@ -13,8 +13,6 @@
     const $ = id => document.getElementById(id);
 
     function isWalking() {
-        // Check the actual game state first. This keeps the Walk tab visible
-        // even when the player switches to Village or Story while walking.
         const villageWalking = typeof village !== "undefined" && village.walk && village.walk.active === true;
         const savedWalking = localStorage.getItem("utopiaWalkActive") === "true";
         const ashWalking = typeof paths !== "undefined" && paths.ashHills?.active === true;
@@ -46,7 +44,6 @@
         villageButton?.setAttribute("aria-selected", String(active === "village"));
 
         if (walk) {
-            // NEVER hide Walk just because another tab is selected.
             walk.classList.remove("hidden");
             walk.style.display = walking ? "" : "none";
             walk.classList.toggle("active", active === "walk");
@@ -57,13 +54,10 @@
     function showScreen(id, tab) {
         const screen = $(id);
         if (!screen) return;
-
         hideAllScreens();
         screen.classList.remove("hidden");
-
         if (tab === "village" && isWalking()) screen.classList.add("walk-view-only");
         if (tab === "walk") screen.classList.add("walk-active");
-
         updateTabButtons(tab);
         try { localStorage.setItem("utopiaActiveTab", tab); } catch (_) {}
     }
@@ -83,13 +77,11 @@
 
     function showWalk() {
         if (!isWalking()) return;
-
         if (typeof paths !== "undefined" && paths.ashHills?.active) {
             showScreen("ashHillsScreen", "walk");
             if (typeof updateAshHillsUI === "function") updateAshHillsUI();
             return;
         }
-
         showScreen("villageWalkScreen", "walk");
         if (typeof updateVillageWalkUI === "function") updateVillageWalkUI();
     }
@@ -105,13 +97,11 @@
         const walk = $("walkMainTab");
         const travel = $("travelButton");
         const travelBack = $("travelBackButton");
-
         if (story) story.onclick = e => { e.preventDefault(); showStory(); };
         if (villageButton) villageButton.onclick = e => { e.preventDefault(); showVillage(); };
         if (walk) walk.onclick = e => { e.preventDefault(); showWalk(); };
         if (travel) travel.onclick = e => { e.preventDefault(); showTravel(); };
         if (travelBack) travelBack.onclick = e => { e.preventDefault(); showVillage(); };
-
         const quest = $("questButton");
         if (quest) quest.onclick = showQuests;
     }
@@ -158,12 +148,85 @@
         document.head.appendChild(style);
     }
 
+    /* EXPLORATION EVENTS
+       Small, occasional discoveries make endless walks more than a timer.
+       They do not run while resting and use the existing gear system. */
+    const DISCOVERY_COOLDOWN = 120000;
+    const discoveryState = { last: 0 };
+
+    const discoveries = [
+        () => ({ text: "You found an abandoned campsite. There is 8 gold left in the ashes.", gold: 8 }),
+        () => ({ text: "You found a useful bundle of supplies.", resources: { wood: 2, stone: 2, food: 2 } }),
+        () => ({ text: "You discovered a hidden trail. You found 12 gold.", gold: 12 }),
+        () => ({ text: "You found a strange old map. It might be useful later." }),
+        () => ({ text: "You discovered an old supply crate. You found 3 wood and 3 stone.", resources: { wood: 3, stone: 3 } }),
+        () => ({ text: "You found a forgotten weapon case!", gear: true })
+    ];
+
+    function logDiscovery(text) {
+        if (typeof addVillageWalkLog === "function") addVillageWalkLog("✨ " + text);
+        else if (typeof addVillageLog === "function") addVillageLog("✨ " + text);
+    }
+
+    function triggerDiscovery() {
+        if (typeof resting !== "undefined" && resting) return;
+        const now = Date.now();
+        if (now - discoveryState.last < DISCOVERY_COOLDOWN) return;
+        if (Math.random() > 0.18) return;
+        discoveryState.last = now;
+
+        const event = discoveries[Math.floor(Math.random() * discoveries.length)]();
+        if (event.gold) player.gold += event.gold;
+        if (event.resources && typeof village !== "undefined") {
+            Object.entries(event.resources).forEach(([type, amount]) => {
+                if (village.resources[type] !== undefined) village.resources[type] += amount;
+            });
+        }
+        if (event.gear && typeof generateItem === "function" && Array.isArray(player.inventory)) {
+            const rarity = Math.random() < 0.65 ? "Common" : Math.random() < 0.8 ? "Uncommon" : "Rare";
+            const item = generateItem(rarity);
+            player.inventory.unshift(item);
+            logDiscovery("You found " + item.name + "!");
+            if (typeof updateEquipmentUI === "function") updateEquipmentUI();
+        } else {
+            logDiscovery(event.text);
+        }
+        if (typeof updateGold === "function") updateGold();
+        if (typeof updateVillageUI === "function") updateVillageUI();
+        if (typeof updateVillageWalkUI === "function") updateVillageWalkUI();
+        if (typeof updateAshHillsUI === "function") updateAshHillsUI();
+        if (typeof saveGame === "function") saveGame();
+    }
+
+    function hookExploration() {
+        if (window.__utopiaExplorationHooked) return;
+        window.__utopiaExplorationHooked = true;
+
+        const originalVillageWalk = window.updateVillageWalk;
+        if (typeof originalVillageWalk === "function") {
+            window.updateVillageWalk = function () {
+                const result = originalVillageWalk.apply(this, arguments);
+                if (typeof village !== "undefined" && village.walk?.active) triggerDiscovery();
+                return result;
+            };
+        }
+
+        const originalAsh = window.updateAshHills;
+        if (typeof originalAsh === "function") {
+            window.updateAshHills = function () {
+                const result = originalAsh.apply(this, arguments);
+                if (typeof paths !== "undefined" && paths.ashHills?.active) triggerDiscovery();
+                return result;
+            };
+        }
+    }
+
     function init() {
         connectTabs();
         addSpacing();
+        hookExploration();
         let savedTab = "village";
         try { savedTab = localStorage.getItem("utopiaActiveTab") || "village"; } catch (_) {}
-
         if (savedTab === "walk" && isWalking()) showWalk();
         else if (savedTab === "story") showStory();
         else if (savedTab === "travel") showTravel();
