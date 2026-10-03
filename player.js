@@ -134,7 +134,9 @@ function startRest(force = false) {
     const missingHp = Math.max(0, player.maxHp - player.hp);
     if (missingHp <= 0) { addLog("You don't need to rest."); return; }
     resting = true; restForced = force;
-    restDuration = missingHp * 3 * 60 * 1000;
+    // Being slain always takes exactly 20 minutes.
+    // Voluntary rest still uses the missing-HP recovery time.
+    restDuration = force ? 20 * 60 * 1000 : missingHp * 3 * 60 * 1000;
     restStartTime = Date.now();
     gameEnded = true;
     const status = document.getElementById("statusText"); if (status) status.textContent = "Resting";
