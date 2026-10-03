@@ -7,7 +7,7 @@
     const routes = {
         woods: {
             name: "Whispering Woods", icon: "🌲",
-            description: "Choose an enemy. Defeat them for XP, gold, and a chance at gear.",
+            description: "Choose an enemy. Defeat them for XP and gold.",
             enemies: [
                 { name: "Lost Wolf", attack: 7, xp: 12, gold: 5 },
                 { name: "Forest Goblin", attack: 9, xp: 15, gold: 7 },
@@ -64,13 +64,6 @@
         player.gold += enemy.gold;
         if (typeof giveXP === "function") giveXP(enemy.xp);
         travelLog("🏆 You defeated " + enemy.name + "! +" + enemy.xp + " XP, +" + enemy.gold + " gold.");
-
-        if (typeof generateItem === "function" && Array.isArray(player.inventory) && Math.random() < 0.12) {
-            const item = generateItem(rarityRoll());
-            player.inventory.unshift(item);
-            travelLog("🎒 You found " + item.name + "!");
-            if (typeof updateEquipmentUI === "function") updateEquipmentUI();
-        }
 
         if (selectedRoute === "ash" && !paths.ashHills.rescueCompleted) {
             const state = getTravelState();
