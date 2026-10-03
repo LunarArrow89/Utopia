@@ -6,8 +6,7 @@
 
     const routes = {
         woods: {
-            name: "Whispering Woods",
-            icon: "🌲",
+            name: "Whispering Woods", icon: "🌲",
             description: "Choose an enemy. Defeat them for XP, gold, and a chance at gear.",
             enemies: [
                 { name: "Lost Wolf", attack: 7, xp: 12, gold: 5 },
@@ -18,8 +17,7 @@
             ]
         },
         ash: {
-            name: "Ash Hills",
-            icon: "🔥",
+            name: "Ash Hills", icon: "🔥",
             description: "A dangerous red wasteland. Choose your target instead of waiting for an encounter.",
             enemies: [
                 { name: "Ash Hound", attack: 21, xp: 28, gold: 12 },
@@ -33,17 +31,13 @@
     let selectedRoute = "woods";
 
     function getTravelState() {
-        if (!window.utopiaTravelState) {
-            window.utopiaTravelState = { ashVictories: 0 };
-        }
+        if (!window.utopiaTravelState) window.utopiaTravelState = { ashVictories: 0 };
         return window.utopiaTravelState;
     }
 
     function canUseAshHills() {
-        return typeof village !== "undefined" &&
-            village.housesBuilt >= 2 &&
-            typeof player !== "undefined" &&
-            player.level >= 3;
+        return typeof village !== "undefined" && village.housesBuilt >= 2 &&
+            typeof player !== "undefined" && player.level >= 3;
     }
 
     function travelLog(message) {
@@ -59,10 +53,7 @@
 
     function rarityRoll() {
         const roll = Math.random();
-        if (roll < 0.65) return "Common";
-        if (roll < 0.9) return "Uncommon";
-        if (roll < 0.98) return "Rare";
-        return "Epic";
+        return roll < 0.65 ? "Common" : roll < 0.9 ? "Uncommon" : roll < 0.98 ? "Rare" : "Epic";
     }
 
     function fightEnemy(enemy) {
@@ -90,9 +81,7 @@
                     paths.ashHills.completed = true;
                     paths.ashHills.rescueCompleted = true;
                     paths.ashHills.active = false;
-                    if (typeof village !== "undefined" && village.quests) {
-                        village.quests.rescueCivilian.completed = true;
-                    }
+                    if (typeof village !== "undefined" && village.quests) village.quests.rescueCivilian.completed = true;
                     travelLog("🧑 You found the trapped civilian!");
                     travelLog("🏠 You rescued them and brought them back to Oakshade.");
                     if (typeof updateQuests === "function") updateQuests();
@@ -126,11 +115,10 @@
     function renderRoute() {
         const screen = document.getElementById("travelScreen");
         if (!screen) return;
-
         const route = routes[selectedRoute];
         const ashUnlocked = canUseAshHills();
         const state = getTravelState();
-        const rescueDone = !!paths?.ashHills?.rescueCompleted;
+        const rescueDone = !!(paths && paths.ashHills && paths.ashHills.rescueCompleted);
 
         screen.innerHTML = `
             <div class="travel-screen-box travel-selection-box ${selectedRoute === "ash" ? "ash-travel" : "woods-travel"}">
@@ -138,58 +126,34 @@
                 <div class="village-kicker">TRAVEL</div>
                 <h1>${route.icon} ${route.name}</h1>
                 <p class="travel-screen-subtitle">${route.description}</p>
-
                 <div class="travel-route-switcher">
                     <button type="button" id="woodsRouteButton" class="${selectedRoute === "woods" ? "active" : ""}">🌲 Whispering Woods</button>
                     <button type="button" id="ashRouteButton" class="${selectedRoute === "ash" ? "active" : ""}" ${ashUnlocked ? "" : "disabled"}>🔥 Ash Hills${ashUnlocked ? "" : " — Requires Level 3 + 2 Houses"}</button>
                 </div>
-
                 ${selectedRoute === "ash" && !rescueDone ? `<div class="ash-mission">Civilian rescue: <strong>${Math.min(state.ashVictories, 5)}/5 victories</strong><span>Defeat five Ash Hills enemies to find and rescue the civilian. After that, Ash Hills becomes endless.</span></div>` : ""}
                 ${selectedRoute === "ash" && rescueDone ? `<div class="ash-mission complete">🧑 Civilian rescued. Ash Hills is now endless.</div>` : ""}
-
                 <div class="travel-player-card">
                     <div><strong>❤️ HP</strong><span>${player.hp} / ${player.maxHp}</span></div>
                     <div><strong>⚔️ Attack</strong><span>${player.attack}</span></div>
                     <div><strong>⭐ Level</strong><span>${player.level}</span></div>
                     <div><strong>💰 Gold</strong><span>${player.gold}</span></div>
                 </div>
-
                 <div class="enemy-title">Choose an enemy</div>
                 <div class="enemy-selection-grid">
                     ${route.enemies.map((enemy, index) => `
                         <button type="button" class="enemy-choice" data-enemy-index="${index}">
                             <span class="enemy-icon">${selectedRoute === "ash" ? "🔺" : "👾"}</span>
-                            <span class="enemy-info">
-                                <strong>${enemy.name}</strong>
-                                <small>⚔️ ${enemy.attack} Attack</small>
-                                <small>⭐ ${enemy.xp} XP · 💰 ${enemy.gold} Gold</small>
-                            </span>
+                            <span class="enemy-info"><strong>${enemy.name}</strong><small>⚔️ ${enemy.attack} Attack</small><small>⭐ ${enemy.xp} XP · 💰 ${enemy.gold} Gold</small></span>
                             <span class="fight-label">Fight</span>
-                        </button>
-                    `).join("")}
+                        </button>`).join("")}
                 </div>
+                <div class="travel-log-panel"><div class="village-panel-title">⚔️ Battle Log</div><div id="travelBattleLog" class="log"></div></div>
+            </div>`;
 
-                <div class="travel-log-panel">
-                    <div class="village-panel-title">⚔️ Battle Log</div>
-                    <div id="travelBattleLog" class="log"></div>
-                </div>
-            </div>
-        `;
-
-        document.getElementById("travelBackButton")?.addEventListener("click", () => {
-            if (typeof showVillage === "function") showVillage();
-        });
+        document.getElementById("travelBackButton")?.addEventListener("click", () => { if (typeof showVillage === "function") showVillage(); });
         document.getElementById("woodsRouteButton")?.addEventListener("click", () => selectRoute("woods"));
         document.getElementById("ashRouteButton")?.addEventListener("click", () => selectRoute("ash"));
-
-        screen.querySelectorAll(".enemy-choice").forEach(button => {
-            button.addEventListener("click", () => {
-                const enemy = route.enemies[Number(button.dataset.enemyIndex)];
-                fightEnemy(enemy);
-            });
-        });
-
-        if (typeof updateVillageUI === "function") updateVillageUI();
+        screen.querySelectorAll(".enemy-choice").forEach(button => button.addEventListener("click", () => fightEnemy(route.enemies[Number(button.dataset.enemyIndex)])));
     }
 
     function showTravelSelection() {
@@ -197,12 +161,8 @@
         if (typeof resting !== "undefined" && resting) return;
         const screen = document.getElementById("travelScreen");
         if (!screen) return;
-
-        ["arrivalScene", "forestGame", "villageScreen", "villageWalkScreen", "questScreen", "ashHillsScreen"].forEach(id => {
-            document.getElementById(id)?.classList.add("hidden");
-        });
-        screen.classList.remove("hidden");
-        screen.classList.remove("walk-active");
+        ["arrivalScene", "forestGame", "villageScreen", "villageWalkScreen", "questScreen", "ashHillsScreen"].forEach(id => document.getElementById(id)?.classList.add("hidden"));
+        screen.classList.remove("hidden", "walk-active");
         try { localStorage.setItem("utopiaActiveTab", "village"); } catch (_) {}
         renderRoute();
     }
@@ -216,7 +176,7 @@
         const style = document.createElement("style");
         style.id = "travelSelectionStyles";
         style.textContent = `
-            .travel-selection-box { max-width: 760px !important; }
+            .travel-selection-box { max-width:760px !important; }
             .travel-route-switcher { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:18px 0; }
             .travel-route-switcher button { min-height:52px; border:1px solid rgba(255,255,255,.12); border-radius:14px; background:rgba(0,0,0,.18); color:inherit; font-weight:700; cursor:pointer; }
             .travel-route-switcher button.active { border-color:rgba(255,255,255,.35); background:rgba(255,255,255,.08); }
@@ -244,11 +204,12 @@
 
     function init() {
         addTravelStyles();
+        // Disable the old timer-based walks so they cannot compete with the new system.
+        if (typeof village !== "undefined" && village.walk) village.walk.active = false;
+        if (typeof paths !== "undefined" && paths.ashHills) paths.ashHills.active = false;
+        try { localStorage.removeItem("utopiaWalkActive"); } catch (_) {}
         const oldTravel = document.getElementById("travelButton");
         if (oldTravel) oldTravel.onclick = showTravelSelection;
-        if (typeof window.updateVillageUI === "function") {
-            // Keep the village button functional without changing the village layout.
-        }
     }
 
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
